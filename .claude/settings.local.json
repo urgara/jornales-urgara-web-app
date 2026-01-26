@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.pmnd.rs)",
+      "WebFetch(domain:tanstack.com)",
+      "Bash(mv:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "includeCoAuthoredBy": false
+}

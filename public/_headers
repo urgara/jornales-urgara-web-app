@@ -1,0 +1,31 @@
+# Cloudflare Headers para optimizar caché y compresión
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+# Archivos estáticos (JS/CSS con hash) - Caché agresivo 1 año
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML - No caché pero permitir revalidación
+/*.html
+  Cache-Control: no-cache, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+# Imágenes - Caché 1 mes
+/images/*
+  Cache-Control: public, max-age=2592000
+
+# Fuentes - Caché 1 año
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+# Service Worker (si usas) - Sin caché
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
