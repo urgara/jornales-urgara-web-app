@@ -49,6 +49,7 @@ function PrivateLayout() {
             <ButtonLink label='Administradores' to='/Administration/Admins' />
             <ButtonLink label='Localidades' to='/Administration/Localities' />
             <ButtonLink label='Empresas' to='/Administration/Companies' />
+            <ButtonLink label='Turnos' to='/Administration/WorkShifts' />
           </NavLinkGroup>
         </ScrollArea>
       </AppShell.Navbar>

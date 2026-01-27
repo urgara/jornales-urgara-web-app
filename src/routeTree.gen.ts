@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as PrivateRouteImport } from './pages/_private'
 import { Route as PublicLoginIndexRouteImport } from './pages/_public/Login/index'
+import { Route as PrivateAdministrationWorkShiftsRouteRouteImport } from './pages/_private/Administration/WorkShifts/route'
 import { Route as PrivateAdministrationLocalitiesRouteRouteImport } from './pages/_private/Administration/Localities/route'
 import { Route as PrivateAdministrationCompaniesRouteRouteImport } from './pages/_private/Administration/Companies/route'
 import { Route as PrivateAdministrationAdminsRouteRouteImport } from './pages/_private/Administration/Admins/route'
@@ -38,6 +39,16 @@ const PublicLoginIndexRoute = PublicLoginIndexRouteImport.update({
   path: '/Login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivateAdministrationWorkShiftsRouteRoute =
+  PrivateAdministrationWorkShiftsRouteRouteImport.update({
+    id: '/Administration/WorkShifts',
+    path: '/Administration/WorkShifts',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/Administration/WorkShifts/route.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const PrivateAdministrationLocalitiesRouteRoute =
   PrivateAdministrationLocalitiesRouteRouteImport.update({
     id: '/Administration/Localities',
@@ -73,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
+  '/Administration/WorkShifts': typeof PrivateAdministrationWorkShiftsRouteRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
 }
@@ -80,6 +92,7 @@ export interface FileRoutesByTo {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
+  '/Administration/WorkShifts': typeof PrivateAdministrationWorkShiftsRouteRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
 }
@@ -89,6 +102,7 @@ export interface FileRoutesById {
   '/_private/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/_private/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/_private/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
+  '/_private/Administration/WorkShifts': typeof PrivateAdministrationWorkShiftsRouteRoute
   '/_public/Login/': typeof PublicLoginIndexRoute
   '/_private/Dashboard/': typeof PrivateDashboardIndexLazyRoute
 }
@@ -98,6 +112,7 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
+    | '/Administration/WorkShifts'
     | '/Login'
     | '/Dashboard'
   fileRoutesByTo: FileRoutesByTo
@@ -105,6 +120,7 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
+    | '/Administration/WorkShifts'
     | '/Login'
     | '/Dashboard'
   id:
@@ -113,6 +129,7 @@ export interface FileRouteTypes {
     | '/_private/Administration/Admins'
     | '/_private/Administration/Companies'
     | '/_private/Administration/Localities'
+    | '/_private/Administration/WorkShifts'
     | '/_public/Login/'
     | '/_private/Dashboard/'
   fileRoutesById: FileRoutesById
@@ -145,6 +162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_private/Administration/WorkShifts': {
+      id: '/_private/Administration/WorkShifts'
+      path: '/Administration/WorkShifts'
+      fullPath: '/Administration/WorkShifts'
+      preLoaderRoute: typeof PrivateAdministrationWorkShiftsRouteRouteImport
+      parentRoute: typeof PrivateRoute
+    }
     '/_private/Administration/Localities': {
       id: '/_private/Administration/Localities'
       path: '/Administration/Localities'
@@ -173,6 +197,7 @@ interface PrivateRouteChildren {
   PrivateAdministrationAdminsRouteRoute: typeof PrivateAdministrationAdminsRouteRoute
   PrivateAdministrationCompaniesRouteRoute: typeof PrivateAdministrationCompaniesRouteRoute
   PrivateAdministrationLocalitiesRouteRoute: typeof PrivateAdministrationLocalitiesRouteRoute
+  PrivateAdministrationWorkShiftsRouteRoute: typeof PrivateAdministrationWorkShiftsRouteRoute
   PrivateDashboardIndexLazyRoute: typeof PrivateDashboardIndexLazyRoute
 }
 
@@ -182,6 +207,8 @@ const PrivateRouteChildren: PrivateRouteChildren = {
     PrivateAdministrationCompaniesRouteRoute,
   PrivateAdministrationLocalitiesRouteRoute:
     PrivateAdministrationLocalitiesRouteRoute,
+  PrivateAdministrationWorkShiftsRouteRoute:
+    PrivateAdministrationWorkShiftsRouteRoute,
   PrivateDashboardIndexLazyRoute: PrivateDashboardIndexLazyRoute,
 }
 
