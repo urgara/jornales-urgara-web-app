@@ -1,8 +1,8 @@
 import { DYNNAMIX_API } from '@/config';
-import type { CreateLocalityRequest, UpdateLocalityRequest } from '../-models';
+import type { CreateLocalityRequest, LocalitiesQueryParams, UpdateLocalityRequest } from '../-models';
 import { GetLocalityResponseSchema, ListLocalitiesResponseSchema } from '../-models';
 
-export const getLocalitiesService = async (params?: Record<string, unknown>) => {
+export const getLocalitiesService = async (params: LocalitiesQueryParams = {}) => {
   const response = await DYNNAMIX_API.get('/localities', { params });
   return ListLocalitiesResponseSchema.parse(response.data);
 };
