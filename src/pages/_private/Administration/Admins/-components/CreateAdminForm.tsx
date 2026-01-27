@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Drawer, Group, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from 'react-hook-form';
-import { useQuerySelectLocalities } from '@/hooks';
+import { LocalitySelect } from '@/components';
 import { Role } from '@/models';
 import { useMutationCreateAdmin } from '../-hooks';
 import type { CreateAdminRequest } from '../-models';
@@ -14,7 +14,6 @@ interface CreateAdminFormProps {
 
 export function CreateAdminForm({ opened, onClose }: CreateAdminFormProps) {
   const createAdmin = useMutationCreateAdmin();
-  const { data: localitiesData } = useQuerySelectLocalities();
 
   const {
     register,
@@ -46,12 +45,6 @@ export function CreateAdminForm({ opened, onClose }: CreateAdminFormProps) {
       },
     });
   };
-
-  const localityOptions =
-    localitiesData?.data?.map((locality) => ({
-      value: locality.id.toString(),
-      label: locality.name,
-    })) || [];
 
   const roleOptions = [
     { value: Role.ADMIN, label: 'Administrador Global' },
@@ -97,10 +90,9 @@ export function CreateAdminForm({ opened, onClose }: CreateAdminFormProps) {
           />
 
           {selectedRole === Role.LOCAL && (
-            <Select
+            <LocalitySelect
               label='Localidad'
               placeholder='Seleccione la localidad'
-              data={localityOptions}
               clearable
               {...register('localityId')}
               onChange={(value) => setValue('localityId', value ? Number(value) : null)}
