@@ -1,0 +1,79 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Drawer, Group, Stack, TextInput } from '@mantine/core';
+import { useForm } from 'react-hook-form';
+import { useMutationCreateCompany } from '../-hooks';
+import type { CreateCompanyRequest } from '../-models';
+import { CreateCompanyRequestSchema } from '../-models';
+import { LegalEntitySelect } from './LegalEntitySelect';
+
+interface CreateCompanyFormProps {
+  opened: boolean;
+  onClose: () => void;
+}
+
+export function CreateCompanyForm({ opened, onClose }: CreateCompanyFormProps) {
+  const createCompany = useMutationCreateCompany();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateCompanyRequest>({
+    resolver: zodResolver(CreateCompanyRequestSchema),
+    defaultValues: {
+      cuit: null,
+    },
+  });
+
+  const onSubmit = (data: CreateCompanyRequest) => {
+    createCompany.mutate(data, {
+      onSuccess: () => {
+        reset();
+        onClose();
+      },
+    });
+  };
+
+  return (
+    <Drawer opened={opened} onClose={onClose} title='Crear Empresa' position='right'>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack>
+          <TextInput
+            label='Nombre'
+            placeholder='Ingrese el nombre de la empresa'
+            withAsterisk
+            {...register('name')}
+            error={errors.name?.message}
+          />
+
+          <TextInput
+            label='CUIT'
+            placeholder='Ingrese el CUIT (11 dígitos)'
+            {...register('cuit')}
+            error={errors.cuit?.message}
+          />
+
+          <LegalEntitySelect
+            label='Entidad Legal'
+            placeholder='Seleccione la entidad legal'
+            withAsterisk
+            {...register('legalEntityId')}
+            onChange={(value) => setValue('legalEntityId', value ? Number(value) : 0)}
+            error={errors.legalEntityId?.message}
+          />
+
+          <Group justify='flex-end' mt='md'>
+            <Button variant='outline' onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type='submit' loading={createCompany.isPending}>
+              Crear
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Drawer>
+  );
+}

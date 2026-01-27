@@ -48,6 +48,7 @@ function PrivateLayout() {
           <NavLinkGroup label='Administración' leftSection={<IconBuildingCog size={16} />}>
             <ButtonLink label='Administradores' to='/Administration/Admins' />
             <ButtonLink label='Localidades' to='/Administration/Localities' />
+            <ButtonLink label='Empresas' to='/Administration/Companies' />
           </NavLinkGroup>
         </ScrollArea>
       </AppShell.Navbar>
