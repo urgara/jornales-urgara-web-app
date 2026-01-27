@@ -13,6 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as PrivateRouteImport } from './pages/_private'
 import { Route as PublicLoginIndexRouteImport } from './pages/_public/Login/index'
+import { Route as PrivateAdministrationLocalitiesRouteRouteImport } from './pages/_private/Administration/Localities/route'
+import { Route as PrivateAdministrationAdminsRouteRouteImport } from './pages/_private/Administration/Admins/route'
 
 const PrivateDashboardIndexLazyRouteImport = createFileRoute(
   '/_private/Dashboard/',
@@ -35,27 +37,67 @@ const PublicLoginIndexRoute = PublicLoginIndexRouteImport.update({
   path: '/Login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivateAdministrationLocalitiesRouteRoute =
+  PrivateAdministrationLocalitiesRouteRouteImport.update({
+    id: '/Administration/Localities',
+    path: '/Administration/Localities',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/Administration/Localities/route.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+const PrivateAdministrationAdminsRouteRoute =
+  PrivateAdministrationAdminsRouteRouteImport.update({
+    id: '/Administration/Admins',
+    path: '/Administration/Admins',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/Administration/Admins/route.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 
 export interface FileRoutesByFullPath {
+  '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
+  '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
 }
 export interface FileRoutesByTo {
+  '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
+  '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_private': typeof PrivateRouteWithChildren
+  '/_private/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
+  '/_private/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
   '/_public/Login/': typeof PublicLoginIndexRoute
   '/_private/Dashboard/': typeof PrivateDashboardIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/Login' | '/Dashboard'
+  fullPaths:
+    | '/Administration/Admins'
+    | '/Administration/Localities'
+    | '/Login'
+    | '/Dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/Login' | '/Dashboard'
-  id: '__root__' | '/_private' | '/_public/Login/' | '/_private/Dashboard/'
+  to:
+    | '/Administration/Admins'
+    | '/Administration/Localities'
+    | '/Login'
+    | '/Dashboard'
+  id:
+    | '__root__'
+    | '/_private'
+    | '/_private/Administration/Admins'
+    | '/_private/Administration/Localities'
+    | '/_public/Login/'
+    | '/_private/Dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,14 +128,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_private/Administration/Localities': {
+      id: '/_private/Administration/Localities'
+      path: '/Administration/Localities'
+      fullPath: '/Administration/Localities'
+      preLoaderRoute: typeof PrivateAdministrationLocalitiesRouteRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/Administration/Admins': {
+      id: '/_private/Administration/Admins'
+      path: '/Administration/Admins'
+      fullPath: '/Administration/Admins'
+      preLoaderRoute: typeof PrivateAdministrationAdminsRouteRouteImport
+      parentRoute: typeof PrivateRoute
+    }
   }
 }
 
 interface PrivateRouteChildren {
+  PrivateAdministrationAdminsRouteRoute: typeof PrivateAdministrationAdminsRouteRoute
+  PrivateAdministrationLocalitiesRouteRoute: typeof PrivateAdministrationLocalitiesRouteRoute
   PrivateDashboardIndexLazyRoute: typeof PrivateDashboardIndexLazyRoute
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
+  PrivateAdministrationAdminsRouteRoute: PrivateAdministrationAdminsRouteRoute,
+  PrivateAdministrationLocalitiesRouteRoute:
+    PrivateAdministrationLocalitiesRouteRoute,
   PrivateDashboardIndexLazyRoute: PrivateDashboardIndexLazyRoute,
 }
 
