@@ -1,0 +1,1 @@
+export { CreateLocalityForm } from './CreateLocalityForm';
