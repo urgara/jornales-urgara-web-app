@@ -76,7 +76,7 @@ export const useQueryLocalities = () => {
 
       // Inicializar todos los parámetros como undefined para limpiarlos
       const urlParams: Record<string, string | undefined> = {};
-      filterKeys.forEach(key => {
+      filterKeys.forEach((key) => {
         urlParams[key] = undefined;
       });
 

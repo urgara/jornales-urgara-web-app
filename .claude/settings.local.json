@@ -1,12 +1,15 @@
 {
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "WebFetch(domain:docs.pmnd.rs)",
       "WebFetch(domain:tanstack.com)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/sycap-jornales-web-app/src/pages/_private/Administration/**)",
+      "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/sycap-jornales-web-app/src/pages/_private/EmployeeManagement/WorkShift/**)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
-  },
-  "includeCoAuthoredBy": false
+  }
 }

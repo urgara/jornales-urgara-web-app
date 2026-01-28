@@ -1,6 +1,6 @@
 import { notifications as mantineNotifications } from '@mantine/notifications';
 import type { AxiosError } from 'axios';
-import { router, DYNNAMIX_API } from '@/config';
+import { DYNNAMIX_API, router } from '@/config';
 import type { ErrorResponse } from '@/models';
 import { ErrorType } from '@/models';
 // Import type declarations to ensure axios module augmentation is loaded

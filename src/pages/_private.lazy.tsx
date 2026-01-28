@@ -5,6 +5,7 @@ import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftCollapseFilled,
   IconLogout,
+  IconUsers,
 } from '@tabler/icons-react';
 import { createLazyFileRoute, Outlet } from '@tanstack/react-router';
 import { ButtonLink, LogoIcon, NavLinkGroup } from '@/components';
@@ -49,7 +50,10 @@ function PrivateLayout() {
             <ButtonLink label='Administradores' to='/Administration/Admins' />
             <ButtonLink label='Localidades' to='/Administration/Localities' />
             <ButtonLink label='Empresas' to='/Administration/Companies' />
-            <ButtonLink label='Turnos' to='/Administration/WorkShifts' />
+          </NavLinkGroup>
+          <NavLinkGroup label='Gestión de Trabajadores' leftSection={<IconUsers size={16} />}>
+            <ButtonLink label='Trabajadores' to='/WorkerManagement/Workers/List' />
+            <ButtonLink label='Turnos' to='/WorkerManagement/WorkShift/List' />
           </NavLinkGroup>
         </ScrollArea>
       </AppShell.Navbar>

@@ -13,10 +13,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as PrivateRouteImport } from './pages/_private'
 import { Route as PublicLoginIndexRouteImport } from './pages/_public/Login/index'
-import { Route as PrivateAdministrationWorkShiftsRouteRouteImport } from './pages/_private/Administration/WorkShifts/route'
 import { Route as PrivateAdministrationLocalitiesRouteRouteImport } from './pages/_private/Administration/Localities/route'
 import { Route as PrivateAdministrationCompaniesRouteRouteImport } from './pages/_private/Administration/Companies/route'
 import { Route as PrivateAdministrationAdminsRouteRouteImport } from './pages/_private/Administration/Admins/route'
+import { Route as PrivateWorkerManagementWorkersIndexRouteImport } from './pages/_private/WorkerManagement/Workers/index'
+import { Route as PrivateWorkerManagementWorkShiftIndexRouteImport } from './pages/_private/WorkerManagement/WorkShift/index'
+import { Route as PrivateWorkerManagementWorkersListRouteRouteImport } from './pages/_private/WorkerManagement/Workers/List.route'
+import { Route as PrivateWorkerManagementWorkShiftListRouteRouteImport } from './pages/_private/WorkerManagement/WorkShift/List.route'
 
 const PrivateDashboardIndexLazyRouteImport = createFileRoute(
   '/_private/Dashboard/',
@@ -39,16 +42,6 @@ const PublicLoginIndexRoute = PublicLoginIndexRouteImport.update({
   path: '/Login/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrivateAdministrationWorkShiftsRouteRoute =
-  PrivateAdministrationWorkShiftsRouteRouteImport.update({
-    id: '/Administration/WorkShifts',
-    path: '/Administration/WorkShifts',
-    getParentRoute: () => PrivateRoute,
-  } as any).lazy(() =>
-    import('./pages/_private/Administration/WorkShifts/route.lazy').then(
-      (d) => d.Route,
-    ),
-  )
 const PrivateAdministrationLocalitiesRouteRoute =
   PrivateAdministrationLocalitiesRouteRouteImport.update({
     id: '/Administration/Localities',
@@ -79,22 +72,60 @@ const PrivateAdministrationAdminsRouteRoute =
       (d) => d.Route,
     ),
   )
+const PrivateWorkerManagementWorkersIndexRoute =
+  PrivateWorkerManagementWorkersIndexRouteImport.update({
+    id: '/WorkerManagement/Workers/',
+    path: '/WorkerManagement/Workers/',
+    getParentRoute: () => PrivateRoute,
+  } as any)
+const PrivateWorkerManagementWorkShiftIndexRoute =
+  PrivateWorkerManagementWorkShiftIndexRouteImport.update({
+    id: '/WorkerManagement/WorkShift/',
+    path: '/WorkerManagement/WorkShift/',
+    getParentRoute: () => PrivateRoute,
+  } as any)
+const PrivateWorkerManagementWorkersListRouteRoute =
+  PrivateWorkerManagementWorkersListRouteRouteImport.update({
+    id: '/WorkerManagement/Workers/List',
+    path: '/WorkerManagement/Workers/List',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/WorkerManagement/Workers/List.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+const PrivateWorkerManagementWorkShiftListRouteRoute =
+  PrivateWorkerManagementWorkShiftListRouteRouteImport.update({
+    id: '/WorkerManagement/WorkShift/List',
+    path: '/WorkerManagement/WorkShift/List',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/WorkerManagement/WorkShift/List.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 
 export interface FileRoutesByFullPath {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/Administration/WorkShifts': typeof PrivateAdministrationWorkShiftsRouteRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
+  '/WorkerManagement/WorkShift/List': typeof PrivateWorkerManagementWorkShiftListRouteRoute
+  '/WorkerManagement/Workers/List': typeof PrivateWorkerManagementWorkersListRouteRoute
+  '/WorkerManagement/WorkShift': typeof PrivateWorkerManagementWorkShiftIndexRoute
+  '/WorkerManagement/Workers': typeof PrivateWorkerManagementWorkersIndexRoute
 }
 export interface FileRoutesByTo {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/Administration/WorkShifts': typeof PrivateAdministrationWorkShiftsRouteRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
+  '/WorkerManagement/WorkShift/List': typeof PrivateWorkerManagementWorkShiftListRouteRoute
+  '/WorkerManagement/Workers/List': typeof PrivateWorkerManagementWorkersListRouteRoute
+  '/WorkerManagement/WorkShift': typeof PrivateWorkerManagementWorkShiftIndexRoute
+  '/WorkerManagement/Workers': typeof PrivateWorkerManagementWorkersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,9 +133,12 @@ export interface FileRoutesById {
   '/_private/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/_private/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/_private/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/_private/Administration/WorkShifts': typeof PrivateAdministrationWorkShiftsRouteRoute
   '/_public/Login/': typeof PublicLoginIndexRoute
   '/_private/Dashboard/': typeof PrivateDashboardIndexLazyRoute
+  '/_private/WorkerManagement/WorkShift/List': typeof PrivateWorkerManagementWorkShiftListRouteRoute
+  '/_private/WorkerManagement/Workers/List': typeof PrivateWorkerManagementWorkersListRouteRoute
+  '/_private/WorkerManagement/WorkShift/': typeof PrivateWorkerManagementWorkShiftIndexRoute
+  '/_private/WorkerManagement/Workers/': typeof PrivateWorkerManagementWorkersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -112,26 +146,35 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
-    | '/Administration/WorkShifts'
     | '/Login'
     | '/Dashboard'
+    | '/WorkerManagement/WorkShift/List'
+    | '/WorkerManagement/Workers/List'
+    | '/WorkerManagement/WorkShift'
+    | '/WorkerManagement/Workers'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
-    | '/Administration/WorkShifts'
     | '/Login'
     | '/Dashboard'
+    | '/WorkerManagement/WorkShift/List'
+    | '/WorkerManagement/Workers/List'
+    | '/WorkerManagement/WorkShift'
+    | '/WorkerManagement/Workers'
   id:
     | '__root__'
     | '/_private'
     | '/_private/Administration/Admins'
     | '/_private/Administration/Companies'
     | '/_private/Administration/Localities'
-    | '/_private/Administration/WorkShifts'
     | '/_public/Login/'
     | '/_private/Dashboard/'
+    | '/_private/WorkerManagement/WorkShift/List'
+    | '/_private/WorkerManagement/Workers/List'
+    | '/_private/WorkerManagement/WorkShift/'
+    | '/_private/WorkerManagement/Workers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -162,13 +205,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_private/Administration/WorkShifts': {
-      id: '/_private/Administration/WorkShifts'
-      path: '/Administration/WorkShifts'
-      fullPath: '/Administration/WorkShifts'
-      preLoaderRoute: typeof PrivateAdministrationWorkShiftsRouteRouteImport
-      parentRoute: typeof PrivateRoute
-    }
     '/_private/Administration/Localities': {
       id: '/_private/Administration/Localities'
       path: '/Administration/Localities'
@@ -190,6 +226,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAdministrationAdminsRouteRouteImport
       parentRoute: typeof PrivateRoute
     }
+    '/_private/WorkerManagement/Workers/': {
+      id: '/_private/WorkerManagement/Workers/'
+      path: '/WorkerManagement/Workers'
+      fullPath: '/WorkerManagement/Workers'
+      preLoaderRoute: typeof PrivateWorkerManagementWorkersIndexRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/WorkerManagement/WorkShift/': {
+      id: '/_private/WorkerManagement/WorkShift/'
+      path: '/WorkerManagement/WorkShift'
+      fullPath: '/WorkerManagement/WorkShift'
+      preLoaderRoute: typeof PrivateWorkerManagementWorkShiftIndexRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/WorkerManagement/Workers/List': {
+      id: '/_private/WorkerManagement/Workers/List'
+      path: '/WorkerManagement/Workers/List'
+      fullPath: '/WorkerManagement/Workers/List'
+      preLoaderRoute: typeof PrivateWorkerManagementWorkersListRouteRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/WorkerManagement/WorkShift/List': {
+      id: '/_private/WorkerManagement/WorkShift/List'
+      path: '/WorkerManagement/WorkShift/List'
+      fullPath: '/WorkerManagement/WorkShift/List'
+      preLoaderRoute: typeof PrivateWorkerManagementWorkShiftListRouteRouteImport
+      parentRoute: typeof PrivateRoute
+    }
   }
 }
 
@@ -197,8 +261,11 @@ interface PrivateRouteChildren {
   PrivateAdministrationAdminsRouteRoute: typeof PrivateAdministrationAdminsRouteRoute
   PrivateAdministrationCompaniesRouteRoute: typeof PrivateAdministrationCompaniesRouteRoute
   PrivateAdministrationLocalitiesRouteRoute: typeof PrivateAdministrationLocalitiesRouteRoute
-  PrivateAdministrationWorkShiftsRouteRoute: typeof PrivateAdministrationWorkShiftsRouteRoute
   PrivateDashboardIndexLazyRoute: typeof PrivateDashboardIndexLazyRoute
+  PrivateWorkerManagementWorkShiftListRouteRoute: typeof PrivateWorkerManagementWorkShiftListRouteRoute
+  PrivateWorkerManagementWorkersListRouteRoute: typeof PrivateWorkerManagementWorkersListRouteRoute
+  PrivateWorkerManagementWorkShiftIndexRoute: typeof PrivateWorkerManagementWorkShiftIndexRoute
+  PrivateWorkerManagementWorkersIndexRoute: typeof PrivateWorkerManagementWorkersIndexRoute
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
@@ -207,9 +274,15 @@ const PrivateRouteChildren: PrivateRouteChildren = {
     PrivateAdministrationCompaniesRouteRoute,
   PrivateAdministrationLocalitiesRouteRoute:
     PrivateAdministrationLocalitiesRouteRoute,
-  PrivateAdministrationWorkShiftsRouteRoute:
-    PrivateAdministrationWorkShiftsRouteRoute,
   PrivateDashboardIndexLazyRoute: PrivateDashboardIndexLazyRoute,
+  PrivateWorkerManagementWorkShiftListRouteRoute:
+    PrivateWorkerManagementWorkShiftListRouteRoute,
+  PrivateWorkerManagementWorkersListRouteRoute:
+    PrivateWorkerManagementWorkersListRouteRoute,
+  PrivateWorkerManagementWorkShiftIndexRoute:
+    PrivateWorkerManagementWorkShiftIndexRoute,
+  PrivateWorkerManagementWorkersIndexRoute:
+    PrivateWorkerManagementWorkersIndexRoute,
 }
 
 const PrivateRouteWithChildren =

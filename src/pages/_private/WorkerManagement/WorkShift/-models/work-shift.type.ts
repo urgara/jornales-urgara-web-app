@@ -14,8 +14,9 @@ const DayOfWeek = z.enum(['M', 'T', 'W', 'Th', 'F', 'S', 'Su']);
 const WorkShiftSchema = z.object({
   id: z.string().uuid(),
   days: z.array(DayOfWeek),
-  startTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm').nullable(),
-  endTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm').nullable(),
+  startTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm'),
+  endTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm'),
+  durationMinutes: z.number().int().positive(),
   description: z.string().max(60, 'La descripción no debe exceder 60 caracteres').nullable(),
   coefficient: z.string().min(1, 'El coeficiente es requerido'),
   createdAt: z.iso.datetime(),
@@ -89,27 +90,13 @@ const CreateWorkShiftRequestSchema = z
 const CreateWorkShiftResponseSchema = ResponseGenericIncludeDataSchema(WorkShiftSchema);
 
 // Update Work Shift Schema
-const UpdateWorkShiftRequestSchema = z
-  .object({
-    days: z.array(DayOfWeek).optional(),
-    startTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm').optional(),
-    endTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm').optional(),
-    description: z.string().max(60, 'La descripción no debe exceder 60 caracteres').optional(),
-    coefficient: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // Si days está explícitamente vacío, description es requerido
-      if (data.days && data.days.length === 0 && !data.description) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'La descripción es requerida cuando los días están vacíos',
-      path: ['description'],
-    }
-  );
+const UpdateWorkShiftRequestSchema = z.object({
+  days: z.array(DayOfWeek).min(1, 'Debe seleccionar al menos un día').optional(),
+  startTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm').optional(),
+  endTime: z.string().regex(TIME_FORMAT_HH_MM_REGEX, 'El formato debe ser HH:mm').optional(),
+  description: z.string().max(60, 'La descripción no debe exceder 60 caracteres').optional(),
+  coefficient: z.string().optional(),
+});
 
 const UpdateWorkShiftResponseSchema = ResponseGenericIncludeDataSchema(WorkShiftSchema);
 
