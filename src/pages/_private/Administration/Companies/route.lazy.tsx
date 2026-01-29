@@ -217,12 +217,12 @@ function RouteComponent() {
       <CreateCompanyForm opened={opened} onClose={close} />
       <CustomTable
         renderTopToolbarCustomActions={() => (
-          <Group>
-            <Title order={2}>Empresas</Title>
-            <Button onClick={open} leftSection={<IconPlus size={16} />}>
-              Crear Empresa
-            </Button>
-          </Group>
+          <>
+            <ActionIcon variant='filled' onClick={open}>
+              <IconPlus size={18} />
+            </ActionIcon>
+            <Title order={1}>Empresas</Title>
+          </>
         )}
         enableRowActions
         renderRowActions={({

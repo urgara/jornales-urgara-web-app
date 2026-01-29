@@ -71,10 +71,6 @@ function RouteComponent() {
         size: 100,
         grow: true,
         enableColumnFilter: false,
-        Cell: ({ cell }) => {
-          const time = cell.getValue<string | null>();
-          return time || '—';
-        },
       },
       {
         accessorKey: 'endTime',
@@ -82,9 +78,18 @@ function RouteComponent() {
         size: 100,
         grow: true,
         enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'durationMinutes',
+        header: 'Duración',
+        size: 120,
+        grow: true,
+        enableColumnFilter: false,
         Cell: ({ cell }) => {
-          const time = cell.getValue<string | null>();
-          return time || '—';
+          const minutes = cell.getValue<number>();
+          const hours = Math.floor(minutes / 60);
+          const mins = minutes % 60;
+          return mins > 0 ? `${hours}:${mins.toString().padStart(2, '0')}hs` : `${hours}hs`;
         },
       },
       {
