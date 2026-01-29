@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './pages/__root'
 import { Route as PrivateRouteImport } from './pages/_private'
+import { Route as PrivateWorkerAssignmentsRouteRouteImport } from './pages/_private/WorkerAssignments/route'
 import { Route as PublicLoginIndexRouteImport } from './pages/_public/Login/index'
 import { Route as PrivateAdministrationLocalitiesRouteRouteImport } from './pages/_private/Administration/Localities/route'
 import { Route as PrivateAdministrationCompaniesRouteRouteImport } from './pages/_private/Administration/Companies/route'
@@ -29,6 +30,16 @@ const PrivateRoute = PrivateRouteImport.update({
   id: '/_private',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./pages/_private.lazy').then((d) => d.Route))
+const PrivateWorkerAssignmentsRouteRoute =
+  PrivateWorkerAssignmentsRouteRouteImport.update({
+    id: '/WorkerAssignments',
+    path: '/WorkerAssignments',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/WorkerAssignments/route.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const PrivateDashboardIndexLazyRoute =
   PrivateDashboardIndexLazyRouteImport.update({
     id: '/Dashboard/',
@@ -106,6 +117,7 @@ const PrivateWorkerManagementWorkShiftListRouteRoute =
   )
 
 export interface FileRoutesByFullPath {
+  '/WorkerAssignments': typeof PrivateWorkerAssignmentsRouteRoute
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
@@ -117,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/WorkerManagement/Workers': typeof PrivateWorkerManagementWorkersIndexRoute
 }
 export interface FileRoutesByTo {
+  '/WorkerAssignments': typeof PrivateWorkerAssignmentsRouteRoute
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
@@ -130,6 +143,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_private': typeof PrivateRouteWithChildren
+  '/_private/WorkerAssignments': typeof PrivateWorkerAssignmentsRouteRoute
   '/_private/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/_private/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/_private/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
@@ -143,6 +157,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/WorkerAssignments'
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
@@ -154,6 +169,7 @@ export interface FileRouteTypes {
     | '/WorkerManagement/Workers'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/WorkerAssignments'
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
@@ -166,6 +182,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_private'
+    | '/_private/WorkerAssignments'
     | '/_private/Administration/Admins'
     | '/_private/Administration/Companies'
     | '/_private/Administration/Localities'
@@ -190,6 +207,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof PrivateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_private/WorkerAssignments': {
+      id: '/_private/WorkerAssignments'
+      path: '/WorkerAssignments'
+      fullPath: '/WorkerAssignments'
+      preLoaderRoute: typeof PrivateWorkerAssignmentsRouteRouteImport
+      parentRoute: typeof PrivateRoute
     }
     '/_private/Dashboard/': {
       id: '/_private/Dashboard/'
@@ -258,6 +282,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface PrivateRouteChildren {
+  PrivateWorkerAssignmentsRouteRoute: typeof PrivateWorkerAssignmentsRouteRoute
   PrivateAdministrationAdminsRouteRoute: typeof PrivateAdministrationAdminsRouteRoute
   PrivateAdministrationCompaniesRouteRoute: typeof PrivateAdministrationCompaniesRouteRoute
   PrivateAdministrationLocalitiesRouteRoute: typeof PrivateAdministrationLocalitiesRouteRoute
@@ -269,6 +294,7 @@ interface PrivateRouteChildren {
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
+  PrivateWorkerAssignmentsRouteRoute: PrivateWorkerAssignmentsRouteRoute,
   PrivateAdministrationAdminsRouteRoute: PrivateAdministrationAdminsRouteRoute,
   PrivateAdministrationCompaniesRouteRoute:
     PrivateAdministrationCompaniesRouteRoute,

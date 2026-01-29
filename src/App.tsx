@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={QUERY}>
-      <MantineProvider forceColorScheme='dark'>
+      <MantineProvider forceColorScheme='light'>
         <DatesProvider settings={{ locale: 'es', timezone: 'America/Argentina/Buenos_Aires' }}>
           <RouterProvider
             router={router}

@@ -2,6 +2,7 @@ import { ActionIcon, AppShell, Flex, Group, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconBuildingCog,
+  IconCalendarCheck,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftCollapseFilled,
   IconLogout,
@@ -46,6 +47,11 @@ function PrivateLayout() {
       <AppShell.Navbar h='100%'>
         <ScrollArea>
           <ButtonLink label='Dashboard' to='/Dashboard' />
+          <ButtonLink
+            label='Asignaciones'
+            to='/WorkerAssignments'
+            leftSection={<IconCalendarCheck size={16} />}
+          />
           <NavLinkGroup label='Administración' leftSection={<IconBuildingCog size={16} />}>
             <ButtonLink label='Administradores' to='/Administration/Admins' />
             <ButtonLink label='Localidades' to='/Administration/Localities' />

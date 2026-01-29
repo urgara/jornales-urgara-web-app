@@ -4,3 +4,5 @@ export * from './company.type';
 export * from './declarations.type';
 export * from './generic-query-params.type';
 export * from './generic-responses.type';
+export * from './worker.type';
+export * from './work-shift.type';
