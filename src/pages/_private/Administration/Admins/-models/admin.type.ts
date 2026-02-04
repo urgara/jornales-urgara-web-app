@@ -24,7 +24,8 @@ export const AdminSchema = z.object({
     .max(9, 'El DNI no puede tener más de 9 dígitos')
     .regex(/^\d+$/, 'El DNI solo puede contener números'),
   localityId: z
-    .number()
+    .string()
+    .uuid()
     .nullable()
     .optional()
     .transform((val) => val ?? null),
@@ -49,10 +50,13 @@ const CreateAdminApiSchema = z.object({
   surname: AdminSchema.shape.surname,
   dni: AdminSchema.shape.dni,
   password: z
-    .string()
-    .min(6)
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/),
-  localityId: z.number().nullable(),
+    .string('La contraseña es requerida')
+    .min(6, 'La contraseña debe tener al menos 6 caracteres')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]+$/,
+      'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un símbolo (@$!%*?&#)'
+    ),
+  localityId: z.string().uuid().nullable(),
   role: AdminSchema.shape.role,
 });
 
@@ -60,7 +64,7 @@ const UpdateAdminApiSchema = CreateAdminApiSchema.partial();
 
 // Para formulario (con confirmPassword)
 const CreateAdminRequestSchema = CreateAdminApiSchema.extend({
-  confirmPassword: z.string().min(6),
+  confirmPassword: z.string().min(6, 'La confirmación debe tener al menos 6 caracteres'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],

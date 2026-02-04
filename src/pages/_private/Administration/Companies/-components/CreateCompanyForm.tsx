@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { useMutationCreateCompany } from '../-hooks';
 import type { CreateCompanyRequest } from '../-models';
 import { CreateCompanyRequestSchema } from '../-models';
-import { LegalEntitySelect } from './LegalEntitySelect';
 
 interface CreateCompanyFormProps {
   opened: boolean;
@@ -18,7 +17,6 @@ export function CreateCompanyForm({ opened, onClose }: CreateCompanyFormProps) {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<CreateCompanyRequest>({
     resolver: zodResolver(CreateCompanyRequestSchema),
@@ -53,15 +51,6 @@ export function CreateCompanyForm({ opened, onClose }: CreateCompanyFormProps) {
             placeholder='Ingrese el CUIT (11 dígitos)'
             {...register('cuit')}
             error={errors.cuit?.message}
-          />
-
-          <LegalEntitySelect
-            label='Entidad Legal'
-            placeholder='Seleccione la entidad legal'
-            withAsterisk
-            {...register('legalEntityId')}
-            onChange={(value) => setValue('legalEntityId', value ? Number(value) : 0)}
-            error={errors.legalEntityId?.message}
           />
 
           <Group justify='flex-end' mt='md'>

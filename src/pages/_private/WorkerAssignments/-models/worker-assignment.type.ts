@@ -7,6 +7,36 @@ import {
 // Regex para validar formato YYYY-MM-DD
 const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
+// Enums
+const WorkerCategoryEnum = z.enum(['IDONEO', 'SEMI_IDONEO', 'NO_IDONEO']);
+const DayOfWeekEnum = z.enum(['M', 'T', 'W', 'Th', 'F', 'S', 'Su']);
+
+// Worker Schema (para relaciones)
+const WorkerRelationSchema = z.object({
+	id: z.string().uuid(),
+	name: z.string(),
+	surname: z.string(),
+	dni: z.string(),
+	localityId: z.string().uuid(),
+	category: WorkerCategoryEnum,
+	baseHourlyRate: z.string(),
+	createdAt: z.coerce.date(),
+	deletedAt: z.coerce.date().nullable(),
+});
+
+// WorkShift Schema (para relaciones)
+const WorkShiftRelationSchema = z.object({
+	id: z.string().uuid(),
+	days: z.array(DayOfWeekEnum),
+	startTime: z.string().nullable(),
+	endTime: z.string().nullable(),
+	durationMinutes: z.number(),
+	description: z.string().nullable(),
+	coefficient: z.string(),
+	createdAt: z.coerce.date(),
+	deletedAt: z.coerce.date().nullable(),
+});
+
 // Worker Assignment Schema (permisivo para respuestas del servidor)
 const WorkerAssignmentSchema = z.object({
 	id: z.string().uuid(),
@@ -15,7 +45,18 @@ const WorkerAssignmentSchema = z.object({
 	date: z.string(),
 	additionalPercent: z.string().nullable(),
 	totalAmount: z.string(),
+	companyId: z.string().uuid(),
+	localityId: z.string().uuid(),
+	agencyId: z.string().uuid(),
+	terminalId: z.string().uuid(),
+	productId: z.string().uuid(),
 	createdAt: z.string(),
+});
+
+// Worker Assignment With Relations Schema (para GET /:id)
+const WorkerAssignmentWithRelationsSchema = WorkerAssignmentSchema.extend({
+	Worker: WorkerRelationSchema.optional().nullable(),
+	WorkShift: WorkShiftRelationSchema.optional().nullable(),
 });
 
 // List Worker Assignments Schema
@@ -24,8 +65,10 @@ const ListWorkerAssignmentsResponseSchema = ResponseGenericIncludeDataAndPaginat
 	ListWorkerAssignmentsSchema
 );
 
-// Get Worker Assignment Schema
-const GetWorkerAssignmentResponseSchema = ResponseGenericIncludeDataSchema(WorkerAssignmentSchema);
+// Get Worker Assignment Schema (con relaciones)
+const GetWorkerAssignmentResponseSchema = ResponseGenericIncludeDataSchema(
+	WorkerAssignmentWithRelationsSchema
+);
 
 // Create Worker Assignment Schema
 const CreateWorkerAssignmentRequestSchema = z.object({
@@ -38,6 +81,11 @@ const CreateWorkerAssignmentRequestSchema = z.object({
 			z.literal(''),
 		])
 		.optional(),
+	companyId: z.string().uuid('El ID de la empresa debe ser un UUID válido'),
+	localityId: z.string().uuid('El ID de la localidad debe ser un UUID válido'),
+	agencyId: z.string().uuid('El ID de la agencia debe ser un UUID válido'),
+	terminalId: z.string().uuid('El ID de la terminal debe ser un UUID válido'),
+	productId: z.string().uuid('El ID del producto debe ser un UUID válido'),
 });
 
 const CreateWorkerAssignmentResponseSchema =
@@ -54,12 +102,22 @@ const UpdateWorkerAssignmentRequestSchema = z.object({
 			z.literal(''),
 		])
 		.optional(),
+	companyId: z.string().uuid('El ID de la empresa debe ser un UUID válido').optional(),
+	localityId: z.string().uuid('El ID de la localidad debe ser un UUID válido').optional(),
+	agencyId: z.string().uuid('El ID de la agencia debe ser un UUID válido').optional(),
+	terminalId: z.string().uuid('El ID de la terminal debe ser un UUID válido').optional(),
+	productId: z.string().uuid('El ID del producto debe ser un UUID válido').optional(),
 });
 
 const UpdateWorkerAssignmentResponseSchema =
 	ResponseGenericIncludeDataSchema(WorkerAssignmentSchema);
 
+type WorkerCategory = z.infer<typeof WorkerCategoryEnum>;
+type DayOfWeek = z.infer<typeof DayOfWeekEnum>;
+type WorkerRelation = z.infer<typeof WorkerRelationSchema>;
+type WorkShiftRelation = z.infer<typeof WorkShiftRelationSchema>;
 type WorkerAssignment = z.infer<typeof WorkerAssignmentSchema>;
+type WorkerAssignmentWithRelations = z.infer<typeof WorkerAssignmentWithRelationsSchema>;
 type ListWorkerAssignmentsResponse = z.infer<typeof ListWorkerAssignmentsResponseSchema>;
 type GetWorkerAssignmentResponse = z.infer<typeof GetWorkerAssignmentResponseSchema>;
 type CreateWorkerAssignmentRequest = z.infer<typeof CreateWorkerAssignmentRequestSchema>;
@@ -68,7 +126,12 @@ type UpdateWorkerAssignmentRequest = z.infer<typeof UpdateWorkerAssignmentReques
 type UpdateWorkerAssignmentResponse = z.infer<typeof UpdateWorkerAssignmentResponseSchema>;
 
 export {
+	WorkerCategoryEnum,
+	DayOfWeekEnum,
+	WorkerRelationSchema,
+	WorkShiftRelationSchema,
 	WorkerAssignmentSchema,
+	WorkerAssignmentWithRelationsSchema,
 	ListWorkerAssignmentsResponseSchema,
 	GetWorkerAssignmentResponseSchema,
 	CreateWorkerAssignmentRequestSchema,
@@ -78,7 +141,12 @@ export {
 };
 
 export type {
+	WorkerCategory,
+	DayOfWeek,
+	WorkerRelation,
+	WorkShiftRelation,
 	WorkerAssignment,
+	WorkerAssignmentWithRelations,
 	ListWorkerAssignmentsResponse,
 	GetWorkerAssignmentResponse,
 	CreateWorkerAssignmentRequest,

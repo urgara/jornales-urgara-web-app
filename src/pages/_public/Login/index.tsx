@@ -62,7 +62,7 @@ function LoginComponent() {
       <Grid>
         <Grid.Col span={4} h='100vh' p='lg'>
           <Flex direction='column' align='center' h='100%' w='100%' justify='center'>
-            <Image src='images\logo-urgara.png' h='150px' fit='contain' />
+            <Image src='/images/urgara.png' h='150px' fit='contain' />
             <Flex
               component='form'
               direction='column'
@@ -92,7 +92,7 @@ function LoginComponent() {
             <Text c='dimmed'>Desarrollado por Dynnamo Crypt S.A</Text>
           </Center>
         </Grid.Col>
-        <Grid.Col span={8} h='100vh' bg='var(--mantine-color-dark-9)'>
+        <Grid.Col span={8} h='100vh' bg='#282D8A'>
           <Flex align='center' gap='md' h='100%'>
             <Image src='images\campo-trigo.jpg' h='80%' flex={1} fit='cover' radius='md' />
             <Image src='images\cosecha-de-maiz.jpg' h='90%' flex={1} fit='cover' radius='md' />

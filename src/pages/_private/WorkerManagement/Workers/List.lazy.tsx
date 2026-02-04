@@ -9,6 +9,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CompanySelect, CustomTable, LocalitySelect } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
+import { useAuthStore } from '@/stores';
 import { CreateWorkerForm } from './-components';
 import { useMutationDeleteWorker, useMutationUpdateWorker, useQueryWorkers } from './-hooks';
 import { type UpdateWorkerRequest, UpdateWorkerRequestSchema, type Worker } from './-models';
@@ -18,6 +19,7 @@ export const Route = createLazyFileRoute('/_private/WorkerManagement/Workers/Lis
 });
 
 function RouteComponent() {
+	const admin = useAuthStore((state) => state.admin);
 	const {
 		data: workersData,
 		isLoading,
@@ -289,7 +291,7 @@ function RouteComponent() {
 
 	return (
 		<Container fluid>
-			<CreateWorkerForm opened={opened} onClose={close} />
+			<CreateWorkerForm opened={opened} onClose={close} admin={admin} />
 			<CustomTable
 				renderTopToolbarCustomActions={() => (
 					<>

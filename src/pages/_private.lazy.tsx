@@ -1,4 +1,4 @@
-import { ActionIcon, AppShell, Flex, Group, ScrollArea } from '@mantine/core';
+import { ActionIcon, AppShell, Flex, Group, Image, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconBuildingCog,
@@ -9,7 +9,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { createLazyFileRoute, Outlet } from '@tanstack/react-router';
-import { ButtonLink, LogoIcon, NavLinkGroup } from '@/components';
+import { ButtonLink, NavLinkGroup } from '@/components';
 import { useAuthStore } from '@/stores';
 
 export const Route = createLazyFileRoute('/_private')({
@@ -31,15 +31,15 @@ function PrivateLayout() {
         collapsed: { desktop: !opened },
       }}
     >
-      <AppShell.Header bg='blue'>
-        <Flex align='center' h='100%' w='100%'>
-          <Group w='100%'>
-            <LogoIcon height={50} />
-            <ActionIcon variant='light' c='dark' size={50} onClick={toggle}>
+      <AppShell.Header bg='#282D8A'>
+        <Flex align='center' justify='space-between' h='100%' w='100%' px='md'>
+          <Group gap='md'>
+            <Image src='/images/urgara.png' h={40} w={40} fit='contain' />
+            <ActionIcon variant='transparent' c='white' size={40} onClick={toggle}>
               {opened ? <IconLayoutSidebarLeftCollapse /> : <IconLayoutSidebarLeftCollapseFilled />}
             </ActionIcon>
           </Group>
-          <ActionIcon variant='white' m='md' c='red' onClick={logout}>
+          <ActionIcon variant='white' c='red' onClick={logout}>
             <IconLogout />
           </ActionIcon>
         </Flex>

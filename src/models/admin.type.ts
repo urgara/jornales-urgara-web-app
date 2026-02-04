@@ -3,9 +3,10 @@ import { ResponseGenericIncludeDataSchema } from './generic-responses.type';
 
 // Schema para Locality completa (con todas las propiedades)
 const LocalitySchema = z.object({
-  id: z.number(),
+  id: z.string().uuid(),
   name: z.string(),
   province: z.string(),
+  isCalculateJc: z.boolean(),
   createdAt: z.iso.datetime().transform((val) => new Date(val).toLocaleDateString('es-ES')),
   deletedAt: z.iso
     .datetime()
@@ -15,7 +16,7 @@ const LocalitySchema = z.object({
 
 // Schema para select (solo id y name)
 const SelectLocalitySchema = z.object({
-  id: z.number(),
+  id: z.string().uuid(),
   name: z.string(),
 });
 
@@ -25,6 +26,7 @@ const ListSelectLocalitiesResponseSchema = ResponseGenericIncludeDataSchema(List
 enum Role {
   ADMIN = 'ADMIN',
   LOCAL = 'LOCAL',
+  ONLY_READ = 'ONLY_READ',
 }
 
 const AdminSchema = z.object({
@@ -45,7 +47,8 @@ const AdminSchema = z.object({
     .max(9, 'El DNI no puede tener más de 9 dígitos')
     .regex(/^\d+$/, 'El DNI solo puede contener números'),
   localityId: z
-    .number()
+    .string()
+    .uuid()
     .nullable()
     .optional()
     .transform((val) => val ?? null),

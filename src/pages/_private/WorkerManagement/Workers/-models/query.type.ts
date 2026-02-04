@@ -10,8 +10,8 @@ const WorkersQueryParamsSchema = GenericQueryParamsSchema(WorkerSortBySchema).ex
 	name: z.string().optional(),
 	surname: z.string().optional(),
 	dni: z.string().optional(),
-	companyId: z.number().int().positive().optional(),
-	localityId: z.number().int().positive().optional(),
+	companyId: z.string().uuid().optional(),
+	localityId: z.string().uuid().optional(),
 });
 
 type WorkerSortBy = z.infer<typeof WorkerSortBySchema>;

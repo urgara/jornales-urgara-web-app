@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CustomTable } from '@/components/CustomTable';
 import { useConfigTablePersist } from '@/hooks';
+import { Role } from '@/models';
 import { CreateLocalityForm } from './-components';
 import { useMutationDeleteLocality, useMutationUpdateLocality, useQueryLocalities } from './-hooks';
 import { type Locality, type UpdateLocalityRequest, UpdateLocalityRequestSchema } from './-models';
@@ -17,6 +18,8 @@ export const Route = createLazyFileRoute('/_private/Administration/Localities')(
 });
 
 function RouteComponent() {
+  const { admin } = Route.useRouteContext();
+  const isAdmin = admin?.role === Role.ADMIN;
   const {
     data: localitiesData,
     isLoading,
@@ -182,9 +185,11 @@ function RouteComponent() {
       <CustomTable
         renderTopToolbarCustomActions={() => (
           <>
-            <ActionIcon variant='filled' onClick={open}>
-              <IconPlus size={18} />
-            </ActionIcon>
+            {isAdmin && (
+              <ActionIcon variant='filled' onClick={open}>
+                <IconPlus size={18} />
+              </ActionIcon>
+            )}
             <Title order={1}>Localidades</Title>
           </>
         )}
@@ -210,38 +215,42 @@ function RouteComponent() {
         enableSorting={true}
         enableColumnOrdering={true}
         enableColumnResizing={true}
-        enableEditing={true}
+        enableEditing={isAdmin}
         editDisplayMode='row'
         onEditingRowSave={handleEditingRowSave}
         onEditingRowCancel={handleEditingRowCancel}
-        enableRowActions={true}
-        renderRowActions={({
-          row,
-          table,
-        }: {
-          row: MRT_Row<Locality>;
-          table: MRT_TableInstance<Locality>;
-        }) => (
-          <Flex gap='xs'>
-            <ActionIcon
-              variant='subtle'
-              onClick={() => {
-                handleEditStart({ row });
-                table.setEditingRow(row);
-              }}
-            >
-              <IconEdit size={18} />
-            </ActionIcon>
-            <ActionIcon
-              variant='subtle'
-              color='red'
-              onClick={() => handleDeleteClick(row.original.id)}
-              disabled={isDeleting}
-            >
-              <IconTrash size={18} />
-            </ActionIcon>
-          </Flex>
-        )}
+        enableRowActions={isAdmin}
+        renderRowActions={
+          isAdmin
+            ? ({
+                row,
+                table,
+              }: {
+                row: MRT_Row<Locality>;
+                table: MRT_TableInstance<Locality>;
+              }) => (
+                <Flex gap='xs'>
+                  <ActionIcon
+                    variant='subtle'
+                    onClick={() => {
+                      handleEditStart({ row });
+                      table.setEditingRow(row);
+                    }}
+                  >
+                    <IconEdit size={18} />
+                  </ActionIcon>
+                  <ActionIcon
+                    variant='subtle'
+                    color='red'
+                    onClick={() => handleDeleteClick(row.original.id)}
+                    disabled={isDeleting}
+                  >
+                    <IconTrash size={18} />
+                  </ActionIcon>
+                </Flex>
+              )
+            : undefined
+        }
       />
 
       <Modal

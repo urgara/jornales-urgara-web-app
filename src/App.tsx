@@ -1,4 +1,4 @@
-import { MantineProvider } from '@mantine/core';
+import { MantineProvider, createTheme, type MantineColorsTuple } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
@@ -21,6 +21,26 @@ dayjs.extend(timezone);
 dayjs.locale(esLocale); // Establecer español como locale global con referencia directa
 dayjs.tz.setDefault('America/Argentina/Buenos_Aires');
 
+const urgaraColor: MantineColorsTuple = [
+  '#eff0fa',
+  '#dbdcef',
+  '#b3b5e1',
+  '#8a8cd4',
+  '#6769c9',
+  '#5154c2',
+  '#4648c0',
+  '#383aaa',
+  '#313498',
+  '#282d8a',
+];
+
+const theme = createTheme({
+  colors: {
+    'urgara-color': urgaraColor,
+  },
+  primaryColor: 'urgara-color',
+});
+
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
@@ -34,7 +54,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={QUERY}>
-      <MantineProvider forceColorScheme='light'>
+      <MantineProvider theme={theme} forceColorScheme='light'>
         <DatesProvider settings={{ locale: 'es', timezone: 'America/Argentina/Buenos_Aires' }}>
           <RouterProvider
             router={router}

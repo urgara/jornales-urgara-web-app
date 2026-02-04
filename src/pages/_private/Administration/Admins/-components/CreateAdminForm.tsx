@@ -95,7 +95,7 @@ export function CreateAdminForm({ opened, onClose }: CreateAdminFormProps) {
               placeholder='Seleccione la localidad'
               clearable
               {...register('localityId')}
-              onChange={(value) => setValue('localityId', value ? Number(value) : null)}
+              onChange={(value) => setValue('localityId', value || null)}
               error={errors.localityId?.message}
             />
           )}

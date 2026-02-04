@@ -5,7 +5,7 @@ import {
 } from '@/models';
 
 export const LocalitySchema = z.object({
-  id: z.number(),
+  id: z.string().uuid(),
   name: z
     .string('El nombre es requerido')
     .min(1, 'El nombre no puede estar vacío')
@@ -23,7 +23,7 @@ export const LocalitySchema = z.object({
 
 // Schema para select (solo id y name)
 const SelectLocalitySchema = z.object({
-  id: z.number(),
+  id: z.string().uuid(),
   name: z.string(),
 });
 

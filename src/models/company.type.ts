@@ -3,7 +3,7 @@ import { ResponseGenericIncludeDataSchema } from './generic-responses.type';
 
 // Select Company Schema
 const SelectCompanySchema = z.object({
-	id: z.number().int().positive(),
+	id: z.string().uuid(),
 	name: z.string(),
 });
 

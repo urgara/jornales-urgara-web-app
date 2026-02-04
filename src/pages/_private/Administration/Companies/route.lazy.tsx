@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CustomTable } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
-import { CreateCompanyForm, LegalEntitySelect } from './-components';
+import { CreateCompanyForm } from './-components';
 import { useMutationDeleteCompany, useMutationUpdateCompany, useQueryCompanies } from './-hooks';
 import { type Company, type UpdateCompanyRequest, UpdateCompanyRequestSchema } from './-models';
 
@@ -91,38 +91,12 @@ function RouteComponent() {
         }),
       },
       {
-        accessorKey: 'LegalEntity',
-        header: 'Entidad Legal',
-        size: 200,
-        grow: true,
-        enableEditing: true,
-        Cell: ({ row }) => {
-          const company = row.original;
-          return company.LegalEntity
-            ? `${company.LegalEntity.abbreviation} - ${company.LegalEntity.description}`
-            : 'Sin asignar';
-        },
-        Edit: ({ row }) => (
-          <LegalEntitySelect
-            required
-            value={row._valuesCache.legalEntityId?.toString() || ''}
-            onChange={(value) => {
-              if (value) {
-                setValue('legalEntityId', Number(value));
-                row._valuesCache.legalEntityId = Number(value);
-                trigger('legalEntityId');
-              }
-            }}
-            error={editingRowId === row.original.id ? errors.legalEntityId?.message : undefined}
-          />
-        ),
-      },
-      {
         accessorKey: 'createdAt',
         header: 'Fecha de Creación',
         size: 150,
         grow: true,
         enableEditing: false,
+        enableColumnFilter: false,
       },
       {
         accessorKey: 'deletedAt',
@@ -130,6 +104,7 @@ function RouteComponent() {
         size: 150,
         grow: true,
         enableEditing: false,
+        enableColumnFilter: false,
         Cell: ({ cell }) => {
           const deletedAt = cell.getValue<string | undefined>();
           return deletedAt || '—';
@@ -180,11 +155,9 @@ function RouteComponent() {
     setEditingRowId(row.original.id);
     setValue('name', row.original.name);
     setValue('cuit', row.original.cuit);
-    setValue('legalEntityId', row.original.legalEntityId);
 
     row._valuesCache.name = row.original.name;
     row._valuesCache.cuit = row.original.cuit;
-    row._valuesCache.legalEntityId = row.original.legalEntityId;
 
     clearErrors();
   };
