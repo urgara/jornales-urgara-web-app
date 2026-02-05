@@ -111,9 +111,10 @@ function RouteComponent() {
         grow: true,
         enableEditing: true,
         Cell: ({ cell }) => {
-          const roleLabels = {
+          const roleLabels: Record<Role, string> = {
             [Role.ADMIN]: 'Administrador Global',
             [Role.LOCAL]: 'Administrador Local',
+            [Role.ONLY_READ]: 'Solo Lectura',
           };
           return <>{roleLabels[cell.getValue() as Role] || cell.getValue()}</>;
         },

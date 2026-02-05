@@ -12,7 +12,7 @@ export const useQuerySelectCompanies = () => {
 	});
 
 	const getCompanyName = useCallback(
-		(id: number) => {
+		(id: string) => {
 			const company = query.data?.data?.find((c) => c.id === id);
 			return company ? company.name : `Empresa ${id}`;
 		},

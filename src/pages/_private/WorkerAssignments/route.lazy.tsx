@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Container, Title } from '@mantine/core';
+import { ActionIcon, Container, Stack, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
@@ -8,8 +8,26 @@ import dayjs from 'dayjs';
 import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CustomTable, WorkerSelect, WorkShiftSelect } from '@/components';
-import { useConfigTablePersist, useQuerySelectWorkers, useQuerySelectWorkShifts } from '@/hooks';
+import {
+	AgencySelect,
+	CompanySelect,
+	CustomTable,
+	LocalitySelect,
+	ProductSelect,
+	TerminalSelect,
+	WorkerSelect,
+	WorkShiftSelect,
+} from '@/components';
+import {
+	useConfigTablePersist,
+	useQuerySelectAgencies,
+	useQuerySelectCompanies,
+	useQuerySelectLocalities,
+	useQuerySelectProducts,
+	useQuerySelectWorkers,
+	useQuerySelectWorkShifts,
+} from '@/hooks';
+import { useQuerySelectTerminals } from '@/hooks/useQuerySelectTerminals';
 import { CreateWorkerAssignmentForm } from './-components';
 import { useMutationUpdateWorkerAssignment, useQueryWorkerAssignments } from './-hooks';
 import {
@@ -39,10 +57,38 @@ function RouteComponent() {
 
 	const { getWorkerFullName } = useQuerySelectWorkers();
 	const { getWorkShiftDescription } = useQuerySelectWorkShifts();
+	const { getLocalityName } = useQuerySelectLocalities();
+	const { data: companiesData } = useQuerySelectCompanies();
+	const { data: agenciesData } = useQuerySelectAgencies();
+	const { getTerminalName } = useQuerySelectTerminals();
+	const { data: productsData } = useQuerySelectProducts();
+
+	const getCompanyName = (id: string) => {
+		const company = companiesData?.data?.find((c) => c.id === id);
+		return company ? company.name : 'Empresa desconocida';
+	};
+
+	const getAgencyName = (id: string) => {
+		const agency = agenciesData?.data?.find((a) => a.id === id);
+		return agency ? agency.name : 'Agencia desconocida';
+	};
+
+	const getProductName = (id: string) => {
+		const product = productsData?.data?.find((p) => p.id === id);
+		return product ? product.name : 'Producto desconocido';
+	};
 
 	const [editingRowId, setEditingRowId] = useState<string | null>(null);
 	const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
 		useConfigTablePersist('worker-assignments');
+
+	// Ocultar createdAt por defecto si no hay configuración guardada
+	const initialColumnVisibility = useMemo(() => {
+		if (Object.keys(columnVisibility).length === 0) {
+			return { createdAt: false };
+		}
+		return columnVisibility;
+	}, [columnVisibility]);
 
 	const {
 		formState: { errors },
@@ -153,7 +199,217 @@ function RouteComponent() {
 						required
 					/>
 				),
-				enableColumnFilter: false,
+				Filter: ({ column }) => {
+					const filterValue = column.getFilterValue() as [string, string] | undefined;
+					const dateFrom = filterValue?.[0] ? new Date(filterValue[0]) : null;
+					const dateTo = filterValue?.[1] ? new Date(filterValue[1]) : null;
+
+					return (
+						<Stack gap='xs'>
+							<DateInput
+								label='Desde'
+								placeholder='Fecha desde'
+								value={dateFrom}
+								onChange={(value) => {
+									if (value) {
+										const year = value.getFullYear();
+										const month = String(value.getMonth() + 1).padStart(2, '0');
+										const day = String(value.getDate()).padStart(2, '0');
+										const dateString = `${year}-${month}-${day}`;
+										column.setFilterValue([dateString, filterValue?.[1] || '']);
+									} else {
+										column.setFilterValue(filterValue?.[1] ? ['', filterValue[1]] : undefined);
+									}
+								}}
+								valueFormat='DD/MM/YYYY'
+								clearable
+							/>
+							<DateInput
+								label='Hasta'
+								placeholder='Fecha hasta'
+								value={dateTo}
+								onChange={(value) => {
+									if (value) {
+										const year = value.getFullYear();
+										const month = String(value.getMonth() + 1).padStart(2, '0');
+										const day = String(value.getDate()).padStart(2, '0');
+										const dateString = `${year}-${month}-${day}`;
+										column.setFilterValue([filterValue?.[0] || '', dateString]);
+									} else {
+										column.setFilterValue(filterValue?.[0] ? [filterValue[0], ''] : undefined);
+									}
+								}}
+								valueFormat='DD/MM/YYYY'
+								clearable
+							/>
+						</Stack>
+					);
+				},
+			},
+			{
+				accessorKey: 'companyId',
+				header: 'Empresa',
+				size: 200,
+				grow: true,
+				enableEditing: true,
+				Cell: ({ cell }) => {
+					const companyId = cell.getValue<string>();
+					return getCompanyName(companyId);
+				},
+				Edit: ({ row }) => (
+					<CompanySelect
+						required
+						value={row._valuesCache.companyId}
+						onChange={(value) => {
+							if (value) {
+								setValue('companyId', value);
+								row._valuesCache.companyId = value;
+								trigger('companyId');
+							}
+						}}
+						error={editingRowId === row.original.id ? errors.companyId?.message : undefined}
+					/>
+				),
+				Filter: ({ column }) => (
+					<CompanySelect
+						value={column.getFilterValue() as string | undefined}
+						onChange={(value) => column.setFilterValue(value)}
+						placeholder='Filtrar por empresa'
+						clearable
+					/>
+				),
+			},
+			{
+				accessorKey: 'localityId',
+				header: 'Localidad',
+				size: 200,
+				grow: true,
+				enableEditing: true,
+				Cell: ({ cell }) => {
+					const localityId = cell.getValue<string>();
+					return getLocalityName(localityId);
+				},
+				Edit: ({ row }) => (
+					<LocalitySelect
+						required
+						value={row._valuesCache.localityId}
+						onChange={(value) => {
+							if (value) {
+								setValue('localityId', value);
+								row._valuesCache.localityId = value;
+								trigger('localityId');
+							}
+						}}
+						error={editingRowId === row.original.id ? errors.localityId?.message : undefined}
+					/>
+				),
+				Filter: ({ column }) => (
+					<LocalitySelect
+						value={column.getFilterValue() as string | undefined}
+						onChange={(value) => column.setFilterValue(value)}
+						placeholder='Filtrar por localidad'
+						clearable
+					/>
+				),
+			},
+			{
+				accessorKey: 'agencyId',
+				header: 'Agencia',
+				size: 200,
+				grow: true,
+				enableEditing: true,
+				Cell: ({ cell }) => {
+					const agencyId = cell.getValue<string>();
+					return getAgencyName(agencyId);
+				},
+				Edit: ({ row }) => (
+					<AgencySelect
+						required
+						value={row._valuesCache.agencyId}
+						onChange={(value) => {
+							if (value) {
+								setValue('agencyId', value);
+								row._valuesCache.agencyId = value;
+								trigger('agencyId');
+							}
+						}}
+						error={editingRowId === row.original.id ? errors.agencyId?.message : undefined}
+					/>
+				),
+				Filter: ({ column }) => (
+					<AgencySelect
+						value={column.getFilterValue() as string | undefined}
+						onChange={(value) => column.setFilterValue(value)}
+						placeholder='Filtrar por agencia'
+						clearable
+					/>
+				),
+			},
+			{
+				accessorKey: 'terminalId',
+				header: 'Terminal',
+				size: 200,
+				grow: true,
+				enableEditing: true,
+				Cell: ({ cell }) => {
+					const terminalId = cell.getValue<string>();
+					return getTerminalName(terminalId);
+				},
+				Edit: ({ row }) => (
+					<TerminalSelect
+						required
+						value={row._valuesCache.terminalId}
+						onChange={(value) => {
+							if (value) {
+								setValue('terminalId', value);
+								row._valuesCache.terminalId = value;
+								trigger('terminalId');
+							}
+						}}
+						error={editingRowId === row.original.id ? errors.terminalId?.message : undefined}
+					/>
+				),
+				Filter: ({ column }) => (
+					<TerminalSelect
+						value={column.getFilterValue() as string | undefined}
+						onChange={(value) => column.setFilterValue(value)}
+						placeholder='Filtrar por terminal'
+						clearable
+					/>
+				),
+			},
+			{
+				accessorKey: 'productId',
+				header: 'Producto',
+				size: 200,
+				grow: true,
+				enableEditing: true,
+				Cell: ({ cell }) => {
+					const productId = cell.getValue<string>();
+					return getProductName(productId);
+				},
+				Edit: ({ row }) => (
+					<ProductSelect
+						required
+						value={row._valuesCache.productId}
+						onChange={(value) => {
+							if (value) {
+								setValue('productId', value);
+								row._valuesCache.productId = value;
+								trigger('productId');
+							}
+						}}
+						error={editingRowId === row.original.id ? errors.productId?.message : undefined}
+					/>
+				),
+				Filter: ({ column }) => (
+					<ProductSelect
+						value={column.getFilterValue() as string | undefined}
+						onChange={(value) => column.setFilterValue(value)}
+						placeholder='Filtrar por producto'
+						clearable
+					/>
+				),
 			},
 			{
 				accessorKey: 'additionalPercent',
@@ -199,13 +455,26 @@ function RouteComponent() {
 				grow: true,
 				enableEditing: false,
 				enableColumnFilter: false,
+				enableHiding: true,
 				Cell: ({ cell }) => {
 					const date = cell.getValue<string>();
 					return dayjs(date).format('DD/MM/YYYY HH:mm');
 				},
 			},
 		],
-		[editingRowId, errors, setValue, trigger, getWorkerFullName, getWorkShiftDescription]
+		[
+			editingRowId,
+			errors,
+			setValue,
+			trigger,
+			getWorkerFullName,
+			getWorkShiftDescription,
+			getCompanyName,
+			getLocalityName,
+			getAgencyName,
+			getTerminalName,
+			getProductName,
+		]
 	);
 
 	const onSubmit = (
@@ -247,11 +516,21 @@ function RouteComponent() {
 		setValue('workerId', row.original.workerId);
 		setValue('workShiftId', row.original.workShiftId);
 		setValue('date', row.original.date);
+		setValue('companyId', row.original.companyId);
+		setValue('localityId', row.original.localityId);
+		setValue('agencyId', row.original.agencyId);
+		setValue('terminalId', row.original.terminalId);
+		setValue('productId', row.original.productId);
 		setValue('additionalPercent', row.original.additionalPercent || undefined);
 
 		row._valuesCache.workerId = row.original.workerId;
 		row._valuesCache.workShiftId = row.original.workShiftId;
 		row._valuesCache.date = row.original.date;
+		row._valuesCache.companyId = row.original.companyId;
+		row._valuesCache.localityId = row.original.localityId;
+		row._valuesCache.agencyId = row.original.agencyId;
+		row._valuesCache.terminalId = row.original.terminalId;
+		row._valuesCache.productId = row.original.productId;
 		row._valuesCache.additionalPercent = row.original.additionalPercent;
 
 		clearErrors();
@@ -294,7 +573,7 @@ function RouteComponent() {
 				data={workerAssignmentsData?.data || []}
 				state={{
 					isLoading,
-					columnVisibility,
+					columnVisibility: initialColumnVisibility,
 					columnOrder,
 					pagination,
 					sorting,

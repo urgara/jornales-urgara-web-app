@@ -37,8 +37,8 @@ const ListCompaniesResponseSchema = ResponseGenericIncludeDataAndPaginationSchem
 // Get Company Schema
 const GetCompanyResponseSchema = ResponseGenericIncludeDataSchema(CompanySchema);
 
-// Create Company Schema
-const CreateCompanyRequestSchema = z.object({
+// Create Company Schema (sin transform para usar con react-hook-form)
+const CreateCompanyRequestSchemaBase = z.object({
   name: z
     .string('El nombre es requerido')
     .min(1, 'El nombre no puede estar vacío')
@@ -49,14 +49,19 @@ const CreateCompanyRequestSchema = z.object({
       z.literal(''),
       z.null(),
     ])
-    .optional()
-    .transform((val) => (val === '' ? null : val ?? null)),
+    .optional(),
 });
+
+// Schema con transform para enviar al backend
+const CreateCompanyRequestSchema = CreateCompanyRequestSchemaBase.transform((val) => ({
+  ...val,
+  cuit: val.cuit === '' ? null : val.cuit ?? null,
+}));
 
 const CreateCompanyResponseSchema = ResponseGenericIncludeDataSchema(CompanySchema);
 
 // Update Company Schema
-const UpdateCompanyRequestSchema = CreateCompanyRequestSchema.partial();
+const UpdateCompanyRequestSchema = CreateCompanyRequestSchemaBase.partial();
 
 const UpdateCompanyResponseSchema = ResponseGenericIncludeDataSchema(CompanySchema);
 
@@ -75,6 +80,7 @@ export {
   ListSelectCompaniesResponseSchema,
   ListCompaniesResponseSchema,
   GetCompanyResponseSchema,
+  CreateCompanyRequestSchemaBase,
   CreateCompanyRequestSchema,
   CreateCompanyResponseSchema,
   UpdateCompanyRequestSchema,

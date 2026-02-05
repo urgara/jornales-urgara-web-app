@@ -7,7 +7,7 @@ export const getLocalitiesService = async (params: LocalitiesQueryParams = {}) =
   return ListLocalitiesResponseSchema.parse(response.data);
 };
 
-export const getLocalityByIdService = async (id: number) => {
+export const getLocalityByIdService = async (id: string) => {
   const response = await DYNNAMIX_API.get(`/localities/${id}`);
   return GetLocalityResponseSchema.parse(response.data);
 };
@@ -17,12 +17,12 @@ export const createLocalityService = async (data: CreateLocalityRequest) => {
   return GetLocalityResponseSchema.parse(response.data);
 };
 
-export const updateLocalityService = async (id: number, data: UpdateLocalityRequest) => {
+export const updateLocalityService = async (id: string, data: UpdateLocalityRequest) => {
   const response = await DYNNAMIX_API.put(`/localities/${id}`, data);
   return GetLocalityResponseSchema.parse(response.data);
 };
 
-export const deleteLocalityService = async (id: number) => {
+export const deleteLocalityService = async (id: string) => {
   const response = await DYNNAMIX_API.delete(`/localities/${id}`);
   return response.data;
 };

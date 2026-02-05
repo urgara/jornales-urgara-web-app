@@ -43,10 +43,25 @@ export function useQueryWorkerAssignments() {
 					params.workerId = value as string;
 				} else if (id === 'workShiftId') {
 					params.workShiftId = value as string;
-				} else if (id === 'dateFrom') {
-					params.dateFrom = value as string;
-				} else if (id === 'dateTo') {
-					params.dateTo = value as string;
+				} else if (id === 'companyId') {
+					params.companyId = value as string;
+				} else if (id === 'agencyId') {
+					params.agencyId = value as string;
+				} else if (id === 'terminalId') {
+					params.terminalId = value as string;
+				} else if (id === 'productId') {
+					params.productId = value as string;
+				} else if (id === 'localityId') {
+					params.localityId = value as string;
+				} else if (id === 'date') {
+					// El filtro de fecha viene como array [dateFrom, dateTo]
+					const dateRange = value as [string, string];
+					if (dateRange[0]) {
+						params.dateFrom = dateRange[0];
+					}
+					if (dateRange[1]) {
+						params.dateTo = dateRange[1];
+					}
 				}
 			}
 		}

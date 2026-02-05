@@ -2,7 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Modal, NumberInput, Stack } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { Controller, useForm } from 'react-hook-form';
-import { WorkerSelect, WorkShiftSelect } from '@/components';
+import {
+	AgencySelect,
+	CompanySelect,
+	ProductSelect,
+	TerminalSelect,
+	WorkerSelect,
+	WorkShiftSelect,
+} from '@/components';
+import { useAuthStore } from '@/stores';
 import { useMutationCreateWorkerAssignment } from '../-hooks';
 import {
 	type CreateWorkerAssignmentRequest,
@@ -18,43 +26,59 @@ export function CreateWorkerAssignmentForm({
 	opened,
 	onClose,
 }: CreateWorkerAssignmentFormProps) {
+	const admin = useAuthStore((state) => state.admin);
 	const { mutate: createWorkerAssignment, isPending } = useMutationCreateWorkerAssignment();
 
 	const {
-		register,
 		handleSubmit,
 		reset,
 		control,
 		formState: { errors },
-	} = useForm<CreateWorkerAssignmentRequest>({
-		resolver: zodResolver(CreateWorkerAssignmentRequestSchema),
+	} = useForm<Omit<CreateWorkerAssignmentRequest, 'localityId'>>({
+		resolver: zodResolver(CreateWorkerAssignmentRequestSchema.omit({ localityId: true })),
 		defaultValues: {
 			workerId: '',
 			workShiftId: '',
 			date: '',
 			additionalPercent: '',
+			companyId: '',
+			agencyId: '',
+			terminalId: '',
+			productId: '',
 		},
 	});
 
-	const onSubmit = (data: CreateWorkerAssignmentRequest) => {
-		// Asegurarse de que additionalPercent sea undefined si está vacío
+	const onSubmit = (data: Omit<CreateWorkerAssignmentRequest, 'localityId'>) => {
+		console.log('onSubmit data:', data);
+		console.log('admin:', admin);
+
+		// Asegurar que se use la localidad del admin (ya sea local o la que seleccionó el ADMIN global)
 		const submitData: CreateWorkerAssignmentRequest = {
-			workerId: data.workerId,
-			workShiftId: data.workShiftId,
-			date: data.date,
+			...data,
+			localityId: admin?.localityId || '',
 		};
 
+		console.log('submitData:', submitData);
+
 		// Solo incluir additionalPercent si tiene un valor válido
-		if (data.additionalPercent && data.additionalPercent !== '') {
-			submitData.additionalPercent = data.additionalPercent;
+		if (!data.additionalPercent || data.additionalPercent === '') {
+			delete submitData.additionalPercent;
 		}
 
 		createWorkerAssignment(submitData, {
 			onSuccess: () => {
+				console.log('Success!');
 				reset();
 				onClose();
 			},
+			onError: (error) => {
+				console.error('Error creating worker assignment:', error);
+			},
 		});
+	};
+
+	const onError = (errors: any) => {
+		console.log('Form validation errors:', errors);
 	};
 
 	const handleClose = () => {
@@ -70,7 +94,7 @@ export function CreateWorkerAssignmentForm({
 			centered
 			size='md'
 		>
-			<form onSubmit={handleSubmit(onSubmit)}>
+			<form onSubmit={handleSubmit(onSubmit, onError)}>
 				<Stack>
 					<Controller
 						name='workerId'
@@ -126,6 +150,66 @@ export function CreateWorkerAssignmentForm({
 								error={errors.date?.message}
 								required
 								valueFormat='DD/MM/YYYY'
+							/>
+						)}
+					/>
+
+					<Controller
+						name='companyId'
+						control={control}
+						render={({ field }) => (
+							<CompanySelect
+								placeholder='Seleccione una empresa'
+								value={field.value}
+								onChange={(value) => field.onChange(value || '')}
+								onBlur={field.onBlur}
+								error={errors.companyId?.message}
+								required
+							/>
+						)}
+					/>
+
+					<Controller
+						name='agencyId'
+						control={control}
+						render={({ field }) => (
+							<AgencySelect
+								placeholder='Seleccione una agencia'
+								value={field.value}
+								onChange={(value) => field.onChange(value || '')}
+								onBlur={field.onBlur}
+								error={errors.agencyId?.message}
+								required
+							/>
+						)}
+					/>
+
+					<Controller
+						name='terminalId'
+						control={control}
+						render={({ field }) => (
+							<TerminalSelect
+								placeholder='Seleccione un terminal'
+								value={field.value}
+								onChange={(value) => field.onChange(value || '')}
+								onBlur={field.onBlur}
+								error={errors.terminalId?.message}
+								required
+							/>
+						)}
+					/>
+
+					<Controller
+						name='productId'
+						control={control}
+						render={({ field }) => (
+							<ProductSelect
+								placeholder='Seleccione un producto'
+								value={field.value}
+								onChange={(value) => field.onChange(value || '')}
+								onBlur={field.onBlur}
+								error={errors.productId?.message}
+								required
 							/>
 						)}
 					/>
