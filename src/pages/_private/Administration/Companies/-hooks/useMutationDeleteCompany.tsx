@@ -7,7 +7,7 @@ export const useMutationDeleteCompany = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteCompany(id),
+    mutationFn: (id: string) => deleteCompany(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COMPANIES] });
       notifications.show({

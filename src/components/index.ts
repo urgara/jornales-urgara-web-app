@@ -1,3 +1,4 @@
+export * from './AgencySelect';
 export * from './ButtonLink';
 export * from './CompanySelect';
 export * from './CustomTable/index';
@@ -5,5 +6,7 @@ export * from './HeaderLocalitySelector';
 export * from './LocalitySelect';
 export * from './NavLinkGroup';
 export * from './PageLoading';
+export * from './ProductSelect';
+export * from './TerminalSelect';
 export * from './WorkerSelect';
 export * from './WorkShiftSelect';

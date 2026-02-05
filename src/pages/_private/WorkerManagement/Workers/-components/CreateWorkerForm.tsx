@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Modal, Stack, TextInput } from '@mantine/core';
-import { useForm } from 'react-hook-form';
+import { Button, Modal, Select, Stack, TextInput } from '@mantine/core';
+import { Controller, useForm } from 'react-hook-form';
 import type { Admin } from '@/models';
 import { useMutationCreateWorker } from '../-hooks';
-import { type CreateWorkerRequest, CreateWorkerRequestSchema } from '../-models';
+import { type CreateWorkerRequest, CreateWorkerRequestSchema, WorkerCategoryEnum } from '../-models';
 
 interface CreateWorkerFormProps {
 	opened: boolean;
@@ -18,23 +18,24 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 		register,
 		handleSubmit,
 		reset,
+		control,
 		formState: { errors },
-	} = useForm<CreateWorkerRequest>({
-		resolver: zodResolver(CreateWorkerRequestSchema),
+	} = useForm<Omit<CreateWorkerRequest, 'localityId'>>({
+		resolver: zodResolver(CreateWorkerRequestSchema.omit({ localityId: true })),
 		defaultValues: {
 			name: '',
 			surname: '',
 			dni: '',
-			localityId: admin?.localityId || (undefined as unknown as string),
+			category: 'IDONEO',
 			baseHourlyRate: '',
 		},
 	});
 
-	const onSubmit = (data: CreateWorkerRequest) => {
+	const onSubmit = (data: Omit<CreateWorkerRequest, 'localityId'>) => {
 		// Asegurar que se use la localidad del admin
-		const submitData = {
+		const submitData: CreateWorkerRequest = {
 			...data,
-			localityId: admin?.localityId || data.localityId,
+			localityId: admin?.localityId || '',
 		};
 
 		createWorker(submitData, {
@@ -76,6 +77,24 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 						{...register('dni')}
 						error={errors.dni?.message}
 						required
+					/>
+
+					<Controller
+						name='category'
+						control={control}
+						render={({ field }) => (
+							<Select
+								label='Categoría'
+								placeholder='Seleccione una categoría'
+								data={WorkerCategoryEnum.options.map((cat) => ({
+									value: cat,
+									label: cat,
+								}))}
+								{...field}
+								error={errors.category?.message}
+								required
+							/>
+						)}
 					/>
 
 					<TextInput

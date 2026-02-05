@@ -89,12 +89,8 @@ export const useQueryCompanies = () => {
 
       // Agregar solo los filtros con valores
       newFilters.forEach((filter) => {
-        if (filter.value) {
-          if (filter.id === 'legalEntityId' && typeof filter.value === 'number') {
-            urlParams[filter.id] = filter.value;
-          } else if (typeof filter.value === 'string') {
-            urlParams[filter.id] = filter.value;
-          }
+        if (filter.value && typeof filter.value === 'string') {
+          urlParams[filter.id] = filter.value;
         }
       });
       updateUrl(urlParams);

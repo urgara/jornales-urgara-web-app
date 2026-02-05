@@ -1,4 +1,4 @@
-import { Card, Container, Grid, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Card, Container, Grid, Group, Loader, Stack, Text } from '@mantine/core';
 import { IconBriefcase, IconBuilding, IconCalendarCheck, IconUsers } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import {
@@ -57,8 +57,6 @@ function Dashboard() {
 	return (
 		<Container fluid>
 			<Stack gap='xl'>
-				<Title order={1}>Dashboard</Title>
-
 				<Grid>
 					{statsCards.map((stat) => {
 						const Icon = stat.icon;

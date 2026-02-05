@@ -52,7 +52,7 @@ function PrivateLayout() {
       </AppShell.Header>
       <AppShell.Navbar h='100%'>
         <ScrollArea>
-          <ButtonLink label='Dashboard' to='/Dashboard' />
+          <ButtonLink label='Inicio' to='/Dashboard' />
           <ButtonLink
             label='Asignaciones'
             to='/WorkerAssignments'
@@ -62,10 +62,13 @@ function PrivateLayout() {
             <ButtonLink label='Administradores' to='/Administration/Admins' />
             <ButtonLink label='Localidades' to='/Administration/Localities' />
             <ButtonLink label='Empresas' to='/Administration/Companies' />
+            <ButtonLink label='Agencias' to='/Administration/Agencies' />
+            <ButtonLink label='Productos' to='/Administration/Products' />
           </NavLinkGroup>
           <NavLinkGroup label='Gestión de Trabajadores' leftSection={<IconUsers size={16} />}>
             <ButtonLink label='Trabajadores' to='/WorkerManagement/Workers/List' />
             <ButtonLink label='Turnos' to='/WorkerManagement/WorkShift/List' />
+            <ButtonLink label='Terminal / muelle' to='/WorkerManagement/Terminals' />
           </NavLinkGroup>
         </ScrollArea>
       </AppShell.Navbar>

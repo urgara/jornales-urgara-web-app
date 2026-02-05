@@ -34,9 +34,9 @@ function RouteComponent() {
   const { mutate: updateLocality, isPending: isUpdating } = useMutationUpdateLocality();
   const { mutate: deleteLocality, isPending: isDeleting } = useMutationDeleteLocality();
 
-  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
-  const [localityToDelete, setLocalityToDelete] = useState<number | null>(null);
+  const [localityToDelete, setLocalityToDelete] = useState<string | null>(null);
   const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
     useConfigTablePersist('localities');
 
@@ -156,7 +156,7 @@ function RouteComponent() {
     clearErrors();
   };
 
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: string) => {
     setLocalityToDelete(id);
     setDeleteModalOpened(true);
   };

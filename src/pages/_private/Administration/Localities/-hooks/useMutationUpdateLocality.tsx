@@ -8,7 +8,7 @@ export const useMutationUpdateLocality = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateLocalityRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateLocalityRequest }) =>
       updateLocalityService(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.LOCALITIES] });

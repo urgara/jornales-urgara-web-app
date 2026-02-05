@@ -8,7 +8,7 @@ import {
 const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 // Enums
-const WorkerCategoryEnum = z.enum(['IDONEO', 'SEMI_IDONEO', 'NO_IDONEO']);
+const WorkerCategoryEnum = z.enum(['IDONEO', 'PERITO']);
 const DayOfWeekEnum = z.enum(['M', 'T', 'W', 'Th', 'F', 'S', 'Su']);
 
 // Worker Schema (para relaciones)

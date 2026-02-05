@@ -4,6 +4,9 @@ import {
 	ResponseGenericIncludeDataSchema,
 } from '@/models';
 
+// Worker Category Enum
+const WorkerCategoryEnum = z.enum(['IDONEO', 'PERITO']);
+
 // Worker Schema
 const WorkerSchema = z.object({
 	id: z.string().uuid(),
@@ -16,6 +19,7 @@ const WorkerSchema = z.object({
 		.string()
 		.min(7, 'El DNI debe tener al menos 7 caracteres')
 		.max(10, 'El DNI no debe exceder 10 caracteres'),
+	category: WorkerCategoryEnum,
 	localityId: z.string().uuid(),
 	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 	createdAt: z.iso.datetime(),
@@ -40,6 +44,7 @@ const CreateWorkerRequestSchema = z.object({
 		.string()
 		.min(7, 'El DNI debe tener al menos 7 caracteres')
 		.max(10, 'El DNI no debe exceder 10 caracteres'),
+	category: WorkerCategoryEnum,
 	localityId: z.string().uuid(),
 	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 });
@@ -59,12 +64,14 @@ const UpdateWorkerRequestSchema = z.object({
 		.min(7, 'El DNI debe tener al menos 7 caracteres')
 		.max(10, 'El DNI no debe exceder 10 caracteres')
 		.optional(),
+	category: WorkerCategoryEnum.optional(),
 	localityId: z.string().uuid().optional(),
 	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales').optional(),
 });
 
 const UpdateWorkerResponseSchema = ResponseGenericIncludeDataSchema(WorkerSchema);
 
+type WorkerCategory = z.infer<typeof WorkerCategoryEnum>;
 type Worker = z.infer<typeof WorkerSchema>;
 type ListWorkersResponse = z.infer<typeof ListWorkersResponseSchema>;
 type GetWorkerResponse = z.infer<typeof GetWorkerResponseSchema>;
@@ -74,6 +81,7 @@ type UpdateWorkerRequest = z.infer<typeof UpdateWorkerRequestSchema>;
 type UpdateWorkerResponse = z.infer<typeof UpdateWorkerResponseSchema>;
 
 export {
+	WorkerCategoryEnum,
 	WorkerSchema,
 	ListWorkersResponseSchema,
 	GetWorkerResponseSchema,
@@ -84,6 +92,7 @@ export {
 };
 
 export type {
+	WorkerCategory,
 	Worker,
 	ListWorkersResponse,
 	GetWorkerResponse,

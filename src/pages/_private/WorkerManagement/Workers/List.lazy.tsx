@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Button, Container, Flex, Group, Modal, Text, Title } from '@mantine/core';
+import { ActionIcon, Button, Container, Flex, Group, Modal, Select, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
@@ -8,11 +8,11 @@ import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-ta
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CustomTable, LocalitySelect } from '@/components';
-import { useConfigTablePersist } from '@/hooks';
+import { useConfigTablePersist, useQuerySelectLocalities } from '@/hooks';
 import { useAuthStore } from '@/stores';
 import { CreateWorkerForm } from './-components';
 import { useMutationDeleteWorker, useMutationUpdateWorker, useQueryWorkers } from './-hooks';
-import { type UpdateWorkerRequest, UpdateWorkerRequestSchema, type Worker } from './-models';
+import { type UpdateWorkerRequest, UpdateWorkerRequestSchema, type Worker, WorkerCategoryEnum } from './-models';
 
 export const Route = createLazyFileRoute('/_private/WorkerManagement/Workers/List')({
 	component: RouteComponent,
@@ -20,6 +20,7 @@ export const Route = createLazyFileRoute('/_private/WorkerManagement/Workers/Lis
 
 function RouteComponent() {
 	const admin = useAuthStore((state) => state.admin);
+	const { getLocalityName } = useQuerySelectLocalities();
 	const {
 		data: workersData,
 		isLoading,
@@ -106,22 +107,45 @@ function RouteComponent() {
 				}),
 			},
 			{
+				accessorKey: 'category',
+				header: 'Categoría',
+				size: 120,
+				enableEditing: true,
+				Edit: ({ row }) => (
+					<Select
+						data={WorkerCategoryEnum.options.map((cat) => ({
+							value: cat,
+							label: cat,
+						}))}
+						value={row._valuesCache.category}
+						onChange={(value) => {
+							if (value) {
+								setValue('category', value as 'IDONEO' | 'PERITO');
+								row._valuesCache.category = value;
+								trigger('category');
+							}
+						}}
+						error={editingRowId === row.id ? errors.category?.message : undefined}
+					/>
+				),
+			},
+			{
 				accessorKey: 'localityId',
 				header: 'Localidad',
 				grow: true,
 				enableEditing: true,
 				Cell: ({ cell }) => {
-					const id = cell.getValue<number>();
-					return `Localidad #${id}`;
+					const localityId = cell.getValue<string>();
+					return getLocalityName(localityId);
 				},
 				Edit: ({ row }) => (
 					<LocalitySelect
 						required
-						value={row._valuesCache.localityId?.toString()}
+						value={row._valuesCache.localityId}
 						onChange={(value) => {
 							if (value) {
-								setValue('localityId', Number(value));
-								row._valuesCache.localityId = Number(value);
+								setValue('localityId', value);
+								row._valuesCache.localityId = value;
 								trigger('localityId');
 							}
 						}}
@@ -183,7 +207,7 @@ function RouteComponent() {
 				},
 			},
 		],
-		[editingRowId, errors, setValue, trigger]
+		[editingRowId, errors, setValue, trigger, getLocalityName]
 	);
 
 	const onSubmit = (data: UpdateWorkerRequest, row: MRT_Row<Worker>, exitEditingMode: () => void) => {
@@ -221,12 +245,14 @@ function RouteComponent() {
 		setValue('name', row.original.name);
 		setValue('surname', row.original.surname);
 		setValue('dni', row.original.dni);
+		setValue('category', row.original.category);
 		setValue('localityId', row.original.localityId);
 		setValue('baseHourlyRate', row.original.baseHourlyRate);
 
 		row._valuesCache.name = row.original.name;
 		row._valuesCache.surname = row.original.surname;
 		row._valuesCache.dni = row.original.dni;
+		row._valuesCache.category = row.original.category;
 		row._valuesCache.localityId = row.original.localityId;
 		row._valuesCache.baseHourlyRate = row.original.baseHourlyRate;
 

@@ -31,9 +31,9 @@ function RouteComponent() {
   const { mutate: updateCompany, isPending: isUpdating } = useMutationUpdateCompany();
   const { mutate: deleteCompany, isPending: isDeleting } = useMutationDeleteCompany();
 
-  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
-  const [companyToDelete, setCompanyToDelete] = useState<number | null>(null);
+  const [companyToDelete, setCompanyToDelete] = useState<string | null>(null);
   const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
     useConfigTablePersist('companies');
   const {
@@ -162,7 +162,7 @@ function RouteComponent() {
     clearErrors();
   };
 
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: string) => {
     setCompanyToDelete(id);
     setDeleteModalOpened(true);
   };
