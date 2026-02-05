@@ -11,6 +11,7 @@ const WorkShiftSortBySchema = z.enum(
 );
 const WorkShiftsQueryParamsSchema = GenericQueryParamsSchema(WorkShiftSortBySchema).extend({
   description: z.string().optional(),
+  localityId: z.string().uuid().optional(),
 });
 
 type WorkShiftsQueryParams = z.infer<typeof WorkShiftsQueryParamsSchema>;

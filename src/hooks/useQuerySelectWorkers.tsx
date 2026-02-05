@@ -1,12 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { getSelectWorkersService } from '@/services';
+import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
 
 export const useQuerySelectWorkers = () => {
+	const admin = useAuthStore((store) => store.admin);
+
 	const query = useQuery({
-		queryKey: [QUERY_KEYS.WORKERS, 'select'],
-		queryFn: () => getSelectWorkersService(),
+		queryKey: [QUERY_KEYS.WORKERS, 'select', admin?.localityId],
+		queryFn: () =>
+			getSelectWorkersService(admin?.localityId ? { localityId: admin.localityId } : undefined),
 		staleTime: 60 * 60 * 1000, // 60 minutos
 		gcTime: 120 * 60 * 1000, // 120 minutos
 	});

@@ -1,11 +1,13 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { MRT_ColumnFiltersState, MRT_PaginationState, MRT_SortingState } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
+import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
 import type { WorkersQueryParams } from '../-models';
 import { workerService } from '../-services';
 
 export function useQueryWorkers() {
+	const admin = useAuthStore((store) => store.admin);
 	const [pagination, setPagination] = useState<MRT_PaginationState>({
 		pageIndex: 0,
 		pageSize: 10,
@@ -19,6 +21,11 @@ export function useQueryWorkers() {
 			page: pagination.pageIndex + 1,
 			limit: pagination.pageSize,
 		};
+
+		// Agregar localityId si el admin tiene una localidad asignada
+		if (admin?.localityId) {
+			params.localityId = admin.localityId;
+		}
 
 		if (sorting.length > 0) {
 			params.sortBy = sorting[0].id as WorkersQueryParams['sortBy'];
@@ -34,16 +41,12 @@ export function useQueryWorkers() {
 					params.surname = value as string;
 				} else if (id === 'dni') {
 					params.dni = value as string;
-				} else if (id === 'companyId') {
-					params.companyId = Number(value);
-				} else if (id === 'localityId') {
-					params.localityId = Number(value);
 				}
 			}
 		}
 
 		return params;
-	}, [pagination, sorting, columnFilters]);
+	}, [pagination, sorting, columnFilters, admin?.localityId]);
 
 	const { data, isLoading, isError } = useQuery({
 		queryKey: [QUERY_KEYS.WORKERS, queryParams],

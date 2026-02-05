@@ -19,20 +19,24 @@ export const Route = createFileRoute('/_private')({
       throw redirect({ to: '/Login' });
     }
 
-    // Segunda verificación: fetch admin
-    try {
-      const adminData = await QUERY.ensureQueryData(adminQueryOptions);
+    // Segunda verificación: fetch admin solo si no hay datos en el store
+    const currentAdmin = useAuthStore.getState().admin;
 
-      if (!adminData?.data) {
+    if (!currentAdmin) {
+      try {
+        const adminData = await QUERY.ensureQueryData(adminQueryOptions);
+
+        if (!adminData?.data) {
+          useAuthStore.getState().logout();
+          throw redirect({ to: '/Login' });
+        }
+
+        // Actualizar el store con los datos del admin
+        useAuthStore.getState().setAdmin(adminData.data);
+      } catch {
         useAuthStore.getState().logout();
         throw redirect({ to: '/Login' });
       }
-
-      // Actualizar el store con los datos del admin
-      useAuthStore.getState().setAdmin(adminData.data);
-    } catch {
-      useAuthStore.getState().logout();
-      throw redirect({ to: '/Login' });
     }
   },
 });

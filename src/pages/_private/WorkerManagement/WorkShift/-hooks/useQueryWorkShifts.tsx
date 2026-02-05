@@ -2,11 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import type { MRT_ColumnFiltersState, MRT_PaginationState } from 'mantine-react-table';
 import { useCallback, useMemo, useState } from 'react';
+import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
 import type { WorkShiftSortBy, WorkShiftsQueryParams } from '../-models';
 import { getWorkShifts } from '../-services';
 
 export const useQueryWorkShifts = () => {
+  const admin = useAuthStore((store) => store.admin);
   const navigate = useNavigate();
   const search = useSearch({ from: '/_private/WorkerManagement/WorkShift/List' });
 
@@ -103,6 +105,11 @@ export const useQueryWorkShifts = () => {
       limit: pagination.pageSize,
     };
 
+    // Agregar localityId si el admin tiene una localidad asignada
+    if (admin?.localityId) {
+      params.localityId = admin.localityId;
+    }
+
     if (sorting[0]) {
       params.sortBy = sorting[0].id as WorkShiftSortBy;
       params.sortOrder = sorting[0].desc ? 'desc' : 'asc';
@@ -118,7 +125,7 @@ export const useQueryWorkShifts = () => {
     });
 
     return params;
-  }, [pagination, sorting, columnFilters]);
+  }, [pagination, sorting, columnFilters, admin?.localityId]);
 
   // Query de datos
   const queryResult = useQuery({

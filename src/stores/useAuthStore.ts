@@ -5,6 +5,7 @@ import type { Admin, AuthContext } from '@/models';
 interface AuthState extends AuthContext {
   login: (isAuth: boolean) => void;
   setAdmin: (data: Admin) => void;
+  updateAdminLocality: (localityId: string) => void;
   logout: () => void;
 }
 
@@ -15,6 +16,10 @@ export const useAuthStore = create<AuthState>()(
       admin: null,
       login: (isAuth) => set({ isAuth }),
       setAdmin: (admin) => set({ admin }),
+      updateAdminLocality: (localityId) =>
+        set((state) => ({
+          admin: state.admin ? { ...state.admin, localityId } : null,
+        })),
       logout: () => set({ isAuth: false, admin: null }),
     }),
     {

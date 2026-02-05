@@ -5,11 +5,13 @@ import type {
 	MRT_SortingState,
 } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
+import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
 import type { WorkerAssignmentsQueryParams } from '../-models';
 import { workerAssignmentService } from '../-services';
 
 export function useQueryWorkerAssignments() {
+	const admin = useAuthStore((store) => store.admin);
 	const [pagination, setPagination] = useState<MRT_PaginationState>({
 		pageIndex: 0,
 		pageSize: 10,
@@ -23,6 +25,11 @@ export function useQueryWorkerAssignments() {
 			page: pagination.pageIndex + 1,
 			limit: pagination.pageSize,
 		};
+
+		// Agregar localityId si el admin tiene una localidad asignada
+		if (admin?.localityId) {
+			params.localityId = admin.localityId;
+		}
 
 		if (sorting.length > 0) {
 			params.sortBy = sorting[0].id as WorkerAssignmentsQueryParams['sortBy'];
@@ -45,7 +52,7 @@ export function useQueryWorkerAssignments() {
 		}
 
 		return params;
-	}, [pagination, sorting, columnFilters]);
+	}, [pagination, sorting, columnFilters, admin?.localityId]);
 
 	const { data, isLoading, isError } = useQuery({
 		queryKey: [QUERY_KEYS.WORKER_ASSIGNMENTS, queryParams],

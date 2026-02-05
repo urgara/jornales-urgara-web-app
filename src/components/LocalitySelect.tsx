@@ -11,7 +11,7 @@ export const LocalitySelect = ({ placeholder, disabled, ...props }: LocalitySele
     if (!data?.data) return [];
 
     return data.data.map((locality) => ({
-      value: locality.id.toString(),
+      value: locality.id,
       label: locality.name,
     }));
   }, [data?.data]);

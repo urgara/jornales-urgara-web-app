@@ -12,9 +12,9 @@ export const useQuerySelectLocalities = () => {
   });
 
   const getLocalityName = useCallback(
-    (id: number) => {
+    (id: string) => {
       const locality = query.data?.data?.find((l) => l.id === id);
-      return locality ? locality.name : `Localidad ${id}`;
+      return locality ? locality.name : 'Localidad desconocida';
     },
     [query.data?.data]
   );

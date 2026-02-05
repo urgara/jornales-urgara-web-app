@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CompanySelect, CustomTable, LocalitySelect } from '@/components';
+import { CustomTable, LocalitySelect } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
 import { useAuthStore } from '@/stores';
 import { CreateWorkerForm } from './-components';
@@ -104,37 +104,6 @@ function RouteComponent() {
 						trigger('dni');
 					},
 				}),
-			},
-			{
-				accessorKey: 'companyId',
-				header: 'Empresa',
-				grow: true,
-				enableEditing: true,
-				Cell: ({ cell }) => {
-					const id = cell.getValue<number | null>();
-					return id ? `Empresa #${id}` : '—';
-				},
-				Edit: ({ row }) => (
-					<CompanySelect
-						value={row._valuesCache.companyId?.toString()}
-						onChange={(value) => {
-							const companyId = value ? Number(value) : null;
-							setValue('companyId', companyId);
-							row._valuesCache.companyId = companyId;
-							trigger('companyId');
-						}}
-						error={editingRowId === row.id ? errors.companyId?.message : undefined}
-						clearable
-					/>
-				),
-				Filter: ({ column }) => (
-					<CompanySelect
-						value={column.getFilterValue() as string | undefined}
-						onChange={(value) => column.setFilterValue(value)}
-						placeholder='Filtrar por empresa'
-						clearable
-					/>
-				),
 			},
 			{
 				accessorKey: 'localityId',
@@ -252,14 +221,12 @@ function RouteComponent() {
 		setValue('name', row.original.name);
 		setValue('surname', row.original.surname);
 		setValue('dni', row.original.dni);
-		setValue('companyId', row.original.companyId);
 		setValue('localityId', row.original.localityId);
 		setValue('baseHourlyRate', row.original.baseHourlyRate);
 
 		row._valuesCache.name = row.original.name;
 		row._valuesCache.surname = row.original.surname;
 		row._valuesCache.dni = row.original.dni;
-		row._valuesCache.companyId = row.original.companyId;
 		row._valuesCache.localityId = row.original.localityId;
 		row._valuesCache.baseHourlyRate = row.original.baseHourlyRate;
 

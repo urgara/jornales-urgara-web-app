@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { getSelectWorkShiftsService } from '@/services';
+import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
 
 const DAY_LABELS: Record<string, string> = {
@@ -14,9 +15,14 @@ const DAY_LABELS: Record<string, string> = {
 };
 
 export const useQuerySelectWorkShifts = () => {
+	const admin = useAuthStore((store) => store.admin);
+
 	const query = useQuery({
-		queryKey: [QUERY_KEYS.WORK_SHIFTS, 'select'],
-		queryFn: () => getSelectWorkShiftsService(),
+		queryKey: [QUERY_KEYS.WORK_SHIFTS, 'select', admin?.localityId],
+		queryFn: () =>
+			getSelectWorkShiftsService(
+				admin?.localityId ? { localityId: admin.localityId } : undefined
+			),
 		staleTime: 60 * 60 * 1000, // 60 minutos
 		gcTime: 120 * 60 * 1000, // 120 minutos
 	});

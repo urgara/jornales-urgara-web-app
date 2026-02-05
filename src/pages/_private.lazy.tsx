@@ -8,8 +8,8 @@ import {
   IconLogout,
   IconUsers,
 } from '@tabler/icons-react';
-import { createLazyFileRoute, Outlet } from '@tanstack/react-router';
-import { ButtonLink, NavLinkGroup } from '@/components';
+import { createLazyFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
+import { ButtonLink, HeaderLocalitySelector, NavLinkGroup } from '@/components';
 import { useAuthStore } from '@/stores';
 
 export const Route = createLazyFileRoute('/_private')({
@@ -17,9 +17,14 @@ export const Route = createLazyFileRoute('/_private')({
 });
 
 function PrivateLayout() {
-  // Sincronizar datos del admin si está logueado pero no hay datos
+  const navigate = useNavigate();
   const logout = useAuthStore((store) => store.logout);
   const [opened, { toggle }] = useDisclosure(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: '/Login' });
+  };
 
   return (
     <AppShell
@@ -38,8 +43,9 @@ function PrivateLayout() {
             <ActionIcon variant='transparent' c='white' size={40} onClick={toggle}>
               {opened ? <IconLayoutSidebarLeftCollapse /> : <IconLayoutSidebarLeftCollapseFilled />}
             </ActionIcon>
+            <HeaderLocalitySelector />
           </Group>
-          <ActionIcon variant='white' c='red' onClick={logout}>
+          <ActionIcon variant='white' c='red' onClick={handleLogout}>
             <IconLogout />
           </ActionIcon>
         </Flex>

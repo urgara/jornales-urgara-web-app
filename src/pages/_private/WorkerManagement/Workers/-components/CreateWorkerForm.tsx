@@ -1,8 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Modal, Stack, TextInput } from '@mantine/core';
-import { Controller, useForm } from 'react-hook-form';
-import { CompanySelect, LocalitySelect } from '@/components';
-import { Role, type Admin } from '@/models';
+import { useForm } from 'react-hook-form';
+import type { Admin } from '@/models';
 import { useMutationCreateWorker } from '../-hooks';
 import { type CreateWorkerRequest, CreateWorkerRequestSchema } from '../-models';
 
@@ -13,14 +12,12 @@ interface CreateWorkerFormProps {
 }
 
 export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormProps) {
-	const isAdmin = admin?.role === Role.ADMIN;
 	const { mutate: createWorker, isPending } = useMutationCreateWorker();
 
 	const {
 		register,
 		handleSubmit,
 		reset,
-		control,
 		formState: { errors },
 	} = useForm<CreateWorkerRequest>({
 		resolver: zodResolver(CreateWorkerRequestSchema),
@@ -28,13 +25,19 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 			name: '',
 			surname: '',
 			dni: '',
-			localityId: undefined as unknown as string,
+			localityId: admin?.localityId || (undefined as unknown as string),
 			baseHourlyRate: '',
 		},
 	});
 
 	const onSubmit = (data: CreateWorkerRequest) => {
-		createWorker(data, {
+		// Asegurar que se use la localidad del admin
+		const submitData = {
+			...data,
+			localityId: admin?.localityId || data.localityId,
+		};
+
+		createWorker(submitData, {
 			onSuccess: () => {
 				reset();
 				onClose();
@@ -74,40 +77,6 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 						error={errors.dni?.message}
 						required
 					/>
-
-					<Controller
-						name='companyId'
-						control={control}
-						render={({ field }) => (
-							<CompanySelect
-								label='Empresa'
-								placeholder='Seleccione una empresa (opcional)'
-								value={field.value || undefined}
-								onChange={(value) => field.onChange(value || null)}
-								onBlur={field.onBlur}
-								error={errors.companyId?.message}
-								clearable
-							/>
-						)}
-					/>
-
-					{isAdmin && (
-						<Controller
-							name='localityId'
-							control={control}
-							render={({ field }) => (
-								<LocalitySelect
-									label='Localidad'
-									placeholder='Seleccione una localidad'
-									value={field.value || undefined}
-									onChange={(value) => field.onChange(value || undefined)}
-									onBlur={field.onBlur}
-									error={errors.localityId?.message}
-									required
-								/>
-							)}
-						/>
-					)}
 
 					<TextInput
 						label='Tarifa base por hora'

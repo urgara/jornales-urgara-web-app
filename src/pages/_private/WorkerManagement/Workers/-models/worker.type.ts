@@ -16,7 +16,6 @@ const WorkerSchema = z.object({
 		.string()
 		.min(7, 'El DNI debe tener al menos 7 caracteres')
 		.max(10, 'El DNI no debe exceder 10 caracteres'),
-	companyId: z.string().uuid().nullable(),
 	localityId: z.string().uuid(),
 	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 	createdAt: z.iso.datetime(),
@@ -41,7 +40,6 @@ const CreateWorkerRequestSchema = z.object({
 		.string()
 		.min(7, 'El DNI debe tener al menos 7 caracteres')
 		.max(10, 'El DNI no debe exceder 10 caracteres'),
-	companyId: z.string().uuid().nullable().optional(),
 	localityId: z.string().uuid(),
 	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 });
@@ -61,7 +59,6 @@ const UpdateWorkerRequestSchema = z.object({
 		.min(7, 'El DNI debe tener al menos 7 caracteres')
 		.max(10, 'El DNI no debe exceder 10 caracteres')
 		.optional(),
-	companyId: z.string().uuid().nullable().optional(),
 	localityId: z.string().uuid().optional(),
 	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales').optional(),
 });
