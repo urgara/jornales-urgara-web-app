@@ -3,27 +3,20 @@ import { ActionIcon, Button, Container, Flex, Group, Modal, Text, Title } from '
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
-import dayjs from 'dayjs';
 import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CustomTable, LocalitySelect } from '@/components';
+import { CustomTable } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
-import { useQuerySelectLocalities } from '@/hooks/useQuerySelectLocalities';
 import { CreateTerminalForm } from './-components';
-import {
-	useMutationDeleteTerminal,
-	useMutationUpdateTerminal,
-	useQueryTerminals,
-} from './-hooks';
+import { useMutationDeleteTerminal, useMutationUpdateTerminal, useQueryTerminals } from './-hooks';
 import { type Terminal, type UpdateTerminalRequest, UpdateTerminalRequestSchema } from './-models';
 
-export const Route = createLazyFileRoute('/_private/WorkerManagement/Terminals')({
+export const Route = createLazyFileRoute('/_private/Administration/Terminals')({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { data: localities, getLocalityName } = useQuerySelectLocalities();
 	const {
 		data: terminalsData,
 		isLoading,
@@ -75,54 +68,8 @@ function RouteComponent() {
 					},
 				}),
 			},
-			{
-				accessorKey: 'localityId',
-				header: 'Localidad',
-				grow: true,
-				enableEditing: true,
-				Cell: ({ cell }) => {
-					const localityId = cell.getValue<string>();
-					return getLocalityName(localityId);
-				},
-				Edit: ({ row }) => (
-					<LocalitySelect
-						required
-						value={row._valuesCache.localityId}
-						onChange={(value) => {
-							if (value) {
-								setValue('localityId', value);
-								row._valuesCache.localityId = value;
-								trigger('localityId');
-							}
-						}}
-						error={editingRowId === row.id ? errors.localityId?.message : undefined}
-					/>
-				),
-			},
-			{
-				accessorKey: 'createdAt',
-				header: 'Fecha de Creación',
-				grow: true,
-				enableEditing: false,
-				enableColumnFilter: false,
-				Cell: ({ cell }) => {
-					const date = cell.getValue<string>();
-					return dayjs(date).format('DD/MM/YYYY HH:mm');
-				},
-			},
-			{
-				accessorKey: 'deletedAt',
-				header: 'Fecha de Eliminación',
-				grow: true,
-				enableEditing: false,
-				enableColumnFilter: false,
-				Cell: ({ cell }) => {
-					const deletedAt = cell.getValue<string | null>();
-					return deletedAt ? dayjs(deletedAt).format('DD/MM/YYYY HH:mm') : '—';
-				},
-			},
 		],
-		[editingRowId, errors, setValue, trigger, localities]
+		[editingRowId, errors, setValue, trigger]
 	);
 
 	const onSubmit = (data: UpdateTerminalRequest, row: MRT_Row<Terminal>, exitEditingMode: () => void) => {
@@ -158,11 +105,7 @@ function RouteComponent() {
 	const handleEditStart = ({ row }: { row: MRT_Row<Terminal> }) => {
 		setEditingRowId(row.id);
 		setValue('name', row.original.name);
-		setValue('localityId', row.original.localityId);
-
 		row._valuesCache.name = row.original.name;
-		row._valuesCache.localityId = row.original.localityId;
-
 		clearErrors();
 	};
 
@@ -173,12 +116,15 @@ function RouteComponent() {
 
 	const handleConfirmDelete = () => {
 		if (terminalToDelete) {
-			deleteTerminal(terminalToDelete, {
-				onSettled: () => {
-					setDeleteModalOpened(false);
-					setTerminalToDelete(null);
-				},
-			});
+			deleteTerminal(
+				{ id: terminalToDelete },
+				{
+					onSettled: () => {
+						setDeleteModalOpened(false);
+						setTerminalToDelete(null);
+					},
+				}
+			);
 		}
 	};
 
@@ -198,7 +144,7 @@ function RouteComponent() {
 						<ActionIcon variant='filled' onClick={open}>
 							<IconPlus size={18} />
 						</ActionIcon>
-						<Title order={1}>Terminal / muelle</Title>
+						<Title order={1}>Terminales</Title>
 					</>
 				)}
 				enableRowActions

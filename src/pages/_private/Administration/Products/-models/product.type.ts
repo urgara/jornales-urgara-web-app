@@ -5,8 +5,6 @@ const ProductSchema = z.object({
 	id: z.string().uuid(),
 	name: z.string().min(1).max(40),
 	isActive: z.boolean(),
-	createdAt: z.iso.datetime(),
-	deletedAt: z.iso.datetime().nullable(),
 });
 
 const SelectProductSchema = z.object({

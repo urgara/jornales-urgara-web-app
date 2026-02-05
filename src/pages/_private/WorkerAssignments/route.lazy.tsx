@@ -61,7 +61,7 @@ function RouteComponent() {
 	const { data: companiesData } = useQuerySelectCompanies();
 	const { data: agenciesData } = useQuerySelectAgencies();
 	const { getTerminalName } = useQuerySelectTerminals();
-	const { data: productsData } = useQuerySelectProducts();
+	const { products } = useQuerySelectProducts();
 
 	const getCompanyName = (id: string) => {
 		const company = companiesData?.data?.find((c) => c.id === id);
@@ -69,12 +69,12 @@ function RouteComponent() {
 	};
 
 	const getAgencyName = (id: string) => {
-		const agency = agenciesData?.data?.find((a) => a.id === id);
+		const agency = agenciesData.find((a: { id: string; name: string }) => a.id === id);
 		return agency ? agency.name : 'Agencia desconocida';
 	};
 
 	const getProductName = (id: string) => {
-		const product = productsData?.data?.find((p) => p.id === id);
+		const product = products.find((p) => p.id === id);
 		return product ? product.name : 'Producto desconocido';
 	};
 

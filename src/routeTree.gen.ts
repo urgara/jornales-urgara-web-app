@@ -14,7 +14,6 @@ import { Route as rootRouteImport } from './pages/__root'
 import { Route as PrivateRouteImport } from './pages/_private'
 import { Route as PrivateWorkerAssignmentsRouteRouteImport } from './pages/_private/WorkerAssignments/route'
 import { Route as PublicLoginIndexRouteImport } from './pages/_public/Login/index'
-import { Route as PrivateWorkerManagementTerminalsRouteRouteImport } from './pages/_private/WorkerManagement/Terminals/route'
 import { Route as PrivateAdministrationLocalitiesRouteRouteImport } from './pages/_private/Administration/Localities/route'
 import { Route as PrivateAdministrationCompaniesRouteRouteImport } from './pages/_private/Administration/Companies/route'
 import { Route as PrivateAdministrationAdminsRouteRouteImport } from './pages/_private/Administration/Admins/route'
@@ -25,6 +24,9 @@ import { Route as PrivateWorkerManagementWorkShiftListRouteRouteImport } from '.
 
 const PrivateDashboardIndexLazyRouteImport = createFileRoute(
   '/_private/Dashboard/',
+)()
+const PrivateAdministrationTerminalsRouteLazyRouteImport = createFileRoute(
+  '/_private/Administration/Terminals',
 )()
 const PrivateAdministrationProductsRouteLazyRouteImport = createFileRoute(
   '/_private/Administration/Products',
@@ -60,6 +62,16 @@ const PublicLoginIndexRoute = PublicLoginIndexRouteImport.update({
   path: '/Login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivateAdministrationTerminalsRouteLazyRoute =
+  PrivateAdministrationTerminalsRouteLazyRouteImport.update({
+    id: '/Administration/Terminals',
+    path: '/Administration/Terminals',
+    getParentRoute: () => PrivateRoute,
+  } as any).lazy(() =>
+    import('./pages/_private/Administration/Terminals/route.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const PrivateAdministrationProductsRouteLazyRoute =
   PrivateAdministrationProductsRouteLazyRouteImport.update({
     id: '/Administration/Products',
@@ -77,16 +89,6 @@ const PrivateAdministrationAgenciesRouteLazyRoute =
     getParentRoute: () => PrivateRoute,
   } as any).lazy(() =>
     import('./pages/_private/Administration/Agencies/route.lazy').then(
-      (d) => d.Route,
-    ),
-  )
-const PrivateWorkerManagementTerminalsRouteRoute =
-  PrivateWorkerManagementTerminalsRouteRouteImport.update({
-    id: '/WorkerManagement/Terminals',
-    path: '/WorkerManagement/Terminals',
-    getParentRoute: () => PrivateRoute,
-  } as any).lazy(() =>
-    import('./pages/_private/WorkerManagement/Terminals/route.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -158,9 +160,9 @@ export interface FileRoutesByFullPath {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/WorkerManagement/Terminals': typeof PrivateWorkerManagementTerminalsRouteRoute
   '/Administration/Agencies': typeof PrivateAdministrationAgenciesRouteLazyRoute
   '/Administration/Products': typeof PrivateAdministrationProductsRouteLazyRoute
+  '/Administration/Terminals': typeof PrivateAdministrationTerminalsRouteLazyRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
   '/WorkerManagement/WorkShift/List': typeof PrivateWorkerManagementWorkShiftListRouteRoute
@@ -173,9 +175,9 @@ export interface FileRoutesByTo {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/WorkerManagement/Terminals': typeof PrivateWorkerManagementTerminalsRouteRoute
   '/Administration/Agencies': typeof PrivateAdministrationAgenciesRouteLazyRoute
   '/Administration/Products': typeof PrivateAdministrationProductsRouteLazyRoute
+  '/Administration/Terminals': typeof PrivateAdministrationTerminalsRouteLazyRoute
   '/Login': typeof PublicLoginIndexRoute
   '/Dashboard': typeof PrivateDashboardIndexLazyRoute
   '/WorkerManagement/WorkShift/List': typeof PrivateWorkerManagementWorkShiftListRouteRoute
@@ -190,9 +192,9 @@ export interface FileRoutesById {
   '/_private/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/_private/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/_private/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/_private/WorkerManagement/Terminals': typeof PrivateWorkerManagementTerminalsRouteRoute
   '/_private/Administration/Agencies': typeof PrivateAdministrationAgenciesRouteLazyRoute
   '/_private/Administration/Products': typeof PrivateAdministrationProductsRouteLazyRoute
+  '/_private/Administration/Terminals': typeof PrivateAdministrationTerminalsRouteLazyRoute
   '/_public/Login/': typeof PublicLoginIndexRoute
   '/_private/Dashboard/': typeof PrivateDashboardIndexLazyRoute
   '/_private/WorkerManagement/WorkShift/List': typeof PrivateWorkerManagementWorkShiftListRouteRoute
@@ -207,9 +209,9 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
-    | '/WorkerManagement/Terminals'
     | '/Administration/Agencies'
     | '/Administration/Products'
+    | '/Administration/Terminals'
     | '/Login'
     | '/Dashboard'
     | '/WorkerManagement/WorkShift/List'
@@ -222,9 +224,9 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
-    | '/WorkerManagement/Terminals'
     | '/Administration/Agencies'
     | '/Administration/Products'
+    | '/Administration/Terminals'
     | '/Login'
     | '/Dashboard'
     | '/WorkerManagement/WorkShift/List'
@@ -238,9 +240,9 @@ export interface FileRouteTypes {
     | '/_private/Administration/Admins'
     | '/_private/Administration/Companies'
     | '/_private/Administration/Localities'
-    | '/_private/WorkerManagement/Terminals'
     | '/_private/Administration/Agencies'
     | '/_private/Administration/Products'
+    | '/_private/Administration/Terminals'
     | '/_public/Login/'
     | '/_private/Dashboard/'
     | '/_private/WorkerManagement/WorkShift/List'
@@ -284,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_private/Administration/Terminals': {
+      id: '/_private/Administration/Terminals'
+      path: '/Administration/Terminals'
+      fullPath: '/Administration/Terminals'
+      preLoaderRoute: typeof PrivateAdministrationTerminalsRouteLazyRouteImport
+      parentRoute: typeof PrivateRoute
+    }
     '/_private/Administration/Products': {
       id: '/_private/Administration/Products'
       path: '/Administration/Products'
@@ -296,13 +305,6 @@ declare module '@tanstack/react-router' {
       path: '/Administration/Agencies'
       fullPath: '/Administration/Agencies'
       preLoaderRoute: typeof PrivateAdministrationAgenciesRouteLazyRouteImport
-      parentRoute: typeof PrivateRoute
-    }
-    '/_private/WorkerManagement/Terminals': {
-      id: '/_private/WorkerManagement/Terminals'
-      path: '/WorkerManagement/Terminals'
-      fullPath: '/WorkerManagement/Terminals'
-      preLoaderRoute: typeof PrivateWorkerManagementTerminalsRouteRouteImport
       parentRoute: typeof PrivateRoute
     }
     '/_private/Administration/Localities': {
@@ -362,9 +364,9 @@ interface PrivateRouteChildren {
   PrivateAdministrationAdminsRouteRoute: typeof PrivateAdministrationAdminsRouteRoute
   PrivateAdministrationCompaniesRouteRoute: typeof PrivateAdministrationCompaniesRouteRoute
   PrivateAdministrationLocalitiesRouteRoute: typeof PrivateAdministrationLocalitiesRouteRoute
-  PrivateWorkerManagementTerminalsRouteRoute: typeof PrivateWorkerManagementTerminalsRouteRoute
   PrivateAdministrationAgenciesRouteLazyRoute: typeof PrivateAdministrationAgenciesRouteLazyRoute
   PrivateAdministrationProductsRouteLazyRoute: typeof PrivateAdministrationProductsRouteLazyRoute
+  PrivateAdministrationTerminalsRouteLazyRoute: typeof PrivateAdministrationTerminalsRouteLazyRoute
   PrivateDashboardIndexLazyRoute: typeof PrivateDashboardIndexLazyRoute
   PrivateWorkerManagementWorkShiftListRouteRoute: typeof PrivateWorkerManagementWorkShiftListRouteRoute
   PrivateWorkerManagementWorkersListRouteRoute: typeof PrivateWorkerManagementWorkersListRouteRoute
@@ -379,12 +381,12 @@ const PrivateRouteChildren: PrivateRouteChildren = {
     PrivateAdministrationCompaniesRouteRoute,
   PrivateAdministrationLocalitiesRouteRoute:
     PrivateAdministrationLocalitiesRouteRoute,
-  PrivateWorkerManagementTerminalsRouteRoute:
-    PrivateWorkerManagementTerminalsRouteRoute,
   PrivateAdministrationAgenciesRouteLazyRoute:
     PrivateAdministrationAgenciesRouteLazyRoute,
   PrivateAdministrationProductsRouteLazyRoute:
     PrivateAdministrationProductsRouteLazyRoute,
+  PrivateAdministrationTerminalsRouteLazyRoute:
+    PrivateAdministrationTerminalsRouteLazyRoute,
   PrivateDashboardIndexLazyRoute: PrivateDashboardIndexLazyRoute,
   PrivateWorkerManagementWorkShiftListRouteRoute:
     PrivateWorkerManagementWorkShiftListRouteRoute,
