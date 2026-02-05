@@ -85,4 +85,11 @@ export const LIST_MESSAGE_ERROR_NOTIFICATIONS: Record<ErrorType, NotificationDat
     color: 'red',
     autoClose: 8000,
   },
+
+  [ErrorType.LOCALITY_ID_REQUIRED]: {
+    title: 'Localidad Requerida',
+    message: 'Debes especificar una localidad para acceder a este recurso.',
+    color: 'orange',
+    autoClose: 5000,
+  },
 };

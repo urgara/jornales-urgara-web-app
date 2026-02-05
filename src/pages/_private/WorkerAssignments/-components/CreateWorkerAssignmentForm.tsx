@@ -159,6 +159,7 @@ export function CreateWorkerAssignmentForm({
 						control={control}
 						render={({ field }) => (
 							<CompanySelect
+								label='Empresa'
 								placeholder='Seleccione una empresa'
 								value={field.value}
 								onChange={(value) => field.onChange(value || '')}
@@ -174,6 +175,7 @@ export function CreateWorkerAssignmentForm({
 						control={control}
 						render={({ field }) => (
 							<AgencySelect
+								label='Agencia'
 								placeholder='Seleccione una agencia'
 								value={field.value}
 								onChange={(value) => field.onChange(value || '')}
@@ -189,6 +191,7 @@ export function CreateWorkerAssignmentForm({
 						control={control}
 						render={({ field }) => (
 							<TerminalSelect
+								label='Terminal'
 								placeholder='Seleccione un terminal'
 								value={field.value}
 								onChange={(value) => field.onChange(value || '')}
@@ -204,6 +207,7 @@ export function CreateWorkerAssignmentForm({
 						control={control}
 						render={({ field }) => (
 							<ProductSelect
+								label='Producto'
 								placeholder='Seleccione un producto'
 								value={field.value}
 								onChange={(value) => field.onChange(value || '')}

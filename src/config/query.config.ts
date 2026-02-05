@@ -48,21 +48,14 @@ const QUERY = new QueryClient({
 
   defaultOptions: {
     queries: {
-      // Retry con backoff exponencial para conexiones lentas/inestables
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // 1s, 2s, 4s (max 10s)
+      retry: false,
       refetchOnWindowFocus: false,
-      // Stale time aumentado para reducir refetches innecesarios
       staleTime: 5 * 60 * 1000, // 5 minutos
-      // Cache time extendido para reutilizar datos en navegación
       gcTime: 10 * 60 * 1000, // 10 minutos (antes era cacheTime)
-      // Network mode: online first, fallback a caché si falla
       networkMode: 'online',
     },
     mutations: {
-      // Retry para mutaciones (más conservador)
-      retry: 2,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // 1s, 2s (max 5s)
+      retry: false,
       networkMode: 'online',
     },
   },
