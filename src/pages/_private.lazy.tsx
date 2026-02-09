@@ -68,6 +68,7 @@ function PrivateLayout() {
           <NavLinkGroup label='Gestión de Trabajadores' leftSection={<IconUsers size={16} />}>
             <ButtonLink label='Trabajadores' to='/WorkerManagement/Workers/List' />
             <ButtonLink label='Turnos' to='/WorkerManagement/WorkShift/List' />
+            <ButtonLink label='Valores base' to='/WorkerManagement/BaseValues/List' />
             <ButtonLink label='Terminal / muelle' to='/Administration/Terminals' />
           </NavLinkGroup>
         </ScrollArea>
