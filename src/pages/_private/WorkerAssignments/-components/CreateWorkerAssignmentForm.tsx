@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Modal, NumberInput, Stack } from '@mantine/core';
+import { Button, Modal, NumberInput, Select, Stack } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
 	AgencySelect,
@@ -10,12 +11,14 @@ import {
 	WorkerSelect,
 	WorkShiftSelect,
 } from '@/components';
+import { WORKER_CATEGORY_OPTIONS } from '@/models';
 import { useAuthStore } from '@/stores';
 import { useMutationCreateWorkerAssignment } from '../-hooks';
 import {
 	type CreateWorkerAssignmentRequest,
 	CreateWorkerAssignmentRequestSchema,
 } from '../-models';
+import { BaseValueSelect, type BaseValueSelection } from './BaseValueSelect';
 
 interface CreateWorkerAssignmentFormProps {
 	opened: boolean;
@@ -28,11 +31,14 @@ export function CreateWorkerAssignmentForm({
 }: CreateWorkerAssignmentFormProps) {
 	const admin = useAuthStore((state) => state.admin);
 	const { mutate: createWorkerAssignment, isPending } = useMutationCreateWorkerAssignment();
+	const [baseValueKey, setBaseValueKey] = useState<string | null>(null);
 
 	const {
 		handleSubmit,
 		reset,
 		control,
+		watch,
+		setValue,
 		formState: { errors },
 	} = useForm<Omit<CreateWorkerAssignmentRequest, 'localityId'>>({
 		resolver: zodResolver(CreateWorkerAssignmentRequestSchema.omit({ localityId: true })),
@@ -40,6 +46,8 @@ export function CreateWorkerAssignmentForm({
 			workerId: '',
 			workShiftId: '',
 			date: '',
+			category: undefined,
+			value: { workShiftBaseValueId: '', coefficient: '' },
 			additionalPercent: '',
 			companyId: '',
 			agencyId: '',
@@ -49,40 +57,40 @@ export function CreateWorkerAssignmentForm({
 	});
 
 	const onSubmit = (data: Omit<CreateWorkerAssignmentRequest, 'localityId'>) => {
-		console.log('onSubmit data:', data);
-		console.log('admin:', admin);
-
-		// Asegurar que se use la localidad del admin (ya sea local o la que seleccionó el ADMIN global)
 		const submitData: CreateWorkerAssignmentRequest = {
 			...data,
 			localityId: admin?.localityId || '',
 		};
 
-		console.log('submitData:', submitData);
-
-		// Solo incluir additionalPercent si tiene un valor válido
 		if (!data.additionalPercent || data.additionalPercent === '') {
 			delete submitData.additionalPercent;
 		}
 
 		createWorkerAssignment(submitData, {
 			onSuccess: () => {
-				console.log('Success!');
 				reset();
+				setBaseValueKey(null);
 				onClose();
-			},
-			onError: (error) => {
-				console.error('Error creating worker assignment:', error);
 			},
 		});
 	};
 
-	const onError = (errors: any) => {
-		console.log('Form validation errors:', errors);
+	const dateValue = watch('date');
+	const categoryValue = watch('category');
+
+	const handleBaseValueChange = (selection: BaseValueSelection | null) => {
+		if (selection) {
+			setValue('value', selection);
+			setBaseValueKey(`${selection.workShiftBaseValueId}|${selection.coefficient}`);
+		} else {
+			setValue('value', { workShiftBaseValueId: '', coefficient: '' });
+			setBaseValueKey(null);
+		}
 	};
 
 	const handleClose = () => {
 		reset();
+		setBaseValueKey(null);
 		onClose();
 	};
 
@@ -94,7 +102,7 @@ export function CreateWorkerAssignmentForm({
 			centered
 			size='md'
 		>
-			<form onSubmit={handleSubmit(onSubmit, onError)}>
+			<form onSubmit={handleSubmit(onSubmit)}>
 				<Stack>
 					<Controller
 						name='workerId'
@@ -152,6 +160,34 @@ export function CreateWorkerAssignmentForm({
 								valueFormat='DD/MM/YYYY'
 							/>
 						)}
+					/>
+
+					<Controller
+						name='category'
+						control={control}
+						render={({ field }) => (
+							<Select
+								label='Categoría'
+								placeholder='Seleccione una categoría'
+								data={WORKER_CATEGORY_OPTIONS as unknown as { value: string; label: string }[]}
+								value={field.value || null}
+								onChange={(value) => field.onChange(value || '')}
+								onBlur={field.onBlur}
+								error={errors.category?.message}
+								required
+							/>
+						)}
+					/>
+
+					<BaseValueSelect
+						label='Valor base'
+						placeholder='Seleccione un valor base'
+						date={dateValue || undefined}
+						category={categoryValue || undefined}
+						value={baseValueKey}
+						onChange={handleBaseValueChange}
+						error={errors.value?.workShiftBaseValueId?.message || errors.value?.coefficient?.message}
+						required
 					/>
 
 					<Controller
