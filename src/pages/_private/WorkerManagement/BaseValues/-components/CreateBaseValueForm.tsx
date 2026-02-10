@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Modal, MultiSelect, Stack, TextInput } from '@mantine/core';
+import { Button, Modal, MultiSelect, Select, Stack, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
+import { WORKER_CATEGORY_OPTIONS } from '@/models';
 import { useMutationCreateBaseValue } from '../-hooks';
 import {
   type CreateWorkShiftBaseValueRequest,
@@ -37,6 +38,7 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
       notRemunerated: '',
       startDate: '',
       endDate: '',
+      category: 'IDONEO',
       coefficients: [],
     },
   });
@@ -73,6 +75,21 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
             required
             {...register('notRemunerated')}
             error={errors.notRemunerated?.message}
+          />
+
+          <Controller
+            name='category'
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label='Categoría'
+                placeholder='Seleccione la categoría'
+                data={WORKER_CATEGORY_OPTIONS}
+                required
+                error={errors.category?.message}
+              />
+            )}
           />
 
           <Controller

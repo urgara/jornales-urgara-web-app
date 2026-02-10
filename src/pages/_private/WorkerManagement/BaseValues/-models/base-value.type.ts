@@ -2,6 +2,7 @@ import { z } from 'zod/v4';
 import {
   ResponseGenericIncludeDataAndPaginationSchema,
   ResponseGenericIncludeDataSchema,
+  WorkerCategorySchema,
 } from '@/models';
 
 const WorkShiftCalculatedValueSchema = z.object({
@@ -17,6 +18,7 @@ const WorkShiftBaseValueSchema = z.object({
   notRemunerated: z.string(),
   startDate: z.string(),
   endDate: z.string(),
+  category: WorkerCategorySchema,
   workShiftCalculatedValues: z.array(WorkShiftCalculatedValueSchema).optional(),
 });
 
@@ -29,6 +31,7 @@ const CreateWorkShiftBaseValueRequestSchema = z.object({
   notRemunerated: z.string().min(1, 'El valor no remunerado es requerido'),
   startDate: z.string().min(1, 'La fecha de inicio es requerida'),
   endDate: z.string().min(1, 'La fecha de fin es requerida'),
+  category: WorkerCategorySchema,
   coefficients: z.array(z.string()).min(1, 'Debe seleccionar al menos un coeficiente'),
 });
 

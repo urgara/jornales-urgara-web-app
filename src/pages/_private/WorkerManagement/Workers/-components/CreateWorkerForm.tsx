@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Modal, Select, Stack, TextInput } from '@mantine/core';
 import { Controller, useForm } from 'react-hook-form';
-import type { Admin } from '@/models';
+import { WORKER_CATEGORY_OPTIONS, type Admin } from '@/models';
 import { useMutationCreateWorker } from '../-hooks';
-import { type CreateWorkerRequest, CreateWorkerRequestSchema, WorkerCategoryEnum } from '../-models';
+import { type CreateWorkerRequest, CreateWorkerRequestSchema } from '../-models';
 
 interface CreateWorkerFormProps {
 	opened: boolean;
@@ -86,10 +86,7 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 							<Select
 								label='Categoría'
 								placeholder='Seleccione una categoría'
-								data={WorkerCategoryEnum.options.map((cat) => ({
-									value: cat,
-									label: cat,
-								}))}
+								data={WORKER_CATEGORY_OPTIONS}
 								{...field}
 								error={errors.category?.message}
 								required

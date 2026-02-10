@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { GenericQueryParamsSchema } from '@/models';
+import { GenericQueryParamsSchema, WorkerCategorySchema } from '@/models';
 import { WorkShiftBaseValueSchema } from './base-value.type';
 
 const WorkShiftBaseValueSortBySchema = z.enum(
@@ -13,6 +13,7 @@ const WorkShiftBaseValuesQueryParamsSchema = GenericQueryParamsSchema(
   WorkShiftBaseValueSortBySchema
 ).extend({
   localityId: z.string().uuid().optional(),
+  category: WorkerCategorySchema.optional(),
 });
 
 type WorkShiftBaseValuesQueryParams = z.infer<typeof WorkShiftBaseValuesQueryParamsSchema>;

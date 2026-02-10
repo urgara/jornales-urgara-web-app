@@ -2,13 +2,13 @@ import { z } from 'zod/v4';
 import {
 	ResponseGenericIncludeDataAndPaginationSchema,
 	ResponseGenericIncludeDataSchema,
+	WorkerCategorySchema,
 } from '@/models';
 
 // Regex para validar formato YYYY-MM-DD
 const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 // Enums
-const WorkerCategoryEnum = z.enum(['IDONEO', 'PERITO']);
 const DayOfWeekEnum = z.enum(['M', 'T', 'W', 'Th', 'F', 'S', 'Su']);
 
 // Worker Schema (para relaciones)
@@ -18,7 +18,7 @@ const WorkerRelationSchema = z.object({
 	surname: z.string(),
 	dni: z.string(),
 	localityId: z.string().uuid(),
-	category: WorkerCategoryEnum,
+	category: WorkerCategorySchema,
 	baseHourlyRate: z.string(),
 	createdAt: z.coerce.date(),
 	deletedAt: z.coerce.date().nullable(),
@@ -112,7 +112,6 @@ const UpdateWorkerAssignmentRequestSchema = z.object({
 const UpdateWorkerAssignmentResponseSchema =
 	ResponseGenericIncludeDataSchema(WorkerAssignmentSchema);
 
-type WorkerCategory = z.infer<typeof WorkerCategoryEnum>;
 type DayOfWeek = z.infer<typeof DayOfWeekEnum>;
 type WorkerRelation = z.infer<typeof WorkerRelationSchema>;
 type WorkShiftRelation = z.infer<typeof WorkShiftRelationSchema>;
@@ -126,7 +125,6 @@ type UpdateWorkerAssignmentRequest = z.infer<typeof UpdateWorkerAssignmentReques
 type UpdateWorkerAssignmentResponse = z.infer<typeof UpdateWorkerAssignmentResponseSchema>;
 
 export {
-	WorkerCategoryEnum,
 	DayOfWeekEnum,
 	WorkerRelationSchema,
 	WorkShiftRelationSchema,
@@ -141,7 +139,6 @@ export {
 };
 
 export type {
-	WorkerCategory,
 	DayOfWeek,
 	WorkerRelation,
 	WorkShiftRelation,

@@ -7,6 +7,7 @@ import type { MRT_ColumnDef } from 'mantine-react-table';
 import { useMemo } from 'react';
 import { CustomTable } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
+import { getWorkerCategoryLabel } from '@/models';
 import { CreateBaseValueForm } from './-components';
 import { useQueryBaseValues } from './-hooks';
 import type { WorkShiftBaseValue } from './-models';
@@ -45,6 +46,14 @@ function RouteComponent() {
         size: 150,
         grow: true,
         enableColumnFilter: false,
+      },
+      {
+        accessorKey: 'category',
+        header: 'Categoría',
+        size: 120,
+        grow: true,
+        enableColumnFilter: false,
+        Cell: ({ cell }) => getWorkerCategoryLabel(cell.getValue()),
       },
       {
         accessorKey: 'startDate',

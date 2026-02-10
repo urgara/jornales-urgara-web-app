@@ -9,10 +9,11 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CustomTable, LocalitySelect } from '@/components';
 import { useConfigTablePersist, useQuerySelectLocalities } from '@/hooks';
+import { getWorkerCategoryLabel, WORKER_CATEGORY_OPTIONS, type WorkerCategory } from '@/models';
 import { useAuthStore } from '@/stores';
 import { CreateWorkerForm } from './-components';
 import { useMutationDeleteWorker, useMutationUpdateWorker, useQueryWorkers } from './-hooks';
-import { type UpdateWorkerRequest, UpdateWorkerRequestSchema, type Worker, WorkerCategoryEnum } from './-models';
+import { type UpdateWorkerRequest, UpdateWorkerRequestSchema, type Worker } from './-models';
 
 export const Route = createLazyFileRoute('/_private/WorkerManagement/Workers/List')({
 	component: RouteComponent,
@@ -111,16 +112,14 @@ function RouteComponent() {
 				header: 'Categoría',
 				size: 120,
 				enableEditing: true,
+				Cell: ({ cell }) => getWorkerCategoryLabel(cell.getValue()),
 				Edit: ({ row }) => (
 					<Select
-						data={WorkerCategoryEnum.options.map((cat) => ({
-							value: cat,
-							label: cat,
-						}))}
+						data={WORKER_CATEGORY_OPTIONS}
 						value={row._valuesCache.category}
 						onChange={(value) => {
 							if (value) {
-								setValue('category', value as 'IDONEO' | 'PERITO');
+								setValue('category', value as WorkerCategory);
 								row._valuesCache.category = value;
 								trigger('category');
 							}
