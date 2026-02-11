@@ -112,7 +112,7 @@ function RouteComponent() {
 				header: 'Categoría',
 				size: 120,
 				enableEditing: true,
-				Cell: ({ cell }) => getWorkerCategoryLabel(cell.getValue()),
+				Cell: ({ cell }) => getWorkerCategoryLabel(cell.getValue<WorkerCategory>()),
 				Edit: ({ row }) => (
 					<Select
 						data={WORKER_CATEGORY_OPTIONS}
@@ -159,29 +159,6 @@ function RouteComponent() {
 						clearable
 					/>
 				),
-			},
-			{
-				accessorKey: 'baseHourlyRate',
-				header: 'Tarifa Base/Hora',
-				grow: true,
-				enableEditing: true,
-				enableColumnFilter: false,
-				Cell: ({ cell }) => {
-					const rate = cell.getValue<string>();
-					return `$${rate}`;
-				},
-				mantineEditTextInputProps: ({ row }) => ({
-					required: true,
-					placeholder: 'Ej: 1500.00',
-					error: editingRowId === row.id ? errors.baseHourlyRate?.message : undefined,
-					onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-						setValue('baseHourlyRate', event.target.value);
-						row._valuesCache.baseHourlyRate = event.target.value;
-					},
-					onBlur: () => {
-						trigger('baseHourlyRate');
-					},
-				}),
 			},
 			{
 				accessorKey: 'createdAt',
@@ -246,14 +223,12 @@ function RouteComponent() {
 		setValue('dni', row.original.dni);
 		setValue('category', row.original.category);
 		setValue('localityId', row.original.localityId);
-		setValue('baseHourlyRate', row.original.baseHourlyRate);
 
 		row._valuesCache.name = row.original.name;
 		row._valuesCache.surname = row.original.surname;
 		row._valuesCache.dni = row.original.dni;
 		row._valuesCache.category = row.original.category;
 		row._valuesCache.localityId = row.original.localityId;
-		row._valuesCache.baseHourlyRate = row.original.baseHourlyRate;
 
 		clearErrors();
 	};

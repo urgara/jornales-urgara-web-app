@@ -19,7 +19,6 @@ const WorkerRelationSchema = z.object({
 	dni: z.string(),
 	localityId: z.string().uuid(),
 	category: WorkerCategorySchema,
-	baseHourlyRate: z.string(),
 	createdAt: z.coerce.date(),
 	deletedAt: z.coerce.date().nullable(),
 });
@@ -43,6 +42,10 @@ const WorkerAssignmentSchema = z.object({
 	workerId: z.string().uuid(),
 	workShiftId: z.string().uuid(),
 	date: z.string(),
+	category: WorkerCategorySchema,
+	workShiftBaseValueId: z.string().uuid(),
+	coefficient: z.string(),
+	baseValue: z.string(),
 	additionalPercent: z.string().nullable(),
 	totalAmount: z.string(),
 	companyId: z.string().uuid(),
@@ -82,7 +85,7 @@ const CreateWorkerAssignmentRequestSchema = z.object({
 	}),
 	additionalPercent: z
 		.union([
-			z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
+			z.string().regex(/^-?\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 			z.literal(''),
 		])
 		.optional(),
@@ -101,9 +104,16 @@ const UpdateWorkerAssignmentRequestSchema = z.object({
 	workerId: z.string().uuid('El ID del trabajador debe ser un UUID válido').optional(),
 	workShiftId: z.string().uuid('El ID del turno debe ser un UUID válido').optional(),
 	date: z.string().regex(DATE_FORMAT_REGEX, 'El formato debe ser YYYY-MM-DD').optional(),
+	category: WorkerCategorySchema.optional(),
+	value: z
+		.object({
+			workShiftBaseValueId: z.string().uuid('El ID del valor base debe ser un UUID válido'),
+			coefficient: z.string().min(1, 'El coeficiente es requerido'),
+		})
+		.optional(),
 	additionalPercent: z
 		.union([
-			z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
+			z.string().regex(/^-?\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 			z.literal(''),
 		])
 		.optional(),

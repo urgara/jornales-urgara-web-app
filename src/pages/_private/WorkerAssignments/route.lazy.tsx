@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Container, Stack, Title } from '@mantine/core';
+import { ActionIcon, Container, Stack, Text, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
@@ -27,6 +27,7 @@ import {
 	useQuerySelectWorkers,
 	useQuerySelectWorkShifts,
 } from '@/hooks';
+import { getWorkerCategoryLabel } from '@/models';
 import { useQuerySelectTerminals } from '@/hooks/useQuerySelectTerminals';
 import { CreateWorkerAssignmentForm } from './-components';
 import { useMutationUpdateWorkerAssignment, useQueryWorkerAssignments } from './-hooks';
@@ -247,6 +248,38 @@ function RouteComponent() {
 				},
 			},
 			{
+				accessorKey: 'category',
+				header: 'Categoría',
+				size: 120,
+				grow: true,
+				enableEditing: false,
+				enableColumnFilter: false,
+				Cell: ({ cell }) => {
+					const category = cell.getValue<string>();
+					return getWorkerCategoryLabel(category as 'IDONEO' | 'PERITO');
+				},
+			},
+			{
+				accessorKey: 'coefficient',
+				header: 'Coeficiente',
+				size: 120,
+				grow: true,
+				enableEditing: false,
+				enableColumnFilter: false,
+			},
+			{
+				accessorKey: 'baseValue',
+				header: 'Valor Base',
+				size: 120,
+				grow: true,
+				enableEditing: false,
+				enableColumnFilter: false,
+				Cell: ({ cell }) => {
+					const value = cell.getValue<string>();
+					return `$${value}`;
+				},
+			},
+			{
 				accessorKey: 'companyId',
 				header: 'Empresa',
 				size: 200,
@@ -413,13 +446,16 @@ function RouteComponent() {
 			},
 			{
 				accessorKey: 'additionalPercent',
-				header: 'Porcentaje Adicional',
+				header: 'Premio/Castigo',
 				size: 150,
 				grow: true,
 				enableEditing: true,
 				Cell: ({ cell }) => {
 					const percent = cell.getValue<string | null>();
-					return percent ? `${percent}%` : '—';
+					if (!percent) return '—';
+					const num = Number.parseFloat(percent);
+					const color = num > 0 ? 'var(--mantine-color-green-9)' : num < 0 ? 'var(--mantine-color-red-9)' : undefined;
+					return <Text style={{ color, fontWeight: num !== 0 ? 600 : undefined }}>{percent}%</Text>;
 				},
 				mantineEditTextInputProps: ({ row }) => ({
 					placeholder: 'Ej: 15.00',
@@ -438,7 +474,7 @@ function RouteComponent() {
 			},
 			{
 				accessorKey: 'totalAmount',
-				header: 'Monto Total',
+				header: 'Monto Total (Bruto)',
 				size: 120,
 				grow: true,
 				enableEditing: false,

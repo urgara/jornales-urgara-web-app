@@ -19,7 +19,6 @@ const WorkerSchema = z.object({
 		.max(10, 'El DNI no debe exceder 10 caracteres'),
 	category: WorkerCategorySchema,
 	localityId: z.string().uuid(),
-	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 	createdAt: z.iso.datetime(),
 	deletedAt: z.iso.datetime().nullable(),
 });
@@ -44,7 +43,6 @@ const CreateWorkerRequestSchema = z.object({
 		.max(10, 'El DNI no debe exceder 10 caracteres'),
 	category: WorkerCategorySchema,
 	localityId: z.string().uuid(),
-	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales'),
 });
 
 const CreateWorkerResponseSchema = ResponseGenericIncludeDataSchema(WorkerSchema);
@@ -64,7 +62,6 @@ const UpdateWorkerRequestSchema = z.object({
 		.optional(),
 	category: WorkerCategorySchema.optional(),
 	localityId: z.string().uuid().optional(),
-	baseHourlyRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'El formato debe ser decimal con hasta 2 decimales').optional(),
 });
 
 const UpdateWorkerResponseSchema = ResponseGenericIncludeDataSchema(WorkerSchema);

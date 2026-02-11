@@ -259,8 +259,8 @@ export function CreateWorkerAssignmentForm({
 						control={control}
 						render={({ field }) => (
 							<NumberInput
-								label='Porcentaje adicional'
-								placeholder='Ej: 15.00 (para 15%)'
+								label='Premio / Castigo'
+								placeholder='Ej: 15.00 o -10.00'
 								value={field.value ? Number(field.value) : undefined}
 								onChange={(value) => {
 									if (value === '' || value === null || value === undefined) {
@@ -273,9 +273,21 @@ export function CreateWorkerAssignmentForm({
 								error={errors.additionalPercent?.message}
 								decimalSeparator='.'
 								thousandSeparator=''
-								allowNegative={false}
+								allowNegative={true}
 								decimalScale={2}
 								fixedDecimalScale={false}
+								styles={{
+									input: {
+										color:
+											field.value && Number(field.value) !== 0
+												? Number(field.value) > 0
+													? 'var(--mantine-color-green-9)'
+													: 'var(--mantine-color-red-9)'
+												: undefined,
+										fontWeight:
+											field.value && Number(field.value) !== 0 ? 600 : undefined,
+									},
+								}}
 							/>
 						)}
 					/>

@@ -17,7 +17,7 @@ export function useQueryWorkerAssignments() {
 		pageSize: 10,
 	});
 
-	const [sorting, setSorting] = useState<MRT_SortingState>([{ id: 'date', desc: true }]);
+	const [sorting, setSorting] = useState<MRT_SortingState>([{ id: 'id', desc: true }]);
 	const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
 
 	const queryParams = useMemo<WorkerAssignmentsQueryParams>(() => {

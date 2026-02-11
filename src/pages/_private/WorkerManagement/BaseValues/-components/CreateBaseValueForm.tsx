@@ -39,7 +39,7 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
       startDate: '',
       endDate: '',
       category: 'IDONEO',
-      coefficients: [],
+      coefficients: COEFFICIENT_OPTIONS.map((o) => o.value),
     },
   });
 

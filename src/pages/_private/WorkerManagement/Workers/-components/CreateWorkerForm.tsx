@@ -27,7 +27,6 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 			surname: '',
 			dni: '',
 			category: 'IDONEO',
-			baseHourlyRate: '',
 		},
 	});
 
@@ -92,14 +91,6 @@ export function CreateWorkerForm({ opened, onClose, admin }: CreateWorkerFormPro
 								required
 							/>
 						)}
-					/>
-
-					<TextInput
-						label='Tarifa base por hora'
-						placeholder='Ej: 1500.00'
-						{...register('baseHourlyRate')}
-						error={errors.baseHourlyRate?.message}
-						required
 					/>
 
 					<Button type='submit' loading={isPending} fullWidth>
