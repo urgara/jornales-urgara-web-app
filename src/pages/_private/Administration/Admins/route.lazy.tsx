@@ -1,5 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Button, Container, Flex, Group, Modal, Select, Text, Title } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Flex,
+  Group,
+  Modal,
+  Select,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';

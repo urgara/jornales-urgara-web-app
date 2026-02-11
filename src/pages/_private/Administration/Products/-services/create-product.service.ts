@@ -3,6 +3,6 @@ import type { CreateProductRequest, CreateProductResponse } from '../-models';
 import { CreateProductResponseSchema } from '../-models';
 
 export async function createProduct(data: CreateProductRequest): Promise<CreateProductResponse> {
-	const response = await DYNNAMIX_API.post('/products', data);
-	return CreateProductResponseSchema.parse(response.data);
+  const response = await DYNNAMIX_API.post('/products', data);
+  return CreateProductResponseSchema.parse(response.data);
 }

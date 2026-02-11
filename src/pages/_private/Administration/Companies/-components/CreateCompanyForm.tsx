@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Drawer, Group, Stack, TextInput } from '@mantine/core';
-import type { z } from 'zod/v4';
 import { useForm } from 'react-hook-form';
+import type { z } from 'zod/v4';
 import { useMutationCreateCompany } from '../-hooks';
 import type { CreateCompanyRequest } from '../-models';
 import { CreateCompanyRequestSchemaBase } from '../-models';
@@ -32,7 +32,7 @@ export function CreateCompanyForm({ opened, onClose }: CreateCompanyFormProps) {
   const onSubmit = (data: CreateCompanyFormData) => {
     const submitData: CreateCompanyRequest = {
       ...data,
-      cuit: data.cuit === '' ? null : data.cuit ?? null,
+      cuit: data.cuit === '' ? null : (data.cuit ?? null),
     };
     createCompany.mutate(submitData, {
       onSuccess: () => {

@@ -14,231 +14,235 @@ import { useMutationDeleteAgency, useMutationUpdateAgency, useQueryAgencies } fr
 import { type Agency, type UpdateAgencyRequest, UpdateAgencyRequestSchema } from './-models';
 
 export const Route = createLazyFileRoute('/_private/Administration/Agencies')({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-	const {
-		data: agenciesData,
-		isLoading,
-		pagination,
-		sorting,
-		columnFilters,
-		setPagination,
-		setSorting,
-		setColumnFilters,
-	} = useQueryAgencies();
+  const {
+    data: agenciesData,
+    isLoading,
+    pagination,
+    sorting,
+    columnFilters,
+    setPagination,
+    setSorting,
+    setColumnFilters,
+  } = useQueryAgencies();
 
-	const { mutate: updateAgency, isPending: isUpdating } = useMutationUpdateAgency();
-	const { mutate: deleteAgency, isPending: isDeleting } = useMutationDeleteAgency();
+  const { mutate: updateAgency, isPending: isUpdating } = useMutationUpdateAgency();
+  const { mutate: deleteAgency, isPending: isDeleting } = useMutationDeleteAgency();
 
-	const [editingRowId, setEditingRowId] = useState<string | null>(null);
-	const [deleteModalOpened, setDeleteModalOpened] = useState(false);
-	const [agencyToDelete, setAgencyToDelete] = useState<string | null>(null);
-	const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
-		useConfigTablePersist('agencies');
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [deleteModalOpened, setDeleteModalOpened] = useState(false);
+  const [agencyToDelete, setAgencyToDelete] = useState<string | null>(null);
+  const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
+    useConfigTablePersist('agencies');
 
-	const {
-		formState: { errors },
-		clearErrors,
-		setValue,
-		reset,
-		handleSubmit,
-		trigger,
-	} = useForm<UpdateAgencyRequest>({
-		resolver: zodResolver(UpdateAgencyRequestSchema),
-		mode: 'onChange',
-	});
+  const {
+    formState: { errors },
+    clearErrors,
+    setValue,
+    reset,
+    handleSubmit,
+    trigger,
+  } = useForm<UpdateAgencyRequest>({
+    resolver: zodResolver(UpdateAgencyRequestSchema),
+    mode: 'onChange',
+  });
 
-	const columns = useMemo<MRT_ColumnDef<Agency>[]>(
-		() => [
-			{
-				accessorKey: 'name',
-				header: 'Nombre',
-				grow: true,
-				enableEditing: true,
-				mantineEditTextInputProps: ({ row }) => ({
-					required: true,
-					error: editingRowId === row.id ? errors.name?.message : undefined,
-					onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-						setValue('name', event.target.value);
-						row._valuesCache.name = event.target.value;
-					},
-					onBlur: () => {
-						trigger('name');
-					},
-				}),
-			},
-			{
-				accessorKey: 'createdAt',
-				header: 'Fecha de Creación',
-				grow: true,
-				enableEditing: false,
-				enableColumnFilter: false,
-				Cell: ({ cell }) => {
-					const date = cell.getValue<string>();
-					return dayjs(date).format('DD/MM/YYYY HH:mm');
-				},
-			},
-			{
-				accessorKey: 'deletedAt',
-				header: 'Fecha de Eliminación',
-				grow: true,
-				enableEditing: false,
-				enableColumnFilter: false,
-				Cell: ({ cell }) => {
-					const deletedAt = cell.getValue<string | null>();
-					return deletedAt ? dayjs(deletedAt).format('DD/MM/YYYY HH:mm') : '—';
-				},
-			},
-		],
-		[editingRowId, errors, setValue, trigger]
-	);
+  const columns = useMemo<MRT_ColumnDef<Agency>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Nombre',
+        grow: true,
+        enableEditing: true,
+        mantineEditTextInputProps: ({ row }) => ({
+          required: true,
+          error: editingRowId === row.id ? errors.name?.message : undefined,
+          onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+            setValue('name', event.target.value);
+            row._valuesCache.name = event.target.value;
+          },
+          onBlur: () => {
+            trigger('name');
+          },
+        }),
+      },
+      {
+        accessorKey: 'createdAt',
+        header: 'Fecha de Creación',
+        grow: true,
+        enableEditing: false,
+        enableColumnFilter: false,
+        Cell: ({ cell }) => {
+          const date = cell.getValue<string>();
+          return dayjs(date).format('DD/MM/YYYY HH:mm');
+        },
+      },
+      {
+        accessorKey: 'deletedAt',
+        header: 'Fecha de Eliminación',
+        grow: true,
+        enableEditing: false,
+        enableColumnFilter: false,
+        Cell: ({ cell }) => {
+          const deletedAt = cell.getValue<string | null>();
+          return deletedAt ? dayjs(deletedAt).format('DD/MM/YYYY HH:mm') : '—';
+        },
+      },
+    ],
+    [editingRowId, errors, setValue, trigger]
+  );
 
-	const onSubmit = (data: UpdateAgencyRequest, row: MRT_Row<Agency>, exitEditingMode: () => void) => {
-		updateAgency(
-			{ id: row.original.id, data },
-			{
-				onSuccess: () => {
-					exitEditingMode();
-					setEditingRowId(null);
-					reset();
-					clearErrors();
-				},
-			}
-		);
-	};
+  const onSubmit = (
+    data: UpdateAgencyRequest,
+    row: MRT_Row<Agency>,
+    exitEditingMode: () => void
+  ) => {
+    updateAgency(
+      { id: row.original.id, data },
+      {
+        onSuccess: () => {
+          exitEditingMode();
+          setEditingRowId(null);
+          reset();
+          clearErrors();
+        },
+      }
+    );
+  };
 
-	const handleEditingRowSave = async ({
-		exitEditingMode,
-		row,
-	}: {
-		exitEditingMode: () => void;
-		row: MRT_Row<Agency>;
-	}) => {
-		await handleSubmit((data) => onSubmit(data, row, exitEditingMode))();
-	};
+  const handleEditingRowSave = async ({
+    exitEditingMode,
+    row,
+  }: {
+    exitEditingMode: () => void;
+    row: MRT_Row<Agency>;
+  }) => {
+    await handleSubmit((data) => onSubmit(data, row, exitEditingMode))();
+  };
 
-	const handleEditingRowCancel = () => {
-		setEditingRowId(null);
-		reset();
-		clearErrors();
-	};
+  const handleEditingRowCancel = () => {
+    setEditingRowId(null);
+    reset();
+    clearErrors();
+  };
 
-	const handleEditStart = ({ row }: { row: MRT_Row<Agency> }) => {
-		setEditingRowId(row.id);
-		setValue('name', row.original.name);
+  const handleEditStart = ({ row }: { row: MRT_Row<Agency> }) => {
+    setEditingRowId(row.id);
+    setValue('name', row.original.name);
 
-		row._valuesCache.name = row.original.name;
+    row._valuesCache.name = row.original.name;
 
-		clearErrors();
-	};
+    clearErrors();
+  };
 
-	const handleDeleteClick = (id: string) => {
-		setAgencyToDelete(id);
-		setDeleteModalOpened(true);
-	};
+  const handleDeleteClick = (id: string) => {
+    setAgencyToDelete(id);
+    setDeleteModalOpened(true);
+  };
 
-	const handleConfirmDelete = () => {
-		if (agencyToDelete) {
-			deleteAgency(agencyToDelete, {
-				onSettled: () => {
-					setDeleteModalOpened(false);
-					setAgencyToDelete(null);
-				},
-			});
-		}
-	};
+  const handleConfirmDelete = () => {
+    if (agencyToDelete) {
+      deleteAgency(agencyToDelete, {
+        onSettled: () => {
+          setDeleteModalOpened(false);
+          setAgencyToDelete(null);
+        },
+      });
+    }
+  };
 
-	const handleCancelDelete = () => {
-		setDeleteModalOpened(false);
-		setAgencyToDelete(null);
-	};
+  const handleCancelDelete = () => {
+    setDeleteModalOpened(false);
+    setAgencyToDelete(null);
+  };
 
-	const [opened, { open, close }] = useDisclosure(false);
+  const [opened, { open, close }] = useDisclosure(false);
 
-	return (
-		<Container fluid>
-			<CreateAgencyForm opened={opened} onClose={close} />
-			<CustomTable
-				renderTopToolbarCustomActions={() => (
-					<>
-						<ActionIcon variant='filled' onClick={open}>
-							<IconPlus size={18} />
-						</ActionIcon>
-						<Title order={1}>Agencias</Title>
-					</>
-				)}
-				enableRowActions
-				renderRowActions={({
-					row,
-					table,
-				}: {
-					row: MRT_Row<Agency>;
-					table: MRT_TableInstance<Agency>;
-				}) => (
-					<Flex gap='xs'>
-						<ActionIcon
-							variant='subtle'
-							onClick={() => {
-								handleEditStart({ row });
-								table.setEditingRow(row);
-							}}
-						>
-							<IconEdit size={18} />
-						</ActionIcon>
-						<ActionIcon
-							variant='subtle'
-							color='red'
-							onClick={() => handleDeleteClick(row.original.id)}
-							disabled={isDeleting}
-						>
-							<IconTrash size={18} />
-						</ActionIcon>
-					</Flex>
-				)}
-				columns={columns}
-				data={agenciesData?.data || []}
-				state={{
-					isLoading,
-					columnVisibility,
-					columnOrder,
-					pagination,
-					sorting,
-					columnFilters,
-					isSaving: isUpdating || isDeleting,
-				}}
-				manualPagination
-				manualSorting
-				manualFiltering
-				rowCount={agenciesData?.pagination?.total || 0}
-				onPaginationChange={setPagination}
-				onSortingChange={setSorting}
-				onColumnFiltersChange={setColumnFilters}
-				onColumnVisibilityChange={setColumnVisibility}
-				onColumnOrderChange={setColumnOrder}
-				positionActionsColumn='last'
-				enableSorting
-				enableColumnFilters
-				enableGlobalFilter={false}
-				enableColumnOrdering
-				enableColumnResizing
-				enableEditing={true}
-				editDisplayMode='row'
-				onEditingRowSave={handleEditingRowSave}
-				onEditingRowCancel={handleEditingRowCancel}
-			/>
-			<Modal opened={deleteModalOpened} onClose={handleCancelDelete} title='Confirmar eliminación'>
-				<Text>¿Estás seguro de que deseas eliminar esta agencia?</Text>
-				<Group mt='md' justify='flex-end'>
-					<Button variant='outline' onClick={handleCancelDelete} disabled={isDeleting}>
-						Cancelar
-					</Button>
-					<Button color='red' onClick={handleConfirmDelete} loading={isDeleting}>
-						Eliminar
-					</Button>
-				</Group>
-			</Modal>
-		</Container>
-	);
+  return (
+    <Container fluid>
+      <CreateAgencyForm opened={opened} onClose={close} />
+      <CustomTable
+        renderTopToolbarCustomActions={() => (
+          <>
+            <ActionIcon variant='filled' onClick={open}>
+              <IconPlus size={18} />
+            </ActionIcon>
+            <Title order={1}>Agencias</Title>
+          </>
+        )}
+        enableRowActions
+        renderRowActions={({
+          row,
+          table,
+        }: {
+          row: MRT_Row<Agency>;
+          table: MRT_TableInstance<Agency>;
+        }) => (
+          <Flex gap='xs'>
+            <ActionIcon
+              variant='subtle'
+              onClick={() => {
+                handleEditStart({ row });
+                table.setEditingRow(row);
+              }}
+            >
+              <IconEdit size={18} />
+            </ActionIcon>
+            <ActionIcon
+              variant='subtle'
+              color='red'
+              onClick={() => handleDeleteClick(row.original.id)}
+              disabled={isDeleting}
+            >
+              <IconTrash size={18} />
+            </ActionIcon>
+          </Flex>
+        )}
+        columns={columns}
+        data={agenciesData?.data || []}
+        state={{
+          isLoading,
+          columnVisibility,
+          columnOrder,
+          pagination,
+          sorting,
+          columnFilters,
+          isSaving: isUpdating || isDeleting,
+        }}
+        manualPagination
+        manualSorting
+        manualFiltering
+        rowCount={agenciesData?.pagination?.total || 0}
+        onPaginationChange={setPagination}
+        onSortingChange={setSorting}
+        onColumnFiltersChange={setColumnFilters}
+        onColumnVisibilityChange={setColumnVisibility}
+        onColumnOrderChange={setColumnOrder}
+        positionActionsColumn='last'
+        enableSorting
+        enableColumnFilters
+        enableGlobalFilter={false}
+        enableColumnOrdering
+        enableColumnResizing
+        enableEditing={true}
+        editDisplayMode='row'
+        onEditingRowSave={handleEditingRowSave}
+        onEditingRowCancel={handleEditingRowCancel}
+      />
+      <Modal opened={deleteModalOpened} onClose={handleCancelDelete} title='Confirmar eliminación'>
+        <Text>¿Estás seguro de que deseas eliminar esta agencia?</Text>
+        <Group mt='md' justify='flex-end'>
+          <Button variant='outline' onClick={handleCancelDelete} disabled={isDeleting}>
+            Cancelar
+          </Button>
+          <Button color='red' onClick={handleConfirmDelete} loading={isDeleting}>
+            Eliminar
+          </Button>
+        </Group>
+      </Modal>
+    </Container>
+  );
 }

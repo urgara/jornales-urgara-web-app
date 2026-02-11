@@ -1,2 +1,2 @@
-export * from './worker.type';
 export * from './query.type';
+export * from './worker.type';

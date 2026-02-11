@@ -222,13 +222,7 @@ function RouteComponent() {
         enableRowActions={isAdmin}
         renderRowActions={
           isAdmin
-            ? ({
-                row,
-                table,
-              }: {
-                row: MRT_Row<Locality>;
-                table: MRT_TableInstance<Locality>;
-              }) => (
+            ? ({ row, table }: { row: MRT_Row<Locality>; table: MRT_TableInstance<Locality> }) => (
                 <Flex gap='xs'>
                   <ActionIcon
                     variant='subtle'

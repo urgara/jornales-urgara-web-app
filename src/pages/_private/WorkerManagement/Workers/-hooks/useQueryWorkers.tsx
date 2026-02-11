@@ -1,5 +1,9 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import type { MRT_ColumnFiltersState, MRT_PaginationState, MRT_SortingState } from 'mantine-react-table';
+import type {
+  MRT_ColumnFiltersState,
+  MRT_PaginationState,
+  MRT_SortingState,
+} from 'mantine-react-table';
 import { useMemo, useState } from 'react';
 import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
@@ -7,62 +11,62 @@ import type { WorkersQueryParams } from '../-models';
 import { workerService } from '../-services';
 
 export function useQueryWorkers() {
-	const admin = useAuthStore((store) => store.admin);
-	const [pagination, setPagination] = useState<MRT_PaginationState>({
-		pageIndex: 0,
-		pageSize: 10,
-	});
+  const admin = useAuthStore((store) => store.admin);
+  const [pagination, setPagination] = useState<MRT_PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-	const [sorting, setSorting] = useState<MRT_SortingState>([{ id: 'createdAt', desc: true }]);
-	const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<MRT_SortingState>([{ id: 'createdAt', desc: true }]);
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
 
-	const queryParams = useMemo<WorkersQueryParams>(() => {
-		const params: WorkersQueryParams = {
-			page: pagination.pageIndex + 1,
-			limit: pagination.pageSize,
-		};
+  const queryParams = useMemo<WorkersQueryParams>(() => {
+    const params: WorkersQueryParams = {
+      page: pagination.pageIndex + 1,
+      limit: pagination.pageSize,
+    };
 
-		// Agregar localityId si el admin tiene una localidad asignada
-		if (admin?.localityId) {
-			params.localityId = admin.localityId;
-		}
+    // Agregar localityId si el admin tiene una localidad asignada
+    if (admin?.localityId) {
+      params.localityId = admin.localityId;
+    }
 
-		if (sorting.length > 0) {
-			params.sortBy = sorting[0].id as WorkersQueryParams['sortBy'];
-			params.sortOrder = sorting[0].desc ? 'desc' : 'asc';
-		}
+    if (sorting.length > 0) {
+      params.sortBy = sorting[0].id as WorkersQueryParams['sortBy'];
+      params.sortOrder = sorting[0].desc ? 'desc' : 'asc';
+    }
 
-		for (const filter of columnFilters) {
-			const { id, value } = filter;
-			if (value !== undefined && value !== null && value !== '') {
-				if (id === 'name') {
-					params.name = value as string;
-				} else if (id === 'surname') {
-					params.surname = value as string;
-				} else if (id === 'dni') {
-					params.dni = value as string;
-				}
-			}
-		}
+    for (const filter of columnFilters) {
+      const { id, value } = filter;
+      if (value !== undefined && value !== null && value !== '') {
+        if (id === 'name') {
+          params.name = value as string;
+        } else if (id === 'surname') {
+          params.surname = value as string;
+        } else if (id === 'dni') {
+          params.dni = value as string;
+        }
+      }
+    }
 
-		return params;
-	}, [pagination, sorting, columnFilters, admin?.localityId]);
+    return params;
+  }, [pagination, sorting, columnFilters, admin?.localityId]);
 
-	const { data, isLoading, isError } = useQuery({
-		queryKey: [QUERY_KEYS.WORKERS, queryParams],
-		queryFn: () => workerService.getWorkers(queryParams),
-		placeholderData: keepPreviousData,
-	});
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [QUERY_KEYS.WORKERS, queryParams],
+    queryFn: () => workerService.getWorkers(queryParams),
+    placeholderData: keepPreviousData,
+  });
 
-	return {
-		data,
-		isLoading,
-		isError,
-		pagination,
-		sorting,
-		columnFilters,
-		setPagination,
-		setSorting,
-		setColumnFilters,
-	};
+  return {
+    data,
+    isLoading,
+    isError,
+    pagination,
+    sorting,
+    columnFilters,
+    setPagination,
+    setSorting,
+    setColumnFilters,
+  };
 }

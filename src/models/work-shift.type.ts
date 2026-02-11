@@ -6,20 +6,20 @@ const DayOfWeek = z.enum(['M', 'T', 'W', 'Th', 'F', 'S', 'Su']);
 
 // Select Work Shift Schema
 const SelectWorkShiftSchema = z.object({
-	id: z.string().uuid(),
-	days: z.array(DayOfWeek),
-	startTime: z.string(),
-	endTime: z.string(),
-	durationMinutes: z.number().int().positive(),
-	description: z.string().nullable(),
-	coefficient: z.string(),
-	createdAt: z.string(),
-	deletedAt: z.string().nullable(),
+  id: z.string().uuid(),
+  days: z.array(DayOfWeek),
+  startTime: z.string(),
+  endTime: z.string(),
+  durationMinutes: z.number().int().positive(),
+  description: z.string().nullable(),
+  coefficient: z.string(),
+  createdAt: z.string(),
+  deletedAt: z.string().nullable(),
 });
 
 const ListSelectWorkShiftsSchema = z.array(SelectWorkShiftSchema);
 const ListSelectWorkShiftsResponseSchema = ResponseGenericIncludeDataSchema(
-	ListSelectWorkShiftsSchema
+  ListSelectWorkShiftsSchema
 );
 
 type SelectWorkShift = z.infer<typeof SelectWorkShiftSchema>;

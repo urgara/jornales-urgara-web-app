@@ -3,7 +3,7 @@ import { ResponseGenericIncludeDataSchema } from './generic-responses.type';
 
 // Count Data Schema
 const CountDataSchema = z.object({
-	total: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
 });
 
 // Count Response Schema

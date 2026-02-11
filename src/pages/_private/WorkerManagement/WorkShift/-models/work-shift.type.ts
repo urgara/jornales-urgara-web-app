@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 import {
-  ResponseGenericIncludeDataSchema,
   ResponseGenericIncludeDataAndPaginationSchema,
+  ResponseGenericIncludeDataSchema,
 } from '@/models';
 
 // Regex para validar formato HH:mm
@@ -36,9 +36,8 @@ const ListSelectWorkShiftsResponseSchema = ResponseGenericIncludeDataSchema(
 
 // List Work Shifts Schema
 const ListWorkShiftsSchema = z.array(WorkShiftSchema);
-const ListWorkShiftsResponseSchema = ResponseGenericIncludeDataAndPaginationSchema(
-  ListWorkShiftsSchema
-);
+const ListWorkShiftsResponseSchema =
+  ResponseGenericIncludeDataAndPaginationSchema(ListWorkShiftsSchema);
 
 // Get Work Shift Schema
 const GetWorkShiftResponseSchema = ResponseGenericIncludeDataSchema(WorkShiftSchema);
@@ -63,7 +62,10 @@ const CreateWorkShiftRequestSchema = z
   .refine(
     (data) => {
       // Si days tiene elementos, startTime y endTime son obligatorios
-      if (data.days.length > 0 && (!data.startTime || data.startTime === '' || !data.endTime || data.endTime === '')) {
+      if (
+        data.days.length > 0 &&
+        (!data.startTime || data.startTime === '' || !data.endTime || data.endTime === '')
+      ) {
         return false;
       }
       return true;

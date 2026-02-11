@@ -4,10 +4,7 @@ import type { MRT_ColumnFiltersState, MRT_PaginationState } from 'mantine-react-
 import { useCallback, useMemo, useState } from 'react';
 import { useAuthStore } from '@/stores';
 import { QUERY_KEYS } from '@/utils';
-import type {
-  WorkShiftBaseValueSortBy,
-  WorkShiftBaseValuesQueryParams,
-} from '../-models';
+import type { WorkShiftBaseValueSortBy, WorkShiftBaseValuesQueryParams } from '../-models';
 import { getBaseValues } from '../-services';
 
 export const useQueryBaseValues = () => {

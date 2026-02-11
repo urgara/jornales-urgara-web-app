@@ -1,4 +1,4 @@
-import { MantineProvider, createTheme, type MantineColorsTuple } from '@mantine/core';
+import { createTheme, type MantineColorsTuple, MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';

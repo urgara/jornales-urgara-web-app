@@ -7,7 +7,9 @@
       "Bash(mv:*)",
       "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/sycap-jornales-web-app/src/pages/_private/Administration/**)",
       "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/sycap-jornales-web-app/src/pages/_private/EmployeeManagement/WorkShift/**)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(pnpm run build:*)",
+      "Bash(Select-String \"WorkerAssignment\")"
     ],
     "deny": [],
     "ask": []

@@ -1,2 +1,2 @@
-export * from './terminal.type';
 export * from './query.type';
+export * from './terminal.type';

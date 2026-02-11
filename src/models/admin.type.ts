@@ -21,7 +21,9 @@ const SelectLocalitySchema = z.object({
 });
 
 const ListSelectLocalitiesSchema = z.array(SelectLocalitySchema);
-const ListSelectLocalitiesResponseSchema = ResponseGenericIncludeDataSchema(ListSelectLocalitiesSchema);
+const ListSelectLocalitiesResponseSchema = ResponseGenericIncludeDataSchema(
+  ListSelectLocalitiesSchema
+);
 
 enum Role {
   ADMIN = 'ADMIN',
@@ -71,5 +73,11 @@ type Locality = z.infer<typeof LocalitySchema>;
 type SelectLocality = z.infer<typeof SelectLocalitySchema>;
 type ListSelectLocalitiesResponse = z.infer<typeof ListSelectLocalitiesResponseSchema>;
 
-export { AdminSchema, CheckAdminResponseSchema, Role, LocalitySchema, ListSelectLocalitiesResponseSchema };
+export {
+  AdminSchema,
+  CheckAdminResponseSchema,
+  Role,
+  LocalitySchema,
+  ListSelectLocalitiesResponseSchema,
+};
 export type { Admin, CheckAdminResponse, Locality, SelectLocality, ListSelectLocalitiesResponse };

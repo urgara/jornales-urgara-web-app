@@ -1,4 +1,4 @@
-export * from './useQueryAgencies';
 export * from './useMutationCreateAgency';
-export * from './useMutationUpdateAgency';
 export * from './useMutationDeleteAgency';
+export * from './useMutationUpdateAgency';
+export * from './useQueryAgencies';

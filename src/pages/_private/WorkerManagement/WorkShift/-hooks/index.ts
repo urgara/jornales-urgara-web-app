@@ -1,4 +1,4 @@
-export * from './useQueryWorkShifts';
 export * from './useMutationCreateWorkShift';
-export * from './useMutationUpdateWorkShift';
 export * from './useMutationDeleteWorkShift';
+export * from './useMutationUpdateWorkShift';
+export * from './useQueryWorkShifts';

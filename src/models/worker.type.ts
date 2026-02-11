@@ -3,10 +3,10 @@ import { ResponseGenericIncludeDataSchema } from './generic-responses.type';
 
 // Select Worker Schema
 const SelectWorkerSchema = z.object({
-	id: z.string().uuid(),
-	name: z.string(),
-	surname: z.string(),
-	dni: z.string(),
+  id: z.string().uuid(),
+  name: z.string(),
+  surname: z.string(),
+  dni: z.string(),
 });
 
 const ListSelectWorkersSchema = z.array(SelectWorkerSchema);

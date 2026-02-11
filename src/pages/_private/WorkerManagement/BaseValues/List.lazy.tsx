@@ -41,7 +41,9 @@ function RouteComponent() {
         enableColumnFilter: false,
         Cell: ({ cell }) => {
           const value = cell.getValue<string>();
-          return <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />;
+          return (
+            <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />
+          );
         },
       },
       {
@@ -52,7 +54,9 @@ function RouteComponent() {
         enableColumnFilter: false,
         Cell: ({ cell }) => {
           const value = cell.getValue<string>();
-          return <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />;
+          return (
+            <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />
+          );
         },
       },
       {
@@ -120,8 +124,22 @@ function RouteComponent() {
                 {calculatedValues.map((cv) => (
                   <Table.Tr key={`${cv.workShiftBaseValueId}-${cv.coefficient}`}>
                     <Table.Td>{cv.coefficient.replace('.', ',')}</Table.Td>
-                    <Table.Td><NumberFormatter value={cv.remunerated} prefix='$' thousandSeparator='.' decimalSeparator=',' /></Table.Td>
-                    <Table.Td><NumberFormatter value={cv.notRemunerated} prefix='$' thousandSeparator='.' decimalSeparator=',' /></Table.Td>
+                    <Table.Td>
+                      <NumberFormatter
+                        value={cv.remunerated}
+                        prefix='$'
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                      />
+                    </Table.Td>
+                    <Table.Td>
+                      <NumberFormatter
+                        value={cv.notRemunerated}
+                        prefix='$'
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                      />
+                    </Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>

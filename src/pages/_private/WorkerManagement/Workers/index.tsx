@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_private/WorkerManagement/Workers/')({
-	component: Component,
+  component: Component,
 });
 
 function Component() {
-	return <Outlet />;
+  return <Outlet />;
 }

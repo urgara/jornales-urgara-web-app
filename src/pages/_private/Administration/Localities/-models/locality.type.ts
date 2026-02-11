@@ -31,8 +31,9 @@ const ListLocalitiesSchema = z.array(LocalitySchema);
 const ListSelectLocalitiesSchema = z.array(SelectLocalitySchema);
 const ListLocalitiesResponseSchema =
   ResponseGenericIncludeDataAndPaginationSchema(ListLocalitiesSchema);
-const ListSelectLocalitiesResponseSchema =
-  ResponseGenericIncludeDataSchema(ListSelectLocalitiesSchema);
+const ListSelectLocalitiesResponseSchema = ResponseGenericIncludeDataSchema(
+  ListSelectLocalitiesSchema
+);
 const GetLocalityResponseSchema = ResponseGenericIncludeDataSchema(LocalitySchema);
 
 const CreateLocalityRequestSchema = LocalitySchema.pick({

@@ -1,8 +1,5 @@
 import { DYNNAMIX_API } from '@/config';
-import type {
-  CreateWorkShiftBaseValueRequest,
-  CreateWorkShiftBaseValueResponse,
-} from '../-models';
+import type { CreateWorkShiftBaseValueRequest, CreateWorkShiftBaseValueResponse } from '../-models';
 import { CreateWorkShiftBaseValueResponseSchema } from '../-models';
 
 export async function createBaseValue(

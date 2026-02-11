@@ -23,8 +23,9 @@ const WorkShiftBaseValueSchema = z.object({
 });
 
 const ListWorkShiftBaseValuesSchema = z.array(WorkShiftBaseValueSchema);
-const ListWorkShiftBaseValuesResponseSchema =
-  ResponseGenericIncludeDataAndPaginationSchema(ListWorkShiftBaseValuesSchema);
+const ListWorkShiftBaseValuesResponseSchema = ResponseGenericIncludeDataAndPaginationSchema(
+  ListWorkShiftBaseValuesSchema
+);
 
 const CreateWorkShiftBaseValueRequestSchema = z.object({
   remunerated: z.string().min(1, 'El valor remunerado es requerido'),

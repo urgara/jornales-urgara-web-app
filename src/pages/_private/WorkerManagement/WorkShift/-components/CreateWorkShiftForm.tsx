@@ -107,7 +107,9 @@ export function CreateWorkShiftForm({ opened, onClose }: CreateWorkShiftFormProp
               <Select
                 {...field}
                 label='Hora de inicio'
-                placeholder={requireTimeFields ? 'Seleccione hora' : 'Opcional para turnos sin días'}
+                placeholder={
+                  requireTimeFields ? 'Seleccione hora' : 'Opcional para turnos sin días'
+                }
                 data={TIME_OPTIONS}
                 required={requireTimeFields}
                 searchable
@@ -123,7 +125,9 @@ export function CreateWorkShiftForm({ opened, onClose }: CreateWorkShiftFormProp
               <Select
                 {...field}
                 label='Hora de fin'
-                placeholder={requireTimeFields ? 'Seleccione hora' : 'Opcional para turnos sin días'}
+                placeholder={
+                  requireTimeFields ? 'Seleccione hora' : 'Opcional para turnos sin días'
+                }
                 data={TIME_OPTIONS}
                 required={requireTimeFields}
                 searchable
