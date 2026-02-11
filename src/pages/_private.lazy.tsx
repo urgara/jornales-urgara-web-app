@@ -1,4 +1,4 @@
-import { ActionIcon, AppShell, Button, Flex, Group, Image, NavLink, ScrollArea } from '@mantine/core';
+import { ActionIcon, AppShell, Button, Flex, Group, Image, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconBuildingCog,
@@ -27,7 +27,6 @@ function PrivateLayout() {
   const navigate = useNavigate();
   const logout = useAuthStore((store) => store.logout);
   const [opened, { toggle }] = useDisclosure(true);
-  const [openedChangePassword, { toggle : toggleChangePassword }] = useDisclosure(false);
   const [passwordModalOpened, { open: openPasswordModal, close: closePasswordModal }] =
     useDisclosure(false);
 
@@ -86,19 +85,13 @@ function PrivateLayout() {
               <ButtonLink label='Valores base' to='/WorkerManagement/BaseValues/List' />
               <ButtonLink label='Terminal / muelle' to='/Administration/Terminals' />
             </NavLinkGroup>
-            <NavLink
-              label='Cambiar contraseña'
-              leftSection={<IconKey size={16} />}
-              onClick={openPasswordModal}
-            />
           </ScrollArea>
-          <Button variant='subtle' onChange={toggleChangePassword} >Cambiar contraseña</Button>
+          <Button variant='subtle' onClick={openPasswordModal} leftSection={<IconKey size={16} />}>Cambiar contraseña</Button>
         </AppShell.Navbar>
 
         <AppShell.Main>
           
           <Outlet />
-          <ChangePasswordModal opened={openedChangePassword} onClose={toggleChangePassword}/>
         </AppShell.Main>
       </AppShell>
       <ChangePasswordModal opened={passwordModalOpened} onClose={closePasswordModal} />
