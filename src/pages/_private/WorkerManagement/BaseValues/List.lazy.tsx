@@ -1,4 +1,4 @@
-import { ActionIcon, Container, Table, Title } from '@mantine/core';
+import { ActionIcon, Container, NumberFormatter, Table, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
@@ -39,6 +39,10 @@ function RouteComponent() {
         size: 150,
         grow: true,
         enableColumnFilter: false,
+        Cell: ({ cell }) => {
+          const value = cell.getValue<string>();
+          return <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />;
+        },
       },
       {
         accessorKey: 'notRemunerated',
@@ -46,6 +50,10 @@ function RouteComponent() {
         size: 150,
         grow: true,
         enableColumnFilter: false,
+        Cell: ({ cell }) => {
+          const value = cell.getValue<string>();
+          return <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />;
+        },
       },
       {
         accessorKey: 'category',
@@ -111,9 +119,9 @@ function RouteComponent() {
               <Table.Tbody>
                 {calculatedValues.map((cv) => (
                   <Table.Tr key={`${cv.workShiftBaseValueId}-${cv.coefficient}`}>
-                    <Table.Td>{cv.coefficient}</Table.Td>
-                    <Table.Td>{cv.remunerated}</Table.Td>
-                    <Table.Td>{cv.notRemunerated}</Table.Td>
+                    <Table.Td>{cv.coefficient.replace('.', ',')}</Table.Td>
+                    <Table.Td><NumberFormatter value={cv.remunerated} prefix='$' thousandSeparator='.' decimalSeparator=',' /></Table.Td>
+                    <Table.Td><NumberFormatter value={cv.notRemunerated} prefix='$' thousandSeparator='.' decimalSeparator=',' /></Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>

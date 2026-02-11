@@ -260,7 +260,7 @@ export function CreateWorkerAssignmentForm({
 						render={({ field }) => (
 							<NumberInput
 								label='Premio / Castigo'
-								placeholder='Ej: 15.00 o -10.00'
+								placeholder='Ej: 15,00 o -10,00'
 								value={field.value ? Number(field.value) : undefined}
 								onChange={(value) => {
 									if (value === '' || value === null || value === undefined) {
@@ -271,8 +271,8 @@ export function CreateWorkerAssignmentForm({
 								}}
 								onBlur={field.onBlur}
 								error={errors.additionalPercent?.message}
-								decimalSeparator='.'
-								thousandSeparator=''
+								decimalSeparator=','
+								thousandSeparator='.'
 								allowNegative={true}
 								decimalScale={2}
 								fixedDecimalScale={false}

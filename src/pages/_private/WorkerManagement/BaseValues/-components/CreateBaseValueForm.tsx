@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Modal, MultiSelect, Select, Stack, TextInput } from '@mantine/core';
+import { Button, Modal, MultiSelect, NumberInput, Select, Stack } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
@@ -26,7 +26,6 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
   const { mutate: createBaseValue, isPending } = useMutationCreateBaseValue();
 
   const {
-    register,
     handleSubmit,
     reset,
     control,
@@ -61,20 +60,56 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
     <Modal opened={opened} onClose={handleClose} title='Crear valor base' centered size='md'>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack>
-          <TextInput
-            label='Remunerado'
-            placeholder='Ingrese el valor remunerado'
-            required
-            {...register('remunerated')}
-            error={errors.remunerated?.message}
+          <Controller
+            name='remunerated'
+            control={control}
+            render={({ field }) => (
+              <NumberInput
+                label='Remunerado'
+                placeholder='Ingrese el valor remunerado'
+                required
+                value={field.value ? Number(field.value) : undefined}
+                onChange={(value) => {
+                  if (value === '' || value === null || value === undefined) {
+                    field.onChange('');
+                  } else {
+                    field.onChange(String(value));
+                  }
+                }}
+                onBlur={field.onBlur}
+                error={errors.remunerated?.message}
+                decimalSeparator=','
+                thousandSeparator='.'
+                decimalScale={2}
+                prefix='$'
+              />
+            )}
           />
 
-          <TextInput
-            label='No remunerado'
-            placeholder='Ingrese el valor no remunerado'
-            required
-            {...register('notRemunerated')}
-            error={errors.notRemunerated?.message}
+          <Controller
+            name='notRemunerated'
+            control={control}
+            render={({ field }) => (
+              <NumberInput
+                label='No remunerado'
+                placeholder='Ingrese el valor no remunerado'
+                required
+                value={field.value ? Number(field.value) : undefined}
+                onChange={(value) => {
+                  if (value === '' || value === null || value === undefined) {
+                    field.onChange('');
+                  } else {
+                    field.onChange(String(value));
+                  }
+                }}
+                onBlur={field.onBlur}
+                error={errors.notRemunerated?.message}
+                decimalSeparator=','
+                thousandSeparator='.'
+                decimalScale={2}
+                prefix='$'
+              />
+            )}
           />
 
           <Controller

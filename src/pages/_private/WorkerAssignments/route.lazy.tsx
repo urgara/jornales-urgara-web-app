@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Container, Stack, Text, Title } from '@mantine/core';
+import { ActionIcon, Container, NumberFormatter, Stack, Text, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
@@ -276,7 +276,7 @@ function RouteComponent() {
 				enableColumnFilter: false,
 				Cell: ({ cell }) => {
 					const value = cell.getValue<string>();
-					return `$${value}`;
+					return <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />;
 				},
 			},
 			{
@@ -455,10 +455,14 @@ function RouteComponent() {
 					if (!percent) return '—';
 					const num = Number.parseFloat(percent);
 					const color = num > 0 ? 'var(--mantine-color-green-9)' : num < 0 ? 'var(--mantine-color-red-9)' : undefined;
-					return <Text style={{ color, fontWeight: num !== 0 ? 600 : undefined }}>{percent}%</Text>;
+					return (
+						<Text style={{ color, fontWeight: num !== 0 ? 600 : undefined }}>
+							<NumberFormatter value={percent} suffix='%' thousandSeparator='.' decimalSeparator=',' />
+						</Text>
+					);
 				},
 				mantineEditTextInputProps: ({ row }) => ({
-					placeholder: 'Ej: 15.00',
+					placeholder: 'Ej: 15,00',
 					error:
 						editingRowId === row.original.id ? errors.additionalPercent?.message : undefined,
 					onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -480,7 +484,7 @@ function RouteComponent() {
 				enableEditing: false,
 				Cell: ({ cell }) => {
 					const amount = cell.getValue<string>();
-					return `$${amount}`;
+					return <NumberFormatter value={amount} prefix='$' thousandSeparator='.' decimalSeparator=',' />;
 				},
 				enableColumnFilter: false,
 			},
