@@ -1,5 +1,6 @@
 export * from './AgencySelect';
 export * from './ButtonLink';
+export * from './ChangePasswordModal';
 export * from './CompanySelect';
 export * from './CustomTable/index';
 export * from './HeaderLocalitySelector';

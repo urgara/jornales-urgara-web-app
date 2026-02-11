@@ -1,4 +1,5 @@
 export * from './useConfigTablePersist';
+export * from './useMutationChangePassword';
 export * from './useNotifications';
 export * from './useQueryCounts';
 export * from './useQuerySelectAgencies';
