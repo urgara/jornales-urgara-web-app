@@ -5,8 +5,8 @@
       "WebFetch(domain:docs.pmnd.rs)",
       "WebFetch(domain:tanstack.com)",
       "Bash(mv:*)",
-      "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/sycap-jornales-web-app/src/pages/_private/Administration/**)",
-      "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/sycap-jornales-web-app/src/pages/_private/EmployeeManagement/WorkShift/**)",
+      "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/urgara-jornales-web-app/src/pages/_private/Administration/**)",
+      "Read(//c/Users/emanu_3o2ausf/Desktop/dynnamo/urgara-jornales-web-app/src/pages/_private/EmployeeManagement/WorkShift/**)",
       "Bash(cat:*)",
       "Bash(pnpm run build:*)",
       "Bash(Select-String \"WorkerAssignment\")"
