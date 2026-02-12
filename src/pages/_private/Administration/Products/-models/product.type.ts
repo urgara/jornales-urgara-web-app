@@ -24,20 +24,15 @@ const ListSelectProductsResponseSchema = ResponseGenericIncludeDataSchema(ListSe
 
 const GetProductResponseSchema = ResponseGenericIncludeDataSchema(ProductSchema);
 
-// Create Product Schema (sin default para usar con react-hook-form)
+// Create Product Schema - solo name, el backend asigna isActive: true por defecto
 const CreateProductRequestSchemaBase = z.object({
   name: z
     .string()
     .min(1, 'El nombre es requerido')
     .max(40, 'El nombre no debe exceder 40 caracteres'),
-  isActive: z.boolean().optional(),
 });
 
-// Schema con default para enviar al backend
-const CreateProductRequestSchema = CreateProductRequestSchemaBase.transform((val) => ({
-  ...val,
-  isActive: val.isActive ?? true,
-}));
+const CreateProductRequestSchema = CreateProductRequestSchemaBase;
 
 const CreateProductResponseSchema = ResponseGenericIncludeDataSchema(ProductSchema);
 

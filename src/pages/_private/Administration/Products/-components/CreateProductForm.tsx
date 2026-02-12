@@ -3,7 +3,6 @@ import { Button, Group, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod/v4';
 import { useMutationCreateProduct } from '../-hooks';
-import type { CreateProductRequest } from '../-models';
 import { CreateProductRequestSchemaBase } from '../-models';
 
 type CreateProductFormData = z.infer<typeof CreateProductRequestSchemaBase>;
@@ -25,16 +24,11 @@ const CreateProductForm = ({ opened, onClose }: CreateProductFormProps) => {
     resolver: zodResolver(CreateProductRequestSchemaBase),
     defaultValues: {
       name: '',
-      isActive: true,
     },
   });
 
   const onSubmit = (data: CreateProductFormData) => {
-    const submitData: CreateProductRequest = {
-      ...data,
-      isActive: data.isActive ?? true,
-    };
-    createProduct(submitData, {
+    createProduct(data, {
       onSuccess: () => {
         reset();
         onClose();
