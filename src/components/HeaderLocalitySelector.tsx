@@ -10,8 +10,17 @@ export const HeaderLocalitySelector = () => {
   const updateAdminLocality = useAuthStore((store) => store.updateAdminLocality);
   const { getLocalityName } = useQuerySelectLocalities();
 
-  // Si no tiene localidad, mostrar el select normal
-  if (!admin?.localityId) {
+  // Si NO es ADMIN (es LOCAL o ONLY_READ), mostrar solo texto con la localidad fija
+  if (admin?.role !== Role.ADMIN) {
+    return (
+      <Text c='white' fw={500} size='sm'>
+        {admin?.localityId ? getLocalityName(admin.localityId) : 'Sin localidad asignada'}
+      </Text>
+    );
+  }
+
+  // Si es ADMIN sin localidad seleccionada, mostrar el select normal
+  if (!admin.localityId) {
     return (
       <LocalitySelect
         placeholder='Selecciona localidad'
@@ -30,16 +39,7 @@ export const HeaderLocalitySelector = () => {
     );
   }
 
-  // Si tiene localidad y NO es ADMIN, mostrar solo texto
-  if (admin.role !== Role.ADMIN) {
-    return (
-      <Text c='white' fw={500} size='sm'>
-        {getLocalityName(admin.localityId)}
-      </Text>
-    );
-  }
-
-  // Si tiene localidad y ES ADMIN, mostrar select estilizado como texto
+  // Si es ADMIN con localidad seleccionada, mostrar select estilizado como texto
   return (
     <LocalitySelect
       value={admin.localityId}

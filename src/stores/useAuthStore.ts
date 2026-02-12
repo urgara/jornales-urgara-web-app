@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { QUERY } from '@/config';
 import type { Admin, AuthContext } from '@/models';
 
 interface AuthState extends AuthContext {
@@ -20,7 +21,11 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           admin: state.admin ? { ...state.admin, localityId } : null,
         })),
-      logout: () => set({ isAuth: false, admin: null }),
+      logout: () => {
+        set({ isAuth: false, admin: null });
+        QUERY.clear();
+        sessionStorage.clear();
+      },
     }),
     {
       name: 'auth-storage',
