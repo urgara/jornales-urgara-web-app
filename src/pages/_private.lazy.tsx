@@ -18,7 +18,6 @@ import {
 } from '@/components';
 import { useAuthStore } from '@/stores';
 
-
 export const Route = createLazyFileRoute('/_private')({
   component: PrivateLayout,
 });
@@ -64,8 +63,8 @@ function PrivateLayout() {
             </ActionIcon>
           </Flex>
         </AppShell.Header>
-        <AppShell.Navbar h='100%'>
-          <ScrollArea h='90%'>
+        <AppShell.Navbar h='100dvh'>
+          <ScrollArea h='85%'>
             <ButtonLink label='Inicio' to='/Dashboard' />
             <ButtonLink
               label='Asignaciones'
@@ -86,11 +85,17 @@ function PrivateLayout() {
               <ButtonLink label='Terminal / muelle' to='/Administration/Terminals' />
             </NavLinkGroup>
           </ScrollArea>
-          <Button variant='subtle' onClick={openPasswordModal} leftSection={<IconKey size={16} />}>Cambiar contraseña</Button>
+          <Button
+            h={200}
+            variant='subtle'
+            onClick={openPasswordModal}
+            leftSection={<IconKey size={16} />}
+          >
+            Cambiar contraseña
+          </Button>
         </AppShell.Navbar>
 
         <AppShell.Main>
-          
           <Outlet />
         </AppShell.Main>
       </AppShell>
