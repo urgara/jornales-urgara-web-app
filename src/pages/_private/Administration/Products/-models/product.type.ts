@@ -5,13 +5,13 @@ import {
 } from '@/models';
 
 const ProductSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string().min(1).max(40),
   isActive: z.boolean(),
 });
 
 const SelectProductSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
 });
 
