@@ -1,8 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Group, Modal, Stack, TextInput } from '@mantine/core';
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { LocalitySelect } from '@/components';
+import { useForm } from 'react-hook-form';
 import { useMutationCreateTerminal } from '../-hooks';
 import { type CreateTerminalRequest, CreateTerminalRequestSchema } from '../-models';
 
@@ -18,7 +17,6 @@ export function CreateTerminalForm({ opened, onClose }: CreateTerminalFormProps)
     register,
     handleSubmit,
     reset,
-    control,
     formState: { errors },
   } = useForm<CreateTerminalRequest>({
     resolver: zodResolver(CreateTerminalRequestSchema),
@@ -49,19 +47,6 @@ export function CreateTerminalForm({ opened, onClose }: CreateTerminalFormProps)
             {...register('name')}
             error={errors.name?.message}
             required
-          />
-          <Controller
-            name='localityId'
-            control={control}
-            render={({ field }) => (
-              <LocalitySelect
-                label='Localidad'
-                placeholder='Seleccione una localidad'
-                {...field}
-                error={errors.localityId?.message}
-                required
-              />
-            )}
           />
           <Group justify='flex-end' mt='md'>
             <Button variant='outline' onClick={onClose} disabled={isPending}>

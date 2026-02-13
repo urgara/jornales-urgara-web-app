@@ -10,12 +10,9 @@ const ListTerminalsSchema = z.array(TerminalSchema);
 const ListTerminalsResponseSchema =
   ResponseGenericIncludeDataAndPaginationSchema(ListTerminalsSchema);
 
-const CreateTerminalRequestSchemaBase = z.object({
+const CreateTerminalRequestSchema = z.object({
   name: z.string().max(50),
-  localityId: z.string().uuid(),
 });
-
-const CreateTerminalRequestSchema = CreateTerminalRequestSchemaBase;
 
 const UpdateTerminalRequestSchema = TerminalSchema.pick({
   name: true,

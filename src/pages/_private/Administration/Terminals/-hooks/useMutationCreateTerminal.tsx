@@ -9,11 +9,8 @@ export function useMutationCreateTerminal() {
   const admin = useAuthStore((state) => state.admin);
 
   return useMutation({
-    mutationFn: (data: CreateTerminalRequest) => {
-      // Solo pasar localityId si el admin no tiene localidad (ADMIN sin localidad)
-      const localityId = !admin?.localityId && data.localityId ? data.localityId : undefined;
-      return createTerminal(data, localityId);
-    },
+    mutationFn: (data: CreateTerminalRequest) =>
+      createTerminal({ ...data, localityId: admin?.localityId ?? undefined }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['terminals'] });
       notifications.show({
