@@ -30,7 +30,7 @@ export function BaseValueSelect({
     return data.data.flatMap((baseValue) =>
       baseValue.workShiftCalculatedValues.map((cv) => ({
         value: `${cv.workShiftBaseValueId}${SEPARATOR}${cv.coefficient}`,
-        label: `Coef: ${cv.coefficient} - R: $${cv.remunerated} / NR: $${cv.notRemunerated}`,
+        label: `Coef: ${cv.coefficient} - Bruto: $${cv.gross} / Neto: $${cv.net}`,
       }))
     );
   }, [data?.data]);

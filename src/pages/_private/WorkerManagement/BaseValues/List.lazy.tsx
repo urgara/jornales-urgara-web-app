@@ -118,6 +118,8 @@ function RouteComponent() {
                   <Table.Th>Coeficiente</Table.Th>
                   <Table.Th>Remunerado</Table.Th>
                   <Table.Th>No remunerado</Table.Th>
+                  <Table.Th>Bruto</Table.Th>
+                  <Table.Th>Neto</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -135,6 +137,22 @@ function RouteComponent() {
                     <Table.Td>
                       <NumberFormatter
                         value={cv.notRemunerated}
+                        prefix='$'
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                      />
+                    </Table.Td>
+                    <Table.Td>
+                      <NumberFormatter
+                        value={cv.gross}
+                        prefix='$'
+                        thousandSeparator='.'
+                        decimalSeparator=','
+                      />
+                    </Table.Td>
+                    <Table.Td>
+                      <NumberFormatter
+                        value={cv.net}
                         prefix='$'
                         thousandSeparator='.'
                         decimalSeparator=','
