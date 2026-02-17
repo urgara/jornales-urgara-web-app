@@ -1,40 +1,53 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Container, NumberFormatter, Stack, Text, Title } from '@mantine/core';
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Container,
+  NumberFormatter,
+  Select,
+  Stack,
+  Switch,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
-import { IconEdit, IconPlus } from '@tabler/icons-react';
+import { IconEdit, IconPlus, IconUsers } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import dayjs from 'dayjs';
 import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  AgencySelect,
   CompanySelect,
   CustomTable,
-  LocalitySelect,
   ProductSelect,
+  ShipSelect,
   TerminalSelect,
-  WorkerSelect,
   WorkShiftSelect,
 } from '@/components';
 import {
   useConfigTablePersist,
-  useQuerySelectAgencies,
   useQuerySelectCompanies,
-  useQuerySelectLocalities,
   useQuerySelectProducts,
-  useQuerySelectWorkers,
+  useQuerySelectShips,
+  useQuerySelectTerminals,
   useQuerySelectWorkShifts,
+  useQuerySelectWorkers,
 } from '@/hooks';
-import { useQuerySelectTerminals } from '@/hooks/useQuerySelectTerminals';
 import { getWorkerCategoryLabel } from '@/models';
-import { CreateWorkerAssignmentForm } from './-components';
+import { useAuthStore } from '@/stores';
+import { CreateWorkerAssignmentForm, EditWorkersModal } from './-components';
 import { useMutationUpdateWorkerAssignment, useQueryWorkerAssignments } from './-hooks';
 import {
+  COMPANY_ROLE_OPTIONS,
   type UpdateWorkerAssignmentRequest,
   UpdateWorkerAssignmentRequestSchema,
   type WorkerAssignment,
+  type WorkerDetail,
+  getCompanyRoleLabel,
 } from './-models';
 
 export const Route = createLazyFileRoute('/_private/WorkerAssignments')({
@@ -42,6 +55,7 @@ export const Route = createLazyFileRoute('/_private/WorkerAssignments')({
 });
 
 function RouteComponent() {
+  const admin = useAuthStore((state) => state.admin);
   const {
     data: workerAssignmentsData,
     isLoading,
@@ -56,40 +70,27 @@ function RouteComponent() {
   const { mutate: updateWorkerAssignment, isPending: isUpdating } =
     useMutationUpdateWorkerAssignment();
 
-  const { getWorkerFullName } = useQuerySelectWorkers();
   const { getWorkShiftDescription } = useQuerySelectWorkShifts();
-  const { getLocalityName } = useQuerySelectLocalities();
-  const { data: companiesData } = useQuerySelectCompanies();
-  const { data: agenciesData } = useQuerySelectAgencies();
+  const { getCompanyName } = useQuerySelectCompanies();
   const { getTerminalName } = useQuerySelectTerminals();
-  const { products } = useQuerySelectProducts();
-
-  const getCompanyName = (id: string) => {
-    const company = companiesData?.data?.find((c) => c.id === id);
-    return company ? company.name : 'Empresa desconocida';
-  };
-
-  const getAgencyName = (id: string) => {
-    const agency = agenciesData.find((a: { id: string; name: string }) => a.id === id);
-    return agency ? agency.name : 'Agencia desconocida';
-  };
-
-  const getProductName = (id: string) => {
-    const product = products.find((p) => p.id === id);
-    return product ? product.name : 'Producto desconocido';
-  };
+  const { getProductName } = useQuerySelectProducts();
+  const { getShipName } = useQuerySelectShips();
+  const { getWorkerFullName } = useQuerySelectWorkers();
 
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
     useConfigTablePersist('worker-assignments');
 
-  // Ocultar createdAt por defecto si no hay configuración guardada
   const initialColumnVisibility = useMemo(() => {
     if (Object.keys(columnVisibility).length === 0) {
       return { createdAt: false };
     }
     return columnVisibility;
   }, [columnVisibility]);
+
+  const [editWorkersAssignment, setEditWorkersAssignment] = useState<WorkerAssignment | null>(null);
+  const [editWorkersOpened, { open: openEditWorkers, close: closeEditWorkers }] =
+    useDisclosure(false);
 
   const {
     formState: { errors },
@@ -103,41 +104,10 @@ function RouteComponent() {
     mode: 'onChange',
   });
 
+  const isCalculateJc = admin?.Locality?.isCalculateJc === true;
+
   const columns = useMemo<MRT_ColumnDef<WorkerAssignment>[]>(
     () => [
-      {
-        accessorKey: 'workerId',
-        header: 'Trabajador',
-        size: 200,
-        grow: true,
-        enableEditing: true,
-        Cell: ({ cell }) => {
-          const workerId = cell.getValue<string>();
-          return getWorkerFullName(workerId);
-        },
-        Edit: ({ row }) => (
-          <WorkerSelect
-            required
-            value={row._valuesCache.workerId}
-            onChange={(value) => {
-              if (value) {
-                setValue('workerId', value);
-                row._valuesCache.workerId = value;
-                trigger('workerId');
-              }
-            }}
-            error={editingRowId === row.original.id ? errors.workerId?.message : undefined}
-          />
-        ),
-        Filter: ({ column }) => (
-          <WorkerSelect
-            value={column.getFilterValue() as string | undefined}
-            onChange={(value) => column.setFilterValue(value)}
-            placeholder='Filtrar por trabajador'
-            clearable
-          />
-        ),
-      },
       {
         accessorKey: 'workShiftId',
         header: 'Turno',
@@ -248,40 +218,6 @@ function RouteComponent() {
         },
       },
       {
-        accessorKey: 'category',
-        header: 'Categoría',
-        size: 120,
-        grow: true,
-        enableEditing: false,
-        enableColumnFilter: false,
-        Cell: ({ cell }) => {
-          const category = cell.getValue<string>();
-          return getWorkerCategoryLabel(category as 'IDONEO' | 'PERITO');
-        },
-      },
-      {
-        accessorKey: 'coefficient',
-        header: 'Coeficiente',
-        size: 120,
-        grow: true,
-        enableEditing: false,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: 'baseValue',
-        header: 'Valor Base',
-        size: 120,
-        grow: true,
-        enableEditing: false,
-        enableColumnFilter: false,
-        Cell: ({ cell }) => {
-          const value = cell.getValue<string>();
-          return (
-            <NumberFormatter value={value} prefix='$' thousandSeparator='.' decimalSeparator=',' />
-          );
-        },
-      },
-      {
         accessorKey: 'companyId',
         header: 'Empresa',
         size: 200,
@@ -315,67 +251,40 @@ function RouteComponent() {
         ),
       },
       {
-        accessorKey: 'localityId',
-        header: 'Localidad',
-        size: 200,
+        accessorKey: 'companyRole',
+        header: 'Rol empresa',
+        size: 150,
         grow: true,
         enableEditing: true,
         Cell: ({ cell }) => {
-          const localityId = cell.getValue<string>();
-          return getLocalityName(localityId);
+          const role = cell.getValue<'EXPORTER' | 'SURVEYOR'>();
+          return (
+            <Badge variant='light' color={role === 'EXPORTER' ? 'blue' : 'grape'}>
+              {getCompanyRoleLabel(role)}
+            </Badge>
+          );
         },
         Edit: ({ row }) => (
-          <LocalitySelect
+          <Select
             required
-            value={row._valuesCache.localityId}
+            data={COMPANY_ROLE_OPTIONS as unknown as { value: string; label: string }[]}
+            value={row._valuesCache.companyRole}
             onChange={(value) => {
               if (value) {
-                setValue('localityId', value);
-                row._valuesCache.localityId = value;
-                trigger('localityId');
+                setValue('companyRole', value as 'EXPORTER' | 'SURVEYOR');
+                row._valuesCache.companyRole = value;
+                trigger('companyRole');
               }
             }}
-            error={editingRowId === row.original.id ? errors.localityId?.message : undefined}
+            error={editingRowId === row.original.id ? errors.companyRole?.message : undefined}
           />
         ),
         Filter: ({ column }) => (
-          <LocalitySelect
+          <Select
+            data={COMPANY_ROLE_OPTIONS as unknown as { value: string; label: string }[]}
             value={column.getFilterValue() as string | undefined}
             onChange={(value) => column.setFilterValue(value)}
-            placeholder='Filtrar por localidad'
-            clearable
-          />
-        ),
-      },
-      {
-        accessorKey: 'agencyId',
-        header: 'Agencia',
-        size: 200,
-        grow: true,
-        enableEditing: true,
-        Cell: ({ cell }) => {
-          const agencyId = cell.getValue<string>();
-          return getAgencyName(agencyId);
-        },
-        Edit: ({ row }) => (
-          <AgencySelect
-            required
-            value={row._valuesCache.agencyId}
-            onChange={(value) => {
-              if (value) {
-                setValue('agencyId', value);
-                row._valuesCache.agencyId = value;
-                trigger('agencyId');
-              }
-            }}
-            error={editingRowId === row.original.id ? errors.agencyId?.message : undefined}
-          />
-        ),
-        Filter: ({ column }) => (
-          <AgencySelect
-            value={column.getFilterValue() as string | undefined}
-            onChange={(value) => column.setFilterValue(value)}
-            placeholder='Filtrar por agencia'
+            placeholder='Filtrar por rol'
             clearable
           />
         ),
@@ -447,59 +356,66 @@ function RouteComponent() {
         ),
       },
       {
-        accessorKey: 'additionalPercent',
-        header: 'Premio/Castigo',
-        size: 150,
+        accessorKey: 'shipId',
+        header: 'Barco',
+        size: 200,
         grow: true,
         enableEditing: true,
-        Cell: ({ cell }) => {
-          const percent = cell.getValue<string | null>();
-          if (!percent) return '—';
-          const num = Number.parseFloat(percent);
-          const color =
-            num > 0
-              ? 'var(--mantine-color-green-9)'
-              : num < 0
-                ? 'var(--mantine-color-red-9)'
-                : undefined;
-          return (
-            <Text style={{ color, fontWeight: num !== 0 ? 600 : undefined }}>
-              <NumberFormatter
-                value={percent}
-                suffix='%'
-                thousandSeparator='.'
-                decimalSeparator=','
-              />
-            </Text>
-          );
+        Cell: ({ row }) => {
+          return row.original.shipName || getShipName(row.original.shipId);
         },
-        mantineEditTextInputProps: ({ row }) => ({
-          placeholder: 'Ej: 15,00',
-          error: editingRowId === row.original.id ? errors.additionalPercent?.message : undefined,
-          onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-            const value = event.target.value || undefined;
-            setValue('additionalPercent', value);
-            row._valuesCache.additionalPercent = value;
-          },
-          onBlur: () => {
-            trigger('additionalPercent');
-          },
-        }),
-        enableColumnFilter: false,
+        Edit: ({ row }) => (
+          <ShipSelect
+            required
+            value={row._valuesCache.shipId}
+            onChange={(value) => {
+              if (value) {
+                setValue('shipId', value);
+                row._valuesCache.shipId = value;
+                trigger('shipId');
+              }
+            }}
+            error={editingRowId === row.original.id ? errors.shipId?.message : undefined}
+          />
+        ),
+        Filter: ({ column }) => (
+          <ShipSelect
+            value={column.getFilterValue() as string | undefined}
+            onChange={(value) => column.setFilterValue(value)}
+            placeholder='Filtrar por barco'
+            clearable
+          />
+        ),
       },
       {
-        accessorKey: 'totalAmount',
-        header: 'Monto Total (Bruto)',
-        size: 120,
-        grow: true,
-        enableEditing: false,
+        accessorKey: 'jc',
+        header: 'JC',
+        size: 80,
+        grow: false,
+        enableEditing: isCalculateJc,
+        enableColumnFilter: false,
         Cell: ({ cell }) => {
-          const amount = cell.getValue<string>();
-          return (
-            <NumberFormatter value={amount} prefix='$' thousandSeparator='.' decimalSeparator=',' />
+          const jc = cell.getValue<boolean>();
+          return jc ? (
+            <Badge color='yellow' variant='light'>
+              JC
+            </Badge>
+          ) : (
+            '—'
           );
         },
-        enableColumnFilter: false,
+        Edit: ({ row }) =>
+          isCalculateJc ? (
+            <Switch
+              checked={row._valuesCache.jc}
+              onChange={(event) => {
+                setValue('jc', event.currentTarget.checked);
+                row._valuesCache.jc = event.currentTarget.checked;
+                trigger('jc');
+              }}
+              label={row._valuesCache.jc ? 'Sí' : 'No'}
+            />
+          ) : null,
       },
       {
         accessorKey: 'createdAt',
@@ -520,13 +436,12 @@ function RouteComponent() {
       errors,
       setValue,
       trigger,
-      getWorkerFullName,
       getWorkShiftDescription,
       getCompanyName,
-      getLocalityName,
-      getAgencyName,
       getTerminalName,
       getProductName,
+      getShipName,
+      isCalculateJc,
     ]
   );
 
@@ -566,27 +481,122 @@ function RouteComponent() {
 
   const handleEditStart = ({ row }: { row: MRT_Row<WorkerAssignment> }) => {
     setEditingRowId(row.original.id);
-    setValue('workerId', row.original.workerId);
     setValue('workShiftId', row.original.workShiftId);
     setValue('date', row.original.date);
     setValue('companyId', row.original.companyId);
-    setValue('localityId', row.original.localityId);
-    setValue('agencyId', row.original.agencyId);
+    setValue('companyRole', row.original.companyRole);
     setValue('terminalId', row.original.terminalId);
     setValue('productId', row.original.productId);
-    setValue('additionalPercent', row.original.additionalPercent || undefined);
+    setValue('shipId', row.original.shipId);
+    setValue('jc', row.original.jc);
 
-    row._valuesCache.workerId = row.original.workerId;
     row._valuesCache.workShiftId = row.original.workShiftId;
     row._valuesCache.date = row.original.date;
     row._valuesCache.companyId = row.original.companyId;
-    row._valuesCache.localityId = row.original.localityId;
-    row._valuesCache.agencyId = row.original.agencyId;
+    row._valuesCache.companyRole = row.original.companyRole;
     row._valuesCache.terminalId = row.original.terminalId;
     row._valuesCache.productId = row.original.productId;
-    row._valuesCache.additionalPercent = row.original.additionalPercent;
+    row._valuesCache.shipId = row.original.shipId;
+    row._valuesCache.jc = row.original.jc;
 
     clearErrors();
+  };
+
+  const handleEditWorkersClick = (assignment: WorkerAssignment) => {
+    setEditWorkersAssignment(assignment);
+    openEditWorkers();
+  };
+
+  const renderDetailPanel = ({ row }: { row: MRT_Row<WorkerAssignment> }) => {
+    const workers: WorkerDetail[] = row.original.workers;
+    if (!workers || workers.length === 0) {
+      return (
+        <Text size='sm' c='dimmed' p='md'>
+          Sin trabajadores asignados
+        </Text>
+      );
+    }
+
+    return (
+      <Box p='md'>
+        <Stack gap='xs'>
+          <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text fw={600} size='sm'>
+              Trabajadores ({workers.length})
+            </Text>
+            <ActionIcon
+              variant='light'
+              onClick={() => handleEditWorkersClick(row.original)}
+            >
+              <IconUsers size={16} />
+            </ActionIcon>
+          </Box>
+          <Table striped highlightOnHover withTableBorder withColumnBorders>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Trabajador</Table.Th>
+                <Table.Th>Categoría</Table.Th>
+                <Table.Th>Coeficiente</Table.Th>
+                <Table.Th>Valor Base ($)</Table.Th>
+                <Table.Th>Premio/Castigo (%)</Table.Th>
+                <Table.Th>Monto Total ($)</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {workers.map((worker) => (
+                <Table.Tr key={worker.id}>
+                  <Table.Td>{getWorkerFullName(worker.workerId)}</Table.Td>
+                  <Table.Td>{getWorkerCategoryLabel(worker.category)}</Table.Td>
+                  <Table.Td>{worker.coefficient}</Table.Td>
+                  <Table.Td>
+                    <NumberFormatter
+                      value={worker.baseValue}
+                      prefix='$'
+                      thousandSeparator='.'
+                      decimalSeparator=','
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    {worker.additionalPercent ? (
+                      <Text
+                        span
+                        style={{
+                          color:
+                            Number(worker.additionalPercent) > 0
+                              ? 'var(--mantine-color-green-9)'
+                              : Number(worker.additionalPercent) < 0
+                                ? 'var(--mantine-color-red-9)'
+                                : undefined,
+                          fontWeight:
+                            Number(worker.additionalPercent) !== 0 ? 600 : undefined,
+                        }}
+                      >
+                        <NumberFormatter
+                          value={worker.additionalPercent}
+                          suffix='%'
+                          thousandSeparator='.'
+                          decimalSeparator=','
+                        />
+                      </Text>
+                    ) : (
+                      '—'
+                    )}
+                  </Table.Td>
+                  <Table.Td>
+                    <NumberFormatter
+                      value={worker.totalAmount}
+                      prefix='$'
+                      thousandSeparator='.'
+                      decimalSeparator=','
+                    />
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Stack>
+      </Box>
+    );
   };
 
   const [opened, { open, close }] = useDisclosure(false);
@@ -594,6 +604,18 @@ function RouteComponent() {
   return (
     <Container fluid>
       <CreateWorkerAssignmentForm opened={opened} onClose={close} />
+      {editWorkersAssignment && (
+        <EditWorkersModal
+          assignmentId={editWorkersAssignment.id}
+          currentWorkers={editWorkersAssignment.workers}
+          date={editWorkersAssignment.date}
+          opened={editWorkersOpened}
+          onClose={() => {
+            closeEditWorkers();
+            setEditWorkersAssignment(null);
+          }}
+        />
+      )}
       <CustomTable
         renderTopToolbarCustomActions={() => (
           <>
@@ -622,6 +644,8 @@ function RouteComponent() {
             <IconEdit size={18} />
           </ActionIcon>
         )}
+        enableExpanding
+        renderDetailPanel={renderDetailPanel}
         columns={columns}
         data={workerAssignmentsData?.data || []}
         state={{

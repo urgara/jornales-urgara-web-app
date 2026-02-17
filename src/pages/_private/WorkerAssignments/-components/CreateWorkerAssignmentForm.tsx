@@ -1,12 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Modal, NumberInput, Select, Stack } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import {
-  AgencySelect,
+  ActionIcon,
+  Button,
+  Divider,
+  Group,
+  Modal,
+  NumberInput,
+  Select,
+  Stack,
+  Switch,
+  Text,
+  Title,
+} from '@mantine/core';
+import { DateInput } from '@mantine/dates';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { useState } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import {
   CompanySelect,
   ProductSelect,
+  ShipSelect,
   TerminalSelect,
   WorkerSelect,
   WorkShiftSelect,
@@ -15,6 +28,7 @@ import { WORKER_CATEGORY_OPTIONS } from '@/models';
 import { useAuthStore } from '@/stores';
 import { useMutationCreateWorkerAssignment } from '../-hooks';
 import {
+  COMPANY_ROLE_OPTIONS,
   type CreateWorkerAssignmentRequest,
   CreateWorkerAssignmentRequestSchema,
 } from '../-models';
@@ -25,10 +39,12 @@ interface CreateWorkerAssignmentFormProps {
   onClose: () => void;
 }
 
+type FormData = Omit<CreateWorkerAssignmentRequest, 'localityId'>;
+
 export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssignmentFormProps) {
   const admin = useAuthStore((state) => state.admin);
   const { mutate: createWorkerAssignment, isPending } = useMutationCreateWorkerAssignment();
-  const [baseValueKey, setBaseValueKey] = useState<string | null>(null);
+  const [baseValueKeys, setBaseValueKeys] = useState<Record<number, string | null>>({});
 
   const {
     handleSubmit,
@@ -37,80 +53,96 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
     watch,
     setValue,
     formState: { errors },
-  } = useForm<Omit<CreateWorkerAssignmentRequest, 'localityId'>>({
+  } = useForm<FormData>({
     resolver: zodResolver(CreateWorkerAssignmentRequestSchema.omit({ localityId: true })),
     defaultValues: {
-      workerId: '',
       workShiftId: '',
       date: '',
-      category: undefined,
-      value: { workShiftBaseValueId: '', coefficient: '' },
-      additionalPercent: '',
       companyId: '',
-      agencyId: '',
+      companyRole: undefined,
       terminalId: '',
       productId: '',
+      shipId: '',
+      jc: false,
+      workers: [
+        {
+          workerId: '',
+          category: undefined,
+          value: { workShiftBaseValueId: '', coefficient: '' },
+          additionalPercent: '',
+        },
+      ],
     },
   });
 
-  const onSubmit = (data: Omit<CreateWorkerAssignmentRequest, 'localityId'>) => {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'workers',
+  });
+
+  const dateValue = watch('date');
+
+  const onSubmit = (data: FormData) => {
     const submitData: CreateWorkerAssignmentRequest = {
       ...data,
       localityId: admin?.localityId || '',
     };
 
-    if (!data.additionalPercent || data.additionalPercent === '') {
-      delete submitData.additionalPercent;
+    for (const worker of submitData.workers) {
+      if (!worker.additionalPercent || worker.additionalPercent === '') {
+        delete worker.additionalPercent;
+      }
     }
 
     createWorkerAssignment(submitData, {
       onSuccess: () => {
         reset();
-        setBaseValueKey(null);
+        setBaseValueKeys({});
         onClose();
       },
     });
   };
 
-  const dateValue = watch('date');
-  const categoryValue = watch('category');
-
-  const handleBaseValueChange = (selection: BaseValueSelection | null) => {
+  const handleBaseValueChange = (index: number, selection: BaseValueSelection | null) => {
     if (selection) {
-      setValue('value', selection);
-      setBaseValueKey(`${selection.workShiftBaseValueId}|${selection.coefficient}`);
+      setValue(`workers.${index}.value`, selection);
+      setBaseValueKeys((prev) => ({
+        ...prev,
+        [index]: `${selection.workShiftBaseValueId}|${selection.coefficient}`,
+      }));
     } else {
-      setValue('value', { workShiftBaseValueId: '', coefficient: '' });
-      setBaseValueKey(null);
+      setValue(`workers.${index}.value`, { workShiftBaseValueId: '', coefficient: '' });
+      setBaseValueKeys((prev) => ({ ...prev, [index]: null }));
     }
   };
 
   const handleClose = () => {
     reset();
-    setBaseValueKey(null);
+    setBaseValueKeys({});
     onClose();
   };
 
+  const handleAddWorker = () => {
+    append({
+      workerId: '',
+      category: undefined as unknown as 'IDONEO' | 'PERITO',
+      value: { workShiftBaseValueId: '', coefficient: '' },
+      additionalPercent: '',
+    });
+  };
+
+  const isCalculateJc = admin?.Locality?.isCalculateJc === true;
+
   return (
-    <Modal opened={opened} onClose={handleClose} title='Crear nueva asignación' centered size='md'>
+    <Modal
+      opened={opened}
+      onClose={handleClose}
+      title='Crear nueva asignación'
+      centered
+      size='lg'
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack>
-          <Controller
-            name='workerId'
-            control={control}
-            render={({ field }) => (
-              <WorkerSelect
-                label='Trabajador'
-                placeholder='Seleccione un trabajador'
-                value={field.value}
-                onChange={(value) => field.onChange(value || '')}
-                onBlur={field.onBlur}
-                error={errors.workerId?.message}
-                required
-              />
-            )}
-          />
-
           <Controller
             name='workShiftId'
             control={control}
@@ -154,36 +186,6 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
           />
 
           <Controller
-            name='category'
-            control={control}
-            render={({ field }) => (
-              <Select
-                label='Categoría'
-                placeholder='Seleccione una categoría'
-                data={WORKER_CATEGORY_OPTIONS as unknown as { value: string; label: string }[]}
-                value={field.value || null}
-                onChange={(value) => field.onChange(value || '')}
-                onBlur={field.onBlur}
-                error={errors.category?.message}
-                required
-              />
-            )}
-          />
-
-          <BaseValueSelect
-            label='Valor base'
-            placeholder='Seleccione un valor base'
-            date={dateValue || undefined}
-            category={categoryValue || undefined}
-            value={baseValueKey}
-            onChange={handleBaseValueChange}
-            error={
-              errors.value?.workShiftBaseValueId?.message || errors.value?.coefficient?.message
-            }
-            required
-          />
-
-          <Controller
             name='companyId'
             control={control}
             render={({ field }) => (
@@ -200,16 +202,17 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
           />
 
           <Controller
-            name='agencyId'
+            name='companyRole'
             control={control}
             render={({ field }) => (
-              <AgencySelect
-                label='Agencia'
-                placeholder='Seleccione una agencia'
-                value={field.value}
+              <Select
+                label='Rol empresa'
+                placeholder='Seleccione un rol'
+                data={COMPANY_ROLE_OPTIONS as unknown as { value: string; label: string }[]}
+                value={field.value || null}
                 onChange={(value) => field.onChange(value || '')}
                 onBlur={field.onBlur}
-                error={errors.agencyId?.message}
+                error={errors.companyRole?.message}
                 required
               />
             )}
@@ -248,41 +251,170 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
           />
 
           <Controller
-            name='additionalPercent'
+            name='shipId'
             control={control}
             render={({ field }) => (
-              <NumberInput
-                label='Premio / Castigo'
-                placeholder='Ej: 15,00 o -10,00'
-                value={field.value ? Number(field.value) : undefined}
-                onChange={(value) => {
-                  if (value === '' || value === null || value === undefined) {
-                    field.onChange('');
-                  } else {
-                    field.onChange(String(value));
-                  }
-                }}
+              <ShipSelect
+                label='Barco'
+                placeholder='Seleccione un barco'
+                value={field.value}
+                onChange={(value) => field.onChange(value || '')}
                 onBlur={field.onBlur}
-                error={errors.additionalPercent?.message}
-                decimalSeparator=','
-                thousandSeparator='.'
-                allowNegative={true}
-                decimalScale={2}
-                fixedDecimalScale={false}
-                styles={{
-                  input: {
-                    color:
-                      field.value && Number(field.value) !== 0
-                        ? Number(field.value) > 0
-                          ? 'var(--mantine-color-green-9)'
-                          : 'var(--mantine-color-red-9)'
-                        : undefined,
-                    fontWeight: field.value && Number(field.value) !== 0 ? 600 : undefined,
-                  },
-                }}
+                error={errors.shipId?.message}
+                required
               />
             )}
           />
+
+          {isCalculateJc && (
+            <Controller
+              name='jc'
+              control={control}
+              render={({ field }) => (
+                <Switch
+                  label='Jornal caído'
+                  checked={field.value || false}
+                  onChange={(event) => field.onChange(event.currentTarget.checked)}
+                />
+              )}
+            />
+          )}
+
+          <Divider my='xs' />
+          <Group justify='space-between'>
+            <Title order={4}>Trabajadores</Title>
+            <Button
+              variant='light'
+              size='xs'
+              leftSection={<IconPlus size={14} />}
+              onClick={handleAddWorker}
+            >
+              Agregar trabajador
+            </Button>
+          </Group>
+
+          {errors.workers?.root?.message && (
+            <Text c='red' size='sm'>
+              {errors.workers.root.message}
+            </Text>
+          )}
+
+          {fields.map((field, index) => {
+            const categoryValue = watch(`workers.${index}.category`);
+            return (
+              <Stack key={field.id} gap='xs' style={{ border: '1px solid var(--mantine-color-dark-4)', borderRadius: 8, padding: 12 }}>
+                <Group justify='space-between'>
+                  <Text size='sm' fw={500}>
+                    Trabajador {index + 1}
+                  </Text>
+                  {fields.length > 1 && (
+                    <ActionIcon
+                      variant='subtle'
+                      color='red'
+                      size='sm'
+                      onClick={() => {
+                        remove(index);
+                        setBaseValueKeys((prev) => {
+                          const next = { ...prev };
+                          delete next[index];
+                          return next;
+                        });
+                      }}
+                    >
+                      <IconTrash size={14} />
+                    </ActionIcon>
+                  )}
+                </Group>
+
+                <Controller
+                  name={`workers.${index}.workerId`}
+                  control={control}
+                  render={({ field: workerField }) => (
+                    <WorkerSelect
+                      label='Trabajador'
+                      placeholder='Seleccione un trabajador'
+                      value={workerField.value}
+                      onChange={(value) => workerField.onChange(value || '')}
+                      onBlur={workerField.onBlur}
+                      error={errors.workers?.[index]?.workerId?.message}
+                      required
+                    />
+                  )}
+                />
+
+                <Controller
+                  name={`workers.${index}.category`}
+                  control={control}
+                  render={({ field: catField }) => (
+                    <Select
+                      label='Categoría'
+                      placeholder='Seleccione una categoría'
+                      data={
+                        WORKER_CATEGORY_OPTIONS as unknown as { value: string; label: string }[]
+                      }
+                      value={catField.value || null}
+                      onChange={(value) => catField.onChange(value || '')}
+                      onBlur={catField.onBlur}
+                      error={errors.workers?.[index]?.category?.message}
+                      required
+                    />
+                  )}
+                />
+
+                <BaseValueSelect
+                  label='Valor base'
+                  placeholder='Seleccione un valor base'
+                  date={dateValue || undefined}
+                  category={categoryValue || undefined}
+                  value={baseValueKeys[index] ?? null}
+                  onChange={(selection) => handleBaseValueChange(index, selection)}
+                  error={
+                    errors.workers?.[index]?.value?.workShiftBaseValueId?.message ||
+                    errors.workers?.[index]?.value?.coefficient?.message
+                  }
+                  required
+                />
+
+                <Controller
+                  name={`workers.${index}.additionalPercent`}
+                  control={control}
+                  render={({ field: apField }) => (
+                    <NumberInput
+                      label='Premio / Castigo'
+                      placeholder='Ej: 15,00 o -10,00'
+                      value={apField.value ? Number(apField.value) : undefined}
+                      onChange={(value) => {
+                        if (value === '' || value === null || value === undefined) {
+                          apField.onChange('');
+                        } else {
+                          apField.onChange(String(value));
+                        }
+                      }}
+                      onBlur={apField.onBlur}
+                      error={errors.workers?.[index]?.additionalPercent?.message}
+                      decimalSeparator=','
+                      thousandSeparator='.'
+                      allowNegative={true}
+                      decimalScale={2}
+                      fixedDecimalScale={false}
+                      styles={{
+                        input: {
+                          color:
+                            apField.value && Number(apField.value) !== 0
+                              ? Number(apField.value) > 0
+                                ? 'var(--mantine-color-green-9)'
+                                : 'var(--mantine-color-red-9)'
+                              : undefined,
+                          fontWeight:
+                            apField.value && Number(apField.value) !== 0 ? 600 : undefined,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Stack>
+            );
+          })}
 
           <Button type='submit' loading={isPending} fullWidth>
             Crear asignación

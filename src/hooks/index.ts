@@ -6,6 +6,7 @@ export * from './useQuerySelectAgencies';
 export * from './useQuerySelectCompanies';
 export * from './useQuerySelectLocalities';
 export * from './useQuerySelectProducts';
+export * from './useQuerySelectShips';
 export * from './useQuerySelectTerminals';
 export * from './useQuerySelectWorkers';
 export * from './useQuerySelectWorkShifts';
