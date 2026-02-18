@@ -30,9 +30,9 @@ const WorkerDetailSchema = z.object({
   category: WorkerCategorySchema,
   workShiftBaseValueId: z.uuid(),
   coefficient: z.string(),
-  baseValue: z.string(),
+  gross: z.string(),
   additionalPercent: z.string().nullable(),
-  totalAmount: z.string(),
+  net: z.string(),
 });
 
 const WorkerAssignmentSchema = z.object({

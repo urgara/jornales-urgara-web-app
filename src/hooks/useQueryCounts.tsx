@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  getAgenciesCountService,
   getCompaniesCountService,
   getWorkerAssignmentsCountService,
   getWorkersCountService,
@@ -12,14 +11,6 @@ export const useQueryCompaniesCount = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.COMPANIES, 'count'],
     queryFn: () => getCompaniesCountService(),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  });
-};
-
-export const useQueryAgenciesCount = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.AGENCIES, 'count'],
-    queryFn: () => getAgenciesCountService(),
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 };

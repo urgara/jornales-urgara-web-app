@@ -2,7 +2,6 @@ export * from './useConfigTablePersist';
 export * from './useMutationChangePassword';
 export * from './useNotifications';
 export * from './useQueryCounts';
-export * from './useQuerySelectAgencies';
 export * from './useQuerySelectCompanies';
 export * from './useQuerySelectLocalities';
 export * from './useQuerySelectProducts';

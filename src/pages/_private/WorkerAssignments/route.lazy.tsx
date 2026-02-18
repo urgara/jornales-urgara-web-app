@@ -81,12 +81,14 @@ function RouteComponent() {
   const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
     useConfigTablePersist('worker-assignments');
 
+  const isCalculateJc = admin?.Locality?.isCalculateJc === true;
+
   const initialColumnVisibility = useMemo(() => {
-    if (Object.keys(columnVisibility).length === 0) {
-      return { createdAt: false };
-    }
-    return columnVisibility;
-  }, [columnVisibility]);
+    const base = Object.keys(columnVisibility).length === 0
+      ? { createdAt: false }
+      : columnVisibility;
+    return { ...base, jc: isCalculateJc };
+  }, [columnVisibility, isCalculateJc]);
 
   const [editWorkersAssignment, setEditWorkersAssignment] = useState<WorkerAssignment | null>(null);
   const [editWorkersOpened, { open: openEditWorkers, close: closeEditWorkers }] =
@@ -103,8 +105,6 @@ function RouteComponent() {
     resolver: zodResolver(UpdateWorkerAssignmentRequestSchema),
     mode: 'onChange',
   });
-
-  const isCalculateJc = admin?.Locality?.isCalculateJc === true;
 
   const columns = useMemo<MRT_ColumnDef<WorkerAssignment>[]>(
     () => [
@@ -450,8 +450,9 @@ function RouteComponent() {
     row: MRT_Row<WorkerAssignment>,
     exitEditingMode: () => void
   ) => {
+    const submitData = { ...data, localityId: admin?.localityId || '' };
     updateWorkerAssignment(
-      { id: row.original.id, data },
+      { id: row.original.id, data: submitData },
       {
         onSuccess: () => {
           exitEditingMode();
@@ -537,9 +538,9 @@ function RouteComponent() {
                 <Table.Th>Trabajador</Table.Th>
                 <Table.Th>Categoría</Table.Th>
                 <Table.Th>Coeficiente</Table.Th>
-                <Table.Th>Valor Base ($)</Table.Th>
-                <Table.Th>Premio/Castigo (%)</Table.Th>
-                <Table.Th>Monto Total ($)</Table.Th>
+                <Table.Th>Bruto ($)</Table.Th>
+                <Table.Th>Bonif. / Desc. (%)</Table.Th>
+                <Table.Th>Neto ($)</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -550,7 +551,7 @@ function RouteComponent() {
                   <Table.Td>{worker.coefficient}</Table.Td>
                   <Table.Td>
                     <NumberFormatter
-                      value={worker.baseValue}
+                      value={worker.gross}
                       prefix='$'
                       thousandSeparator='.'
                       decimalSeparator=','
@@ -584,7 +585,7 @@ function RouteComponent() {
                   </Table.Td>
                   <Table.Td>
                     <NumberFormatter
-                      value={worker.totalAmount}
+                      value={worker.net}
                       prefix='$'
                       thousandSeparator='.'
                       decimalSeparator=','
@@ -609,6 +610,7 @@ function RouteComponent() {
           assignmentId={editWorkersAssignment.id}
           currentWorkers={editWorkersAssignment.workers}
           date={editWorkersAssignment.date}
+          workShiftId={editWorkersAssignment.workShiftId}
           opened={editWorkersOpened}
           onClose={() => {
             closeEditWorkers();

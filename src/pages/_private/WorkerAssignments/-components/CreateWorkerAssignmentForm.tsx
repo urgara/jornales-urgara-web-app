@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import {
   CompanySelect,
@@ -24,6 +24,7 @@ import {
   WorkerSelect,
   WorkShiftSelect,
 } from '@/components';
+import { useQuerySelectWorkShifts } from '@/hooks';
 import { WORKER_CATEGORY_OPTIONS } from '@/models';
 import { useAuthStore } from '@/stores';
 import { useMutationCreateWorkerAssignment } from '../-hooks';
@@ -44,6 +45,7 @@ type FormData = Omit<CreateWorkerAssignmentRequest, 'localityId'>;
 export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssignmentFormProps) {
   const admin = useAuthStore((state) => state.admin);
   const { mutate: createWorkerAssignment, isPending } = useMutationCreateWorkerAssignment();
+  const { data: workShiftsData } = useQuerySelectWorkShifts();
   const [baseValueKeys, setBaseValueKeys] = useState<Record<number, string | null>>({});
 
   const {
@@ -81,6 +83,22 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
   });
 
   const dateValue = watch('date');
+  const workShiftId = watch('workShiftId');
+
+  const selectedCoefficient = useMemo(() => {
+    if (!workShiftId || !workShiftsData?.data) return undefined;
+    return workShiftsData.data.find((ws) => ws.id === workShiftId)?.coefficient;
+  }, [workShiftId, workShiftsData?.data]);
+
+  const prevWorkShiftIdRef = useRef(workShiftId);
+  useEffect(() => {
+    if (prevWorkShiftIdRef.current === workShiftId) return;
+    prevWorkShiftIdRef.current = workShiftId;
+    setBaseValueKeys({});
+    for (let i = 0; i < fields.length; i++) {
+      setValue(`workers.${i}.value`, { workShiftBaseValueId: '', coefficient: '' });
+    }
+  }, [workShiftId, fields.length, setValue]);
 
   const onSubmit = (data: FormData) => {
     const submitData: CreateWorkerAssignmentRequest = {
@@ -143,6 +161,38 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack>
+          <Controller
+            name='shipId'
+            control={control}
+            render={({ field }) => (
+              <ShipSelect
+                label='Barco'
+                placeholder='Seleccione un barco'
+                value={field.value}
+                onChange={(value) => field.onChange(value || '')}
+                onBlur={field.onBlur}
+                error={errors.shipId?.message}
+                required
+              />
+            )}
+          />
+
+          <Controller
+            name='terminalId'
+            control={control}
+            render={({ field }) => (
+              <TerminalSelect
+                label='Terminal'
+                placeholder='Seleccione un terminal'
+                value={field.value}
+                onChange={(value) => field.onChange(value || '')}
+                onBlur={field.onBlur}
+                error={errors.terminalId?.message}
+                required
+              />
+            )}
+          />
+
           <Controller
             name='workShiftId'
             control={control}
@@ -219,22 +269,6 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
           />
 
           <Controller
-            name='terminalId'
-            control={control}
-            render={({ field }) => (
-              <TerminalSelect
-                label='Terminal'
-                placeholder='Seleccione un terminal'
-                value={field.value}
-                onChange={(value) => field.onChange(value || '')}
-                onBlur={field.onBlur}
-                error={errors.terminalId?.message}
-                required
-              />
-            )}
-          />
-
-          <Controller
             name='productId'
             control={control}
             render={({ field }) => (
@@ -245,22 +279,6 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
                 onChange={(value) => field.onChange(value || '')}
                 onBlur={field.onBlur}
                 error={errors.productId?.message}
-                required
-              />
-            )}
-          />
-
-          <Controller
-            name='shipId'
-            control={control}
-            render={({ field }) => (
-              <ShipSelect
-                label='Barco'
-                placeholder='Seleccione un barco'
-                value={field.value}
-                onChange={(value) => field.onChange(value || '')}
-                onBlur={field.onBlur}
-                error={errors.shipId?.message}
                 required
               />
             )}
@@ -366,6 +384,7 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
                   placeholder='Seleccione un valor base'
                   date={dateValue || undefined}
                   category={categoryValue || undefined}
+                  coefficient={selectedCoefficient}
                   value={baseValueKeys[index] ?? null}
                   onChange={(selection) => handleBaseValueChange(index, selection)}
                   error={
@@ -380,7 +399,7 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
                   control={control}
                   render={({ field: apField }) => (
                     <NumberInput
-                      label='Premio / Castigo'
+                      label='Bonificación / Descuento'
                       placeholder='Ej: 15,00 o -10,00'
                       value={apField.value ? Number(apField.value) : undefined}
                       onChange={(value) => {

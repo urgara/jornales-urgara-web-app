@@ -1,4 +1,3 @@
-export * from './AgencySelect';
 export * from './ButtonLink';
 export * from './ChangePasswordModal';
 export * from './CompanySelect';

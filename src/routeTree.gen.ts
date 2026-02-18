@@ -36,9 +36,6 @@ const PrivateAdministrationShipsRouteLazyRouteImport = createFileRoute(
 const PrivateAdministrationProductsRouteLazyRouteImport = createFileRoute(
   '/_private/Administration/Products',
 )()
-const PrivateAdministrationAgenciesRouteLazyRouteImport = createFileRoute(
-  '/_private/Administration/Agencies',
-)()
 
 const PrivateRoute = PrivateRouteImport.update({
   id: '/_private',
@@ -94,16 +91,6 @@ const PrivateAdministrationProductsRouteLazyRoute =
     getParentRoute: () => PrivateRoute,
   } as any).lazy(() =>
     import('./pages/_private/Administration/Products/route.lazy').then(
-      (d) => d.Route,
-    ),
-  )
-const PrivateAdministrationAgenciesRouteLazyRoute =
-  PrivateAdministrationAgenciesRouteLazyRouteImport.update({
-    id: '/Administration/Agencies',
-    path: '/Administration/Agencies',
-    getParentRoute: () => PrivateRoute,
-  } as any).lazy(() =>
-    import('./pages/_private/Administration/Agencies/route.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -191,7 +178,6 @@ export interface FileRoutesByFullPath {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/Administration/Agencies': typeof PrivateAdministrationAgenciesRouteLazyRoute
   '/Administration/Products': typeof PrivateAdministrationProductsRouteLazyRoute
   '/Administration/Ships': typeof PrivateAdministrationShipsRouteLazyRoute
   '/Administration/Terminals': typeof PrivateAdministrationTerminalsRouteLazyRoute
@@ -209,7 +195,6 @@ export interface FileRoutesByTo {
   '/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/Administration/Agencies': typeof PrivateAdministrationAgenciesRouteLazyRoute
   '/Administration/Products': typeof PrivateAdministrationProductsRouteLazyRoute
   '/Administration/Ships': typeof PrivateAdministrationShipsRouteLazyRoute
   '/Administration/Terminals': typeof PrivateAdministrationTerminalsRouteLazyRoute
@@ -229,7 +214,6 @@ export interface FileRoutesById {
   '/_private/Administration/Admins': typeof PrivateAdministrationAdminsRouteRoute
   '/_private/Administration/Companies': typeof PrivateAdministrationCompaniesRouteRoute
   '/_private/Administration/Localities': typeof PrivateAdministrationLocalitiesRouteRoute
-  '/_private/Administration/Agencies': typeof PrivateAdministrationAgenciesRouteLazyRoute
   '/_private/Administration/Products': typeof PrivateAdministrationProductsRouteLazyRoute
   '/_private/Administration/Ships': typeof PrivateAdministrationShipsRouteLazyRoute
   '/_private/Administration/Terminals': typeof PrivateAdministrationTerminalsRouteLazyRoute
@@ -249,7 +233,6 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
-    | '/Administration/Agencies'
     | '/Administration/Products'
     | '/Administration/Ships'
     | '/Administration/Terminals'
@@ -267,7 +250,6 @@ export interface FileRouteTypes {
     | '/Administration/Admins'
     | '/Administration/Companies'
     | '/Administration/Localities'
-    | '/Administration/Agencies'
     | '/Administration/Products'
     | '/Administration/Ships'
     | '/Administration/Terminals'
@@ -286,7 +268,6 @@ export interface FileRouteTypes {
     | '/_private/Administration/Admins'
     | '/_private/Administration/Companies'
     | '/_private/Administration/Localities'
-    | '/_private/Administration/Agencies'
     | '/_private/Administration/Products'
     | '/_private/Administration/Ships'
     | '/_private/Administration/Terminals'
@@ -354,13 +335,6 @@ declare module '@tanstack/react-router' {
       path: '/Administration/Products'
       fullPath: '/Administration/Products'
       preLoaderRoute: typeof PrivateAdministrationProductsRouteLazyRouteImport
-      parentRoute: typeof PrivateRoute
-    }
-    '/_private/Administration/Agencies': {
-      id: '/_private/Administration/Agencies'
-      path: '/Administration/Agencies'
-      fullPath: '/Administration/Agencies'
-      preLoaderRoute: typeof PrivateAdministrationAgenciesRouteLazyRouteImport
       parentRoute: typeof PrivateRoute
     }
     '/_private/Administration/Localities': {
@@ -434,7 +408,6 @@ interface PrivateRouteChildren {
   PrivateAdministrationAdminsRouteRoute: typeof PrivateAdministrationAdminsRouteRoute
   PrivateAdministrationCompaniesRouteRoute: typeof PrivateAdministrationCompaniesRouteRoute
   PrivateAdministrationLocalitiesRouteRoute: typeof PrivateAdministrationLocalitiesRouteRoute
-  PrivateAdministrationAgenciesRouteLazyRoute: typeof PrivateAdministrationAgenciesRouteLazyRoute
   PrivateAdministrationProductsRouteLazyRoute: typeof PrivateAdministrationProductsRouteLazyRoute
   PrivateAdministrationShipsRouteLazyRoute: typeof PrivateAdministrationShipsRouteLazyRoute
   PrivateAdministrationTerminalsRouteLazyRoute: typeof PrivateAdministrationTerminalsRouteLazyRoute
@@ -454,8 +427,6 @@ const PrivateRouteChildren: PrivateRouteChildren = {
     PrivateAdministrationCompaniesRouteRoute,
   PrivateAdministrationLocalitiesRouteRoute:
     PrivateAdministrationLocalitiesRouteRoute,
-  PrivateAdministrationAgenciesRouteLazyRoute:
-    PrivateAdministrationAgenciesRouteLazyRoute,
   PrivateAdministrationProductsRouteLazyRoute:
     PrivateAdministrationProductsRouteLazyRoute,
   PrivateAdministrationShipsRouteLazyRoute:

@@ -10,11 +10,13 @@ import {
   Text,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod/v4';
 import { WorkerSelect } from '@/components';
+import { useQuerySelectWorkShifts } from '@/hooks';
 import { WORKER_CATEGORY_OPTIONS } from '@/models';
+import { useAuthStore } from '@/stores';
 import { useMutationUpdateWorkerAssignment } from '../-hooks';
 import { type WorkerDetail, WorkerInputSchema } from '../-models';
 import { BaseValueSelect, type BaseValueSelection } from './BaseValueSelect';
@@ -31,6 +33,7 @@ interface EditWorkersModalProps {
   assignmentId: string;
   currentWorkers: WorkerDetail[];
   date: string;
+  workShiftId: string;
   opened: boolean;
   onClose: () => void;
 }
@@ -39,10 +42,18 @@ export function EditWorkersModal({
   assignmentId,
   currentWorkers,
   date,
+  workShiftId,
   opened,
   onClose,
 }: EditWorkersModalProps) {
+  const admin = useAuthStore((state) => state.admin);
   const { mutate: updateWorkerAssignment, isPending } = useMutationUpdateWorkerAssignment();
+  const { data: workShiftsData } = useQuerySelectWorkShifts();
+
+  const selectedCoefficient = useMemo(() => {
+    if (!workShiftId || !workShiftsData?.data) return undefined;
+    return workShiftsData.data.find((ws) => ws.id === workShiftId)?.coefficient;
+  }, [workShiftId, workShiftsData?.data]);
 
   const defaultWorkers = currentWorkers.map((w) => ({
     workerId: w.workerId,
@@ -92,7 +103,7 @@ export function EditWorkersModal({
     });
 
     updateWorkerAssignment(
-      { id: assignmentId, data: { workers: cleanedWorkers } },
+      { id: assignmentId, data: { workers: cleanedWorkers, localityId: admin?.localityId || '' } },
       {
         onSuccess: () => {
           onClose();
@@ -225,6 +236,7 @@ export function EditWorkersModal({
                   placeholder='Seleccione un valor base'
                   date={date}
                   category={categoryValue || undefined}
+                  coefficient={selectedCoefficient}
                   value={baseValueKeys[index] ?? null}
                   onChange={(selection) => handleBaseValueChange(index, selection)}
                   error={
@@ -239,7 +251,7 @@ export function EditWorkersModal({
                   control={control}
                   render={({ field: apField }) => (
                     <NumberInput
-                      label='Premio / Castigo'
+                      label='Bonificación / Descuento'
                       placeholder='Ej: 15,00 o -10,00'
                       value={apField.value ? Number(apField.value) : undefined}
                       onChange={(value) => {
