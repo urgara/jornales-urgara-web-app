@@ -3,7 +3,11 @@ import {
   ActionIcon,
   Badge,
   Box,
+  Button,
   Container,
+  Flex,
+  Group,
+  Modal,
   NumberFormatter,
   Select,
   Stack,
@@ -11,10 +15,11 @@ import {
   Table,
   Text,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
-import { IconEdit, IconPlus, IconUsers } from '@tabler/icons-react';
+import { IconEdit, IconLock, IconPlus, IconUsers } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import dayjs from 'dayjs';
 import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-table';
@@ -40,7 +45,11 @@ import {
 import { getWorkerCategoryLabel } from '@/models';
 import { useAuthStore } from '@/stores';
 import { CreateWorkerAssignmentForm, EditWorkersModal } from './-components';
-import { useMutationUpdateWorkerAssignment, useQueryWorkerAssignments } from './-hooks';
+import {
+  useMutationCloseWorkerAssignment,
+  useMutationUpdateWorkerAssignment,
+  useQueryWorkerAssignments,
+} from './-hooks';
 import {
   COMPANY_ROLE_OPTIONS,
   type UpdateWorkerAssignmentRequest,
@@ -69,6 +78,11 @@ function RouteComponent() {
 
   const { mutate: updateWorkerAssignment, isPending: isUpdating } =
     useMutationUpdateWorkerAssignment();
+  const { mutate: closeWorkerAssignment, isPending: isClosing } =
+    useMutationCloseWorkerAssignment();
+
+  const [closeModalOpened, setCloseModalOpened] = useState(false);
+  const [assignmentToClose, setAssignmentToClose] = useState<string | null>(null);
 
   const { getWorkShiftDescription } = useQuerySelectWorkShifts();
   const { getCompanyName } = useQuerySelectCompanies();
@@ -418,6 +432,27 @@ function RouteComponent() {
           ) : null,
       },
       {
+        accessorKey: 'isClosed',
+        header: 'Estado',
+        size: 120,
+        grow: false,
+        enableEditing: false,
+        enableColumnFilter: false,
+        enableSorting: false,
+        Cell: ({ cell }) => {
+          const isClosed = cell.getValue<boolean>();
+          return isClosed ? (
+            <Badge color='red' variant='light' leftSection={<IconLock size={12} />}>
+              Cerrada
+            </Badge>
+          ) : (
+            <Badge color='green' variant='light'>
+              Abierta
+            </Badge>
+          );
+        },
+      },
+      {
         accessorKey: 'createdAt',
         header: 'Fecha de Creación',
         size: 150,
@@ -508,6 +543,29 @@ function RouteComponent() {
     openEditWorkers();
   };
 
+  const handleCloseClick = (id: string) => {
+    setAssignmentToClose(id);
+    setCloseModalOpened(true);
+  };
+
+  const handleConfirmClose = () => {
+    if (!assignmentToClose) return;
+    closeWorkerAssignment(
+      { id: assignmentToClose, localityId: admin?.localityId || '' },
+      {
+        onSettled: () => {
+          setCloseModalOpened(false);
+          setAssignmentToClose(null);
+        },
+      },
+    );
+  };
+
+  const handleCancelClose = () => {
+    setCloseModalOpened(false);
+    setAssignmentToClose(null);
+  };
+
   const renderDetailPanel = ({ row }: { row: MRT_Row<WorkerAssignment> }) => {
     const workers: WorkerDetail[] = row.original.workers;
     if (!workers || workers.length === 0) {
@@ -525,12 +583,17 @@ function RouteComponent() {
             <Text fw={600} size='sm'>
               Trabajadores ({workers.length})
             </Text>
-            <ActionIcon
-              variant='light'
-              onClick={() => handleEditWorkersClick(row.original)}
+            <Tooltip
+              label={row.original.isClosed ? 'Esta asignación está cerrada' : 'Editar trabajadores'}
             >
-              <IconUsers size={16} />
-            </ActionIcon>
+              <ActionIcon
+                variant='light'
+                onClick={() => handleEditWorkersClick(row.original)}
+                disabled={row.original.isClosed}
+              >
+                <IconUsers size={16} />
+              </ActionIcon>
+            </Tooltip>
           </Box>
           <Table striped highlightOnHover withTableBorder withColumnBorders>
             <Table.Thead>
@@ -635,16 +698,34 @@ function RouteComponent() {
           row: MRT_Row<WorkerAssignment>;
           table: MRT_TableInstance<WorkerAssignment>;
         }) => (
-          <ActionIcon
-            variant='subtle'
-            onClick={() => {
-              handleEditStart({ row });
-              table.setEditingRow(row);
-            }}
-            disabled={isUpdating}
-          >
-            <IconEdit size={18} />
-          </ActionIcon>
+          <Flex gap='xs'>
+            <Tooltip
+              label={row.original.isClosed ? 'Esta asignación está cerrada' : 'Editar'}
+            >
+              <ActionIcon
+                variant='subtle'
+                onClick={() => {
+                  handleEditStart({ row });
+                  table.setEditingRow(row);
+                }}
+                disabled={isUpdating || isClosing || row.original.isClosed}
+              >
+                <IconEdit size={18} />
+              </ActionIcon>
+            </Tooltip>
+            {!row.original.isClosed && (
+              <Tooltip label='Cerrar asignación'>
+                <ActionIcon
+                  variant='subtle'
+                  color='orange'
+                  onClick={() => handleCloseClick(row.original.id)}
+                  disabled={isUpdating || isClosing}
+                >
+                  <IconLock size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Flex>
         )}
         enableExpanding
         renderDetailPanel={renderDetailPanel}
@@ -652,6 +733,7 @@ function RouteComponent() {
         data={workerAssignmentsData?.data || []}
         state={{
           isLoading,
+          isSaving: isUpdating || isClosing,
           columnVisibility: initialColumnVisibility,
           columnOrder,
           pagination,
@@ -671,6 +753,9 @@ function RouteComponent() {
         positionActionsColumn='last'
         onEditingRowSave={handleEditingRowSave}
         onEditingRowCancel={handleEditingRowCancel}
+        mantineTableBodyRowProps={({ row }) => ({
+          style: row.original.isClosed ? { opacity: 0.6 } : undefined,
+        })}
         enableEditing
         enableSorting
         enableColumnFilters
@@ -678,6 +763,27 @@ function RouteComponent() {
         enableColumnOrdering
         enableColumnResizing
       />
+      <Modal
+        opened={closeModalOpened}
+        onClose={handleCancelClose}
+        title='Cerrar asignación'
+        centered
+      >
+        <Stack gap='md'>
+          <Text size='sm'>
+            ¿Estás seguro de que quieres cerrar esta asignación? Una vez cerrada, no se podrá
+            editar ni modificar.
+          </Text>
+          <Group justify='flex-end'>
+            <Button variant='outline' onClick={handleCancelClose}>
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmClose} loading={isClosing}>
+              Cerrar asignación
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Container>
   );
 }

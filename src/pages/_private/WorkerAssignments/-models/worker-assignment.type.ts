@@ -47,6 +47,7 @@ const WorkerAssignmentSchema = z.object({
   shipId: z.uuid(),
   shipName: z.string().optional(),
   jc: z.boolean(),
+  isClosed: z.boolean(),
   createdAt: z.string(),
   workers: z.array(WorkerDetailSchema),
 });
@@ -97,6 +98,7 @@ const UpdateWorkerAssignmentRequestSchema = z.object({
   productId: z.uuid().optional(),
   shipId: z.uuid().optional(),
   jc: z.boolean().optional(),
+  isClosed: z.boolean().optional(),
   workers: z.array(WorkerInputSchema).min(1, 'Debe agregar al menos un trabajador').optional(),
 });
 
