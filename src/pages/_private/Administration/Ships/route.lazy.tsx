@@ -1,25 +1,33 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActionIcon, Button, Container, Flex, Group, Modal, Text, Title } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Flex,
+  Group,
+  Modal,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
-import dayjs from 'dayjs';
 import type { MRT_ColumnDef, MRT_Row, MRT_TableInstance } from 'mantine-react-table';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CustomTable } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
-import { CreateAgencyForm } from './-components';
-import { useMutationDeleteAgency, useMutationUpdateAgency, useQueryAgencies } from './-hooks';
-import { type Agency, type UpdateAgencyRequest, UpdateAgencyRequestSchema } from './-models';
+import { CreateShipForm } from './-components';
+import { useMutationDeleteShip, useMutationUpdateShip, useQueryShips } from './-hooks';
+import { type Ship, type UpdateShipRequest, UpdateShipRequestSchema } from './-models';
 
-export const Route = createLazyFileRoute('/_private/Administration/Agencies')({
+export const Route = createLazyFileRoute('/_private/Administration/Ships')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const {
-    data: agenciesData,
+    data: shipsData,
     isLoading,
     pagination,
     sorting,
@@ -27,16 +35,16 @@ function RouteComponent() {
     setPagination,
     setSorting,
     setColumnFilters,
-  } = useQueryAgencies();
+  } = useQueryShips();
 
-  const { mutate: updateAgency, isPending: isUpdating } = useMutationUpdateAgency();
-  const { mutate: deleteAgency, isPending: isDeleting } = useMutationDeleteAgency();
+  const { mutate: updateShip, isPending: isUpdating } = useMutationUpdateShip();
+  const { mutate: deleteShip, isPending: isDeleting } = useMutationDeleteShip();
 
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
-  const [agencyToDelete, setAgencyToDelete] = useState<string | null>(null);
+  const [shipToDelete, setShipToDelete] = useState<string | null>(null);
   const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
-    useConfigTablePersist('agencies');
+    useConfigTablePersist('ships');
 
   const {
     formState: { errors },
@@ -45,12 +53,12 @@ function RouteComponent() {
     reset,
     handleSubmit,
     trigger,
-  } = useForm<UpdateAgencyRequest>({
-    resolver: zodResolver(UpdateAgencyRequestSchema),
+  } = useForm<UpdateShipRequest>({
+    resolver: zodResolver(UpdateShipRequestSchema),
     mode: 'onChange',
   });
 
-  const columns = useMemo<MRT_ColumnDef<Agency>[]>(
+  const columns = useMemo<MRT_ColumnDef<Ship>[]>(
     () => [
       {
         accessorKey: 'name',
@@ -69,38 +77,16 @@ function RouteComponent() {
           },
         }),
       },
-      {
-        accessorKey: 'createdAt',
-        header: 'Fecha de Creación',
-        grow: true,
-        enableEditing: false,
-        enableColumnFilter: false,
-        Cell: ({ cell }) => {
-          const date = cell.getValue<string>();
-          return dayjs(date).format('DD/MM/YYYY HH:mm');
-        },
-      },
-      {
-        accessorKey: 'deletedAt',
-        header: 'Fecha de Eliminación',
-        grow: true,
-        enableEditing: false,
-        enableColumnFilter: false,
-        Cell: ({ cell }) => {
-          const deletedAt = cell.getValue<string | null>();
-          return deletedAt ? dayjs(deletedAt).format('DD/MM/YYYY HH:mm') : '—';
-        },
-      },
     ],
     [editingRowId, errors, setValue, trigger]
   );
 
   const onSubmit = (
-    data: UpdateAgencyRequest,
-    row: MRT_Row<Agency>,
+    data: UpdateShipRequest,
+    row: MRT_Row<Ship>,
     exitEditingMode: () => void
   ) => {
-    updateAgency(
+    updateShip(
       { id: row.original.id, data },
       {
         onSuccess: () => {
@@ -118,7 +104,7 @@ function RouteComponent() {
     row,
   }: {
     exitEditingMode: () => void;
-    row: MRT_Row<Agency>;
+    row: MRT_Row<Ship>;
   }) => {
     await handleSubmit((data) => onSubmit(data, row, exitEditingMode))();
   };
@@ -129,7 +115,7 @@ function RouteComponent() {
     clearErrors();
   };
 
-  const handleEditStart = ({ row }: { row: MRT_Row<Agency> }) => {
+  const handleEditStart = ({ row }: { row: MRT_Row<Ship> }) => {
     setEditingRowId(row.id);
     setValue('name', row.original.name);
 
@@ -139,16 +125,16 @@ function RouteComponent() {
   };
 
   const handleDeleteClick = (id: string) => {
-    setAgencyToDelete(id);
+    setShipToDelete(id);
     setDeleteModalOpened(true);
   };
 
   const handleConfirmDelete = () => {
-    if (agencyToDelete) {
-      deleteAgency(agencyToDelete, {
+    if (shipToDelete) {
+      deleteShip(shipToDelete, {
         onSettled: () => {
           setDeleteModalOpened(false);
-          setAgencyToDelete(null);
+          setShipToDelete(null);
         },
       });
     }
@@ -156,21 +142,21 @@ function RouteComponent() {
 
   const handleCancelDelete = () => {
     setDeleteModalOpened(false);
-    setAgencyToDelete(null);
+    setShipToDelete(null);
   };
 
   const [opened, { open, close }] = useDisclosure(false);
 
   return (
     <Container fluid>
-      <CreateAgencyForm opened={opened} onClose={close} />
+      <CreateShipForm opened={opened} onClose={close} />
       <CustomTable
         renderTopToolbarCustomActions={() => (
           <>
             <ActionIcon variant='filled' onClick={open}>
               <IconPlus size={18} />
             </ActionIcon>
-            <Title order={1}>Agencias</Title>
+            <Title order={1}>Barcos</Title>
           </>
         )}
         enableRowActions
@@ -178,8 +164,8 @@ function RouteComponent() {
           row,
           table,
         }: {
-          row: MRT_Row<Agency>;
-          table: MRT_TableInstance<Agency>;
+          row: MRT_Row<Ship>;
+          table: MRT_TableInstance<Ship>;
         }) => (
           <Flex gap='xs'>
             <ActionIcon
@@ -202,7 +188,7 @@ function RouteComponent() {
           </Flex>
         )}
         columns={columns}
-        data={agenciesData?.data || []}
+        data={shipsData?.data || []}
         state={{
           isLoading,
           columnVisibility,
@@ -215,7 +201,7 @@ function RouteComponent() {
         manualPagination
         manualSorting
         manualFiltering
-        rowCount={agenciesData?.pagination?.total || 0}
+        rowCount={shipsData?.pagination?.total || 0}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         onColumnFiltersChange={setColumnFilters}
@@ -233,7 +219,7 @@ function RouteComponent() {
         onEditingRowCancel={handleEditingRowCancel}
       />
       <Modal opened={deleteModalOpened} onClose={handleCancelDelete} title='Confirmar eliminación'>
-        <Text>¿Estás seguro de que deseas eliminar esta agencia?</Text>
+        <Text>¿Estás seguro de que deseas eliminar este barco?</Text>
         <Group mt='md' justify='flex-end'>
           <Button variant='outline' onClick={handleCancelDelete} disabled={isDeleting}>
             Cancelar

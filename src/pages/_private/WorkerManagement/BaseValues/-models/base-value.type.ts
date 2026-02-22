@@ -10,6 +10,8 @@ const WorkShiftCalculatedValueSchema = z.object({
   coefficient: z.string(),
   remunerated: z.string(),
   notRemunerated: z.string(),
+  gross: z.string(),
+  net: z.string(),
 });
 
 const WorkShiftBaseValueSchema = z.object({

@@ -1,4 +1,3 @@
-export * from './AgencySelect';
 export * from './ButtonLink';
 export * from './ChangePasswordModal';
 export * from './CompanySelect';
@@ -8,6 +7,7 @@ export * from './LocalitySelect';
 export * from './NavLinkGroup';
 export * from './PageLoading';
 export * from './ProductSelect';
+export * from './ShipSelect';
 export * from './TerminalSelect';
 export * from './WorkerSelect';
 export * from './WorkShiftSelect';

@@ -12,12 +12,12 @@ const WorkerAssignmentSortBySchema = z.enum(
 const WorkerAssignmentsQueryParamsSchema = GenericQueryParamsSchema(
   WorkerAssignmentSortBySchema
 ).extend({
-  workerId: z.string().uuid().optional(),
   workShiftId: z.string().uuid().optional(),
   companyId: z.string().optional(),
-  agencyId: z.string().uuid().optional(),
+  companyRole: z.string().optional(),
   terminalId: z.string().uuid().optional(),
   productId: z.string().uuid().optional(),
+  shipId: z.string().uuid().optional(),
   localityId: z.string().uuid().optional(),
   dateFrom: z
     .string()

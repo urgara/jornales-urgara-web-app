@@ -26,7 +26,6 @@ export function useQueryWorkerAssignments() {
       limit: pagination.pageSize,
     };
 
-    // Agregar localityId si el admin tiene una localidad asignada
     if (admin?.localityId) {
       params.localityId = admin.localityId;
     }
@@ -39,22 +38,19 @@ export function useQueryWorkerAssignments() {
     for (const filter of columnFilters) {
       const { id, value } = filter;
       if (value !== undefined && value !== null && value !== '') {
-        if (id === 'workerId') {
-          params.workerId = value as string;
-        } else if (id === 'workShiftId') {
+        if (id === 'workShiftId') {
           params.workShiftId = value as string;
         } else if (id === 'companyId') {
           params.companyId = value as string;
-        } else if (id === 'agencyId') {
-          params.agencyId = value as string;
+        } else if (id === 'companyRole') {
+          params.companyRole = value as string;
         } else if (id === 'terminalId') {
           params.terminalId = value as string;
         } else if (id === 'productId') {
           params.productId = value as string;
-        } else if (id === 'localityId') {
-          params.localityId = value as string;
+        } else if (id === 'shipId') {
+          params.shipId = value as string;
         } else if (id === 'date') {
-          // El filtro de fecha viene como array [dateFrom, dateTo]
           const dateRange = value as [string, string];
           if (dateRange[0]) {
             params.dateFrom = dateRange[0];

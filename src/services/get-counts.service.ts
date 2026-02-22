@@ -7,12 +7,6 @@ export async function getCompaniesCountService() {
   return CountResponseSchema.parse(data);
 }
 
-// Agencies Count (no requiere localityId)
-export async function getAgenciesCountService() {
-  const { data } = await DYNNAMIX_API.get<CountResponse>('/agencies/count');
-  return CountResponseSchema.parse(data);
-}
-
 // Workers Count (requiere localityId)
 export async function getWorkersCountService(localityId?: string) {
   const { data } = await DYNNAMIX_API.get<CountResponse>('/workers/count', {

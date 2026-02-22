@@ -8,7 +8,14 @@ import { LocalitySelect } from './LocalitySelect';
 export const HeaderLocalitySelector = () => {
   const admin = useAuthStore((store) => store.admin);
   const updateAdminLocality = useAuthStore((store) => store.updateAdminLocality);
-  const { getLocalityName } = useQuerySelectLocalities();
+  const { getLocalityName, data: localitiesData } = useQuerySelectLocalities();
+
+  const handleLocalityChange = (value: string | null) => {
+    if (value) {
+      const locality = localitiesData?.data?.find((l) => l.id === value);
+      updateAdminLocality(value, locality);
+    }
+  };
 
   // Si NO es ADMIN (es LOCAL o ONLY_READ), mostrar solo texto con la localidad fija
   if (admin?.role !== Role.ADMIN) {
@@ -25,11 +32,7 @@ export const HeaderLocalitySelector = () => {
       <LocalitySelect
         placeholder='Selecciona localidad'
         value={null}
-        onChange={(value) => {
-          if (value) {
-            updateAdminLocality(value);
-          }
-        }}
+        onChange={handleLocalityChange}
         styles={{
           input: {
             minWidth: 200,
@@ -43,11 +46,7 @@ export const HeaderLocalitySelector = () => {
   return (
     <LocalitySelect
       value={admin.localityId}
-      onChange={(value) => {
-        if (value) {
-          updateAdminLocality(value);
-        }
-      }}
+      onChange={handleLocalityChange}
       rightSection={<IconChevronDown size={16} color='white' />}
       styles={{
         input: {

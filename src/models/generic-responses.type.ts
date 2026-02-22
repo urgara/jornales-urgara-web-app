@@ -8,6 +8,7 @@ enum ErrorType {
   DUPLICATE_ERROR = 'DUPLICATE_ERROR', // 409 - Conflicto por entrada duplicada. se usa en los servicios de creacion de datos, como create admin.
   DATABASE_ERROR = 'DATABASE_ERROR', // 500 - Error interno del servidor relacionado con la base de datos.
   RESOURCE_CONFLICT = 'RESOURCE_CONFLICT', // 409 - Conflicto de recurso, como intentos de actualizar algo que no permite múltiples cambios simultáneos.
+  RESOURCE_CLOSED = 'RESOURCE_CLOSED', // 409 - El recurso está cerrado y no permite modificaciones.
   VALIDATION_ERROR = 'VALIDATION_ERROR', // 400 - Error en la validación de los datos proporcionados.
   INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR', // 500 - Error genérico del servidor.
   SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE', // 503 - El servicio no está disponible temporalmente.

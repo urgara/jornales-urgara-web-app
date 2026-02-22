@@ -12,12 +12,14 @@ export interface BaseValueSelection {
 type BaseValueSelectProps = Omit<SelectProps, 'data' | 'onChange'> & {
   date?: string;
   category?: string;
+  coefficient?: string;
   onChange?: (value: BaseValueSelection | null) => void;
 };
 
 export function BaseValueSelect({
   date,
   category,
+  coefficient,
   disabled,
   onChange,
   value,
@@ -28,12 +30,14 @@ export function BaseValueSelect({
   const options = useMemo(() => {
     if (!data?.data) return [];
     return data.data.flatMap((baseValue) =>
-      baseValue.workShiftCalculatedValues.map((cv) => ({
-        value: `${cv.workShiftBaseValueId}${SEPARATOR}${cv.coefficient}`,
-        label: `Coef: ${cv.coefficient} - R: $${cv.remunerated} / NR: $${cv.notRemunerated}`,
-      }))
+      baseValue.workShiftCalculatedValues
+        .filter((cv) => !coefficient || cv.coefficient === coefficient)
+        .map((cv) => ({
+          value: `${cv.workShiftBaseValueId}${SEPARATOR}${cv.coefficient}`,
+          label: `Coef: ${cv.coefficient} - Bruto: $${cv.gross} / Neto: $${cv.net}`,
+        }))
     );
-  }, [data?.data]);
+  }, [data?.data, coefficient]);
 
   const handleChange = (selected: string | null) => {
     if (!selected) {

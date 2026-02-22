@@ -1,25 +1,25 @@
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEYS } from '@/utils/query-keys';
-import { deleteAgency } from '../-services';
+import { QUERY_KEYS } from '@/utils';
+import { createShip } from '../-services';
 
-export const useMutationDeleteAgency = () => {
+export const useMutationCreateShip = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteAgency(id),
+    mutationFn: createShip,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.AGENCIES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SHIPS] });
       notifications.show({
         title: 'Éxito',
-        message: 'Agencia eliminada correctamente',
+        message: 'Barco creado correctamente',
         color: 'green',
       });
     },
     onError: () => {
       notifications.show({
         title: 'Error',
-        message: 'No se pudo eliminar la agencia',
+        message: 'No se pudo crear el barco',
         color: 'red',
       });
     },

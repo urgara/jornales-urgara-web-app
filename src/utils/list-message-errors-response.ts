@@ -51,6 +51,13 @@ export const LIST_MESSAGE_ERROR_NOTIFICATIONS: Record<ErrorType, NotificationDat
     autoClose: 6000,
   },
 
+  [ErrorType.RESOURCE_CLOSED]: {
+    title: 'Recurso Cerrado',
+    message: 'Esta asignación está cerrada y no permite modificaciones.',
+    color: 'orange',
+    autoClose: 5000,
+  },
+
   [ErrorType.VALIDATION_ERROR]: {
     title: 'Error de Validación',
     message: 'Los datos proporcionados no cumplen con los requisitos necesarios.',

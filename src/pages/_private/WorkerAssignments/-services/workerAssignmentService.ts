@@ -2,7 +2,6 @@ import { DYNNAMIX_API } from '@/config';
 import type {
   CreateWorkerAssignmentRequest,
   CreateWorkerAssignmentResponse,
-  GetWorkerAssignmentResponse,
   ListWorkerAssignmentsResponse,
   UpdateWorkerAssignmentRequest,
   UpdateWorkerAssignmentResponse,
@@ -10,7 +9,6 @@ import type {
 } from '../-models';
 import {
   CreateWorkerAssignmentResponseSchema,
-  GetWorkerAssignmentResponseSchema,
   ListWorkerAssignmentsResponseSchema,
   UpdateWorkerAssignmentResponseSchema,
 } from '../-models';
@@ -25,11 +23,6 @@ export const workerAssignmentService = {
       params,
     });
     return ListWorkerAssignmentsResponseSchema.parse(data);
-  },
-
-  getWorkerAssignmentById: async (id: string): Promise<GetWorkerAssignmentResponse> => {
-    const { data } = await DYNNAMIX_API.get<GetWorkerAssignmentResponse>(`${BASE_URL}/${id}`);
-    return GetWorkerAssignmentResponseSchema.parse(data);
   },
 
   createWorkerAssignment: async (

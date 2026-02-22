@@ -1,8 +1,7 @@
 import { Card, Container, Grid, Group, Loader, Stack, Text } from '@mantine/core';
-import { IconBriefcase, IconBuilding, IconCalendarCheck, IconUsers } from '@tabler/icons-react';
+import { IconBuilding, IconCalendarCheck, IconUsers } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import {
-  useQueryAgenciesCount,
   useQueryCompaniesCount,
   useQueryWorkerAssignmentsCount,
   useQueryWorkersCount,
@@ -14,8 +13,7 @@ export const Route = createLazyFileRoute('/_private/Dashboard/')({
 
 function Dashboard() {
   const { data: companiesData, isLoading: isLoadingCompanies } = useQueryCompaniesCount();
-  const { data: agenciesData, isLoading: isLoadingAgencies } = useQueryAgenciesCount();
-  const { data: workersData, isLoading: isLoadingWorkers } = useQueryWorkersCount();
+const { data: workersData, isLoading: isLoadingWorkers } = useQueryWorkersCount();
   const { data: assignmentsData, isLoading: isLoadingAssignments } =
     useQueryWorkerAssignmentsCount();
 
@@ -28,15 +26,7 @@ function Dashboard() {
       loading: isLoadingCompanies,
       shared: true,
     },
-    {
-      title: 'Agencias',
-      value: agenciesData?.data?.total,
-      icon: IconBriefcase,
-      color: '#6769C9',
-      loading: isLoadingAgencies,
-      shared: true,
-    },
-    {
+{
       title: 'Trabajadores',
       value: workersData?.data?.total,
       icon: IconUsers,

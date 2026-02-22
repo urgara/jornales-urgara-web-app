@@ -18,6 +18,7 @@ const LocalitySchema = z.object({
 const SelectLocalitySchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  isCalculateJc: z.boolean(),
 });
 
 const ListSelectLocalitiesSchema = z.array(SelectLocalitySchema);

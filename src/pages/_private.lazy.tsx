@@ -75,8 +75,8 @@ function PrivateLayout() {
               <ButtonLink label='Administradores' to='/Administration/Admins' />
               <ButtonLink label='Localidades' to='/Administration/Localities' />
               <ButtonLink label='Empresas' to='/Administration/Companies' />
-              <ButtonLink label='Agencias' to='/Administration/Agencies' />
               <ButtonLink label='Productos' to='/Administration/Products' />
+              <ButtonLink label='Barcos' to='/Administration/Ships' />
             </NavLinkGroup>
             <NavLinkGroup label='Gestión de Trabajadores' leftSection={<IconUsers size={16} />}>
               <ButtonLink label='Trabajadores' to='/WorkerManagement/Workers/List' />

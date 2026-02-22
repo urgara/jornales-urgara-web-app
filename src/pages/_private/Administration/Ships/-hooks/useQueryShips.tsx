@@ -7,10 +7,10 @@ import type {
 } from 'mantine-react-table';
 import { useCallback, useMemo, useState } from 'react';
 import { QUERY_KEYS } from '@/utils';
-import type { AgenciesQueryParams } from '../-models';
-import { getAgencies } from '../-services';
+import type { ShipsQueryParams } from '../-models';
+import { getShips } from '../-services';
 
-export const useQueryAgencies = () => {
+export const useQueryShips = () => {
   const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
   const [pagination, setPagination] = useState<MRT_PaginationState>({
@@ -35,7 +35,7 @@ export const useQueryAgencies = () => {
   const filterKeys = ['name'];
 
   const updateUrl = useCallback(
-    (params: Record<string, string | number | undefined>) => {
+    (params: Record<string, string | number | boolean | undefined>) => {
       navigate({
         to: '.',
         search: (prev: Record<string, unknown>) => {
@@ -61,7 +61,6 @@ export const useQueryAgencies = () => {
     [navigate]
   );
 
-  // Sincronizar paginación con URL
   const handlePaginationChange = useCallback(
     (updater: ((old: MRT_PaginationState) => MRT_PaginationState) | MRT_PaginationState) => {
       setPagination((old) => {
@@ -76,7 +75,6 @@ export const useQueryAgencies = () => {
     [updateUrl]
   );
 
-  // Sincronizar sorting con URL
   const handleSortingChange = useCallback(
     (updater: ((old: MRT_SortingState) => MRT_SortingState) | MRT_SortingState) => {
       setSorting((old) => {
@@ -93,7 +91,6 @@ export const useQueryAgencies = () => {
     [updateUrl]
   );
 
-  // Sincronizar filtros con URL
   const handleColumnFiltersChange = useCallback(
     (
       updater: ((old: MRT_ColumnFiltersState) => MRT_ColumnFiltersState) | MRT_ColumnFiltersState
@@ -101,16 +98,16 @@ export const useQueryAgencies = () => {
       setColumnFilters((old) => {
         const newFilters = typeof updater === 'function' ? updater(old) : updater;
 
-        // Inicializar todos los parámetros como undefined para limpiarlos
-        const urlParams: Record<string, string | number | undefined> = {};
+        const urlParams: Record<string, string | number | boolean | undefined> = {};
         filterKeys.forEach((key) => {
           urlParams[key] = undefined;
         });
 
-        // Agregar solo los filtros con valores
         newFilters.forEach((filter) => {
-          if (filter.value && typeof filter.value === 'string') {
-            urlParams[filter.id] = filter.value;
+          if (filter.value !== undefined && filter.value !== null && filter.value !== '') {
+            if (filter.id === 'name' && typeof filter.value === 'string') {
+              urlParams[filter.id] = filter.value;
+            }
           }
         });
         updateUrl(urlParams);
@@ -121,15 +118,14 @@ export const useQueryAgencies = () => {
     [updateUrl]
   );
 
-  // Construir parámetros para la query
-  const queryParams = useMemo<AgenciesQueryParams>(() => {
-    const params: AgenciesQueryParams = {
+  const queryParams = useMemo<ShipsQueryParams>(() => {
+    const params: ShipsQueryParams = {
       page: pagination.pageIndex + 1,
       limit: pagination.pageSize,
     };
 
     if (sorting.length > 0) {
-      params.sortBy = sorting[0].id as AgenciesQueryParams['sortBy'];
+      params.sortBy = sorting[0].id as ShipsQueryParams['sortBy'];
       params.sortOrder = sorting[0].desc ? 'desc' : 'asc';
     }
 
@@ -146,8 +142,8 @@ export const useQueryAgencies = () => {
   }, [pagination, sorting, columnFilters]);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: [QUERY_KEYS.AGENCIES, queryParams],
-    queryFn: () => getAgencies(queryParams),
+    queryKey: [QUERY_KEYS.SHIPS, queryParams],
+    queryFn: () => getShips(queryParams),
     placeholderData: keepPreviousData,
   });
 
