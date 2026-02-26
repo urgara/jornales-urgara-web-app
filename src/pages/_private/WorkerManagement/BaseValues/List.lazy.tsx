@@ -35,7 +35,7 @@ function RouteComponent() {
     () => [
       {
         accessorKey: 'remunerated',
-        header: 'Remunerado',
+        header: 'remunerativo',
         size: 150,
         grow: true,
         enableColumnFilter: false,
@@ -48,7 +48,7 @@ function RouteComponent() {
       },
       {
         accessorKey: 'notRemunerated',
-        header: 'No remunerado',
+        header: 'No remunerativo',
         size: 150,
         grow: true,
         enableColumnFilter: false,
@@ -116,8 +116,8 @@ function RouteComponent() {
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Coeficiente</Table.Th>
-                  <Table.Th>Remunerado</Table.Th>
-                  <Table.Th>No remunerado</Table.Th>
+                  <Table.Th>remunerativo</Table.Th>
+                  <Table.Th>No remunerativo</Table.Th>
                   <Table.Th>Bruto</Table.Th>
                   <Table.Th>Neto</Table.Th>
                 </Table.Tr>

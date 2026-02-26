@@ -152,13 +152,7 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
   const isCalculateJc = admin?.Locality?.isCalculateJc === true;
 
   return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      title='Crear nueva asignación'
-      centered
-      size='lg'
-    >
+    <Modal opened={opened} onClose={handleClose} title='Crear nueva asignación' centered size='lg'>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack>
           <Controller
@@ -194,22 +188,6 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
           />
 
           <Controller
-            name='workShiftId'
-            control={control}
-            render={({ field }) => (
-              <WorkShiftSelect
-                label='Turno'
-                placeholder='Seleccione un turno'
-                value={field.value}
-                onChange={(value) => field.onChange(value || '')}
-                onBlur={field.onBlur}
-                error={errors.workShiftId?.message}
-                required
-              />
-            )}
-          />
-
-          <Controller
             name='date'
             control={control}
             render={({ field }) => (
@@ -231,6 +209,22 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
                 error={errors.date?.message}
                 required
                 valueFormat='DD/MM/YYYY'
+              />
+            )}
+          />
+
+          <Controller
+            name='workShiftId'
+            control={control}
+            render={({ field }) => (
+              <WorkShiftSelect
+                label='Turno'
+                placeholder='Seleccione un turno'
+                value={field.value}
+                onChange={(value) => field.onChange(value || '')}
+                onBlur={field.onBlur}
+                error={errors.workShiftId?.message}
+                required
               />
             )}
           />
@@ -320,7 +314,15 @@ export function CreateWorkerAssignmentForm({ opened, onClose }: CreateWorkerAssi
           {fields.map((field, index) => {
             const categoryValue = watch(`workers.${index}.category`);
             return (
-              <Stack key={field.id} gap='xs' style={{ border: '1px solid var(--mantine-color-dark-4)', borderRadius: 8, padding: 12 }}>
+              <Stack
+                key={field.id}
+                gap='xs'
+                style={{
+                  border: '1px solid var(--mantine-color-dark-4)',
+                  borderRadius: 8,
+                  padding: 12,
+                }}
+              >
                 <Group justify='space-between'>
                   <Text size='sm' fw={500}>
                     Trabajador {index + 1}
