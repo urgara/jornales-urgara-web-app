@@ -65,8 +65,8 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
             control={control}
             render={({ field }) => (
               <NumberInput
-                label='Remunerado'
-                placeholder='Ingrese el valor remunerado'
+                label='remunerativo'
+                placeholder='Ingrese el valor remunerativo'
                 required
                 value={field.value ? Number(field.value) : undefined}
                 onChange={(value) => {
@@ -91,8 +91,8 @@ export function CreateBaseValueForm({ opened, onClose }: CreateBaseValueFormProp
             control={control}
             render={({ field }) => (
               <NumberInput
-                label='No remunerado'
-                placeholder='Ingrese el valor no remunerado'
+                label='No remunerativo'
+                placeholder='Ingrese el valor no remunerativo'
                 required
                 value={field.value ? Number(field.value) : undefined}
                 onChange={(value) => {

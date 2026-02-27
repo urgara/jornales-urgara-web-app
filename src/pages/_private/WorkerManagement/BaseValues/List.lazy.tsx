@@ -1,15 +1,26 @@
-import { ActionIcon, Container, NumberFormatter, Table, Title } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Flex,
+  Group,
+  Modal,
+  NumberFormatter,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import dayjs from 'dayjs';
 import type { MRT_ColumnDef } from 'mantine-react-table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { CustomTable } from '@/components';
 import { useConfigTablePersist } from '@/hooks';
 import { getWorkerCategoryLabel, type WorkerCategory } from '@/models';
 import { CreateBaseValueForm } from './-components';
-import { useQueryBaseValues } from './-hooks';
+import { useMutationDeleteBaseValue, useQueryBaseValues } from './-hooks';
 import type { WorkShiftBaseValue } from './-models';
 
 export const Route = createLazyFileRoute('/_private/WorkerManagement/BaseValues/List')({
@@ -28,6 +39,11 @@ function RouteComponent() {
     setColumnFilters,
   } = useQueryBaseValues();
 
+  const { mutate: deleteBaseValue, isPending: isDeleting } = useMutationDeleteBaseValue();
+
+  const [deleteModalOpened, setDeleteModalOpened] = useState(false);
+  const [baseValueToDelete, setBaseValueToDelete] = useState<string | null>(null);
+
   const { columnVisibility, setColumnVisibility, columnOrder, setColumnOrder } =
     useConfigTablePersist('base-values');
 
@@ -35,7 +51,7 @@ function RouteComponent() {
     () => [
       {
         accessorKey: 'remunerated',
-        header: 'Remunerado',
+        header: 'remunerativo',
         size: 150,
         grow: true,
         enableColumnFilter: false,
@@ -48,7 +64,7 @@ function RouteComponent() {
       },
       {
         accessorKey: 'notRemunerated',
-        header: 'No remunerado',
+        header: 'No remunerativo',
         size: 150,
         grow: true,
         enableColumnFilter: false,
@@ -93,6 +109,27 @@ function RouteComponent() {
     []
   );
 
+  const handleDeleteClick = (id: string) => {
+    setBaseValueToDelete(id);
+    setDeleteModalOpened(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (baseValueToDelete) {
+      deleteBaseValue(baseValueToDelete, {
+        onSettled: () => {
+          setDeleteModalOpened(false);
+          setBaseValueToDelete(null);
+        },
+      });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpened(false);
+    setBaseValueToDelete(null);
+  };
+
   const [opened, { open, close }] = useDisclosure(false);
 
   return (
@@ -107,6 +144,20 @@ function RouteComponent() {
             <Title order={1}>Valores base</Title>
           </>
         )}
+        enableRowActions
+        renderRowActions={({ row }) => (
+          <Flex gap='xs'>
+            <ActionIcon
+              variant='subtle'
+              color='red'
+              onClick={() => handleDeleteClick(row.original.id)}
+              disabled={isDeleting}
+            >
+              <IconTrash size={18} />
+            </ActionIcon>
+          </Flex>
+        )}
+        positionActionsColumn='last'
         enableExpandAll
         renderDetailPanel={({ row }) => {
           const calculatedValues = row.original.workShiftCalculatedValues;
@@ -116,8 +167,8 @@ function RouteComponent() {
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Coeficiente</Table.Th>
-                  <Table.Th>Remunerado</Table.Th>
-                  <Table.Th>No remunerado</Table.Th>
+                  <Table.Th>remunerativo</Table.Th>
+                  <Table.Th>No remunerativo</Table.Th>
                   <Table.Th>Bruto</Table.Th>
                   <Table.Th>Neto</Table.Th>
                 </Table.Tr>
@@ -189,6 +240,17 @@ function RouteComponent() {
         enableColumnOrdering
         enableColumnResizing
       />
+      <Modal opened={deleteModalOpened} onClose={handleCancelDelete} title='Confirmar eliminación'>
+        <Text>¿Estás seguro de que deseas eliminar este valor base?</Text>
+        <Group mt='md' justify='flex-end'>
+          <Button variant='outline' onClick={handleCancelDelete}>
+            Cancelar
+          </Button>
+          <Button color='red' onClick={handleConfirmDelete} loading={isDeleting}>
+            Eliminar
+          </Button>
+        </Group>
+      </Modal>
     </Container>
   );
 }
