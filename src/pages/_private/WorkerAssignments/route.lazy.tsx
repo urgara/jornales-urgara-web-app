@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Flex,
   Group,
   Modal,
@@ -31,7 +32,6 @@ import {
   ProductSelect,
   ShipSelect,
   TerminalSelect,
-  WorkShiftSelect,
 } from '@/components';
 import {
   useConfigTablePersist,
@@ -44,7 +44,7 @@ import {
 } from '@/hooks';
 import { getWorkerCategoryLabel } from '@/models';
 import { useAuthStore } from '@/stores';
-import { CreateWorkerAssignmentForm, EditWorkersModal } from './-components';
+import { CreateWorkerAssignmentForm, EditShiftsModal } from './-components';
 import {
   useMutationCloseWorkerAssignment,
   useMutationUpdateWorkerAssignment,
@@ -55,9 +55,16 @@ import {
   type UpdateWorkerAssignmentRequest,
   UpdateWorkerAssignmentRequestSchema,
   type WorkerAssignment,
-  type WorkerDetail,
   getCompanyRoleLabel,
 } from './-models';
+import {
+  calculateTotalGross,
+  calculateTotalNet,
+  countTotalWorkers,
+  formatCurrency,
+  calculateShiftGross,
+  calculateShiftNet,
+} from './-utils';
 
 export const Route = createLazyFileRoute('/_private/WorkerAssignments')({
   component: RouteComponent,
@@ -104,8 +111,8 @@ function RouteComponent() {
     return { ...base, jc: isCalculateJc };
   }, [columnVisibility, isCalculateJc]);
 
-  const [editWorkersAssignment, setEditWorkersAssignment] = useState<WorkerAssignment | null>(null);
-  const [editWorkersOpened, { open: openEditWorkers, close: closeEditWorkers }] =
+  const [editShiftsAssignment, setEditShiftsAssignment] = useState<WorkerAssignment | null>(null);
+  const [editShiftsOpened, { open: openEditShifts, close: closeEditShifts }] =
     useDisclosure(false);
 
   const {
@@ -123,37 +130,59 @@ function RouteComponent() {
   const columns = useMemo<MRT_ColumnDef<WorkerAssignment>[]>(
     () => [
       {
-        accessorKey: 'workShiftId',
-        header: 'Turno',
-        size: 200,
+        accessorKey: 'shifts',
+        header: 'Turnos',
+        size: 250,
         grow: true,
-        enableEditing: true,
-        Cell: ({ cell }) => {
-          const workShiftId = cell.getValue<string>();
-          return getWorkShiftDescription(workShiftId);
+        enableEditing: false,
+        enableColumnFilter: false,
+        enableSorting: false,
+        Cell: ({ row }) => {
+          const shifts = row.original.shifts || [];
+          if (shifts.length === 0) return '—';
+
+          return (
+            <Stack gap={4}>
+              {shifts.map((shift) => (
+                <Group key={shift.id} gap='xs'>
+                  <Badge size='sm' variant='dot' color='blue'>
+                    {getWorkShiftDescription(shift.workShiftId)}
+                  </Badge>
+                  <Text size='xs' c='dimmed'>
+                    ({shift.workers.length} trabajadores)
+                  </Text>
+                </Group>
+              ))}
+            </Stack>
+          );
         },
-        Edit: ({ row }) => (
-          <WorkShiftSelect
-            required
-            value={row._valuesCache.workShiftId}
-            onChange={(value) => {
-              if (value) {
-                setValue('workShiftId', value);
-                row._valuesCache.workShiftId = value;
-                trigger('workShiftId');
-              }
-            }}
-            error={editingRowId === row.original.id ? errors.workShiftId?.message : undefined}
-          />
-        ),
-        Filter: ({ column }) => (
-          <WorkShiftSelect
-            value={column.getFilterValue() as string | undefined}
-            onChange={(value) => column.setFilterValue(value)}
-            placeholder='Filtrar por turno'
-            clearable
-          />
-        ),
+      },
+      {
+        accessorKey: 'totals',
+        header: 'Totales',
+        size: 180,
+        grow: false,
+        enableEditing: false,
+        enableColumnFilter: false,
+        enableSorting: false,
+        Cell: ({ row }) => {
+          const shifts = row.original.shifts || [];
+          if (shifts.length === 0) return '—';
+
+          const totalWorkers = countTotalWorkers(shifts);
+          const totalNet = calculateTotalNet(shifts);
+
+          return (
+            <Stack gap={2}>
+              <Text size='sm' fw={500}>
+                {totalWorkers} trabajadores
+              </Text>
+              <Text size='xs' c='dimmed'>
+                {formatCurrency(totalNet)}
+              </Text>
+            </Stack>
+          );
+        },
       },
       {
         accessorKey: 'date',
@@ -471,11 +500,11 @@ function RouteComponent() {
       errors,
       setValue,
       trigger,
-      getWorkShiftDescription,
       getCompanyName,
       getTerminalName,
       getProductName,
       getShipName,
+      getWorkShiftDescription,
       isCalculateJc,
     ]
   );
@@ -517,7 +546,6 @@ function RouteComponent() {
 
   const handleEditStart = ({ row }: { row: MRT_Row<WorkerAssignment> }) => {
     setEditingRowId(row.original.id);
-    setValue('workShiftId', row.original.workShiftId);
     setValue('date', row.original.date);
     setValue('companyId', row.original.companyId);
     setValue('companyRole', row.original.companyRole);
@@ -526,7 +554,6 @@ function RouteComponent() {
     setValue('shipId', row.original.shipId);
     setValue('jc', row.original.jc);
 
-    row._valuesCache.workShiftId = row.original.workShiftId;
     row._valuesCache.date = row.original.date;
     row._valuesCache.companyId = row.original.companyId;
     row._valuesCache.companyRole = row.original.companyRole;
@@ -538,9 +565,9 @@ function RouteComponent() {
     clearErrors();
   };
 
-  const handleEditWorkersClick = (assignment: WorkerAssignment) => {
-    setEditWorkersAssignment(assignment);
-    openEditWorkers();
+  const handleEditShiftsClick = (assignment: WorkerAssignment) => {
+    setEditShiftsAssignment(assignment);
+    openEditShifts();
   };
 
   const handleCloseClick = (id: string) => {
@@ -567,97 +594,144 @@ function RouteComponent() {
   };
 
   const renderDetailPanel = ({ row }: { row: MRT_Row<WorkerAssignment> }) => {
-    const workers: WorkerDetail[] = row.original.workers;
-    if (!workers || workers.length === 0) {
+    const shifts = row.original.shifts || [];
+
+    if (shifts.length === 0) {
       return (
         <Text size='sm' c='dimmed' p='md'>
-          Sin trabajadores asignados
+          Sin turnos asignados
         </Text>
       );
     }
 
+    const totalGross = calculateTotalGross(shifts);
+    const totalNet = calculateTotalNet(shifts);
+
     return (
       <Box p='md'>
-        <Stack gap='xs'>
-          <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text fw={600} size='sm'>
-              Trabajadores ({workers.length})
+        <Stack gap='lg'>
+          <Group justify='space-between'>
+            <Text fw={600} size='lg'>
+              Detalle de turnos ({shifts.length})
             </Text>
-            <Tooltip
-              label={row.original.isClosed ? 'Esta asignación está cerrada' : 'Editar trabajadores'}
-            >
+            <Tooltip label={row.original.isClosed ? 'Esta asignación está cerrada' : 'Editar turnos'}>
               <ActionIcon
                 variant='light'
-                onClick={() => handleEditWorkersClick(row.original)}
+                onClick={() => handleEditShiftsClick(row.original)}
                 disabled={row.original.isClosed}
               >
-                <IconUsers size={16} />
+                <IconUsers size={18} />
               </ActionIcon>
             </Tooltip>
-          </Box>
-          <Table striped highlightOnHover withTableBorder withColumnBorders>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Trabajador</Table.Th>
-                <Table.Th>Categoría</Table.Th>
-                <Table.Th>Coeficiente</Table.Th>
-                <Table.Th>Bruto ($)</Table.Th>
-                <Table.Th>Bonif. / Desc. (%)</Table.Th>
-                <Table.Th>Neto ($)</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {workers.map((worker) => (
-                <Table.Tr key={worker.id}>
-                  <Table.Td>{getWorkerFullName(worker.workerId)}</Table.Td>
-                  <Table.Td>{getWorkerCategoryLabel(worker.category)}</Table.Td>
-                  <Table.Td>{worker.coefficient}</Table.Td>
-                  <Table.Td>
-                    <NumberFormatter
-                      value={worker.gross}
-                      prefix='$'
-                      thousandSeparator='.'
-                      decimalSeparator=','
-                    />
-                  </Table.Td>
-                  <Table.Td>
-                    {worker.additionalPercent ? (
-                      <Text
-                        span
-                        style={{
-                          color:
-                            Number(worker.additionalPercent) > 0
-                              ? 'var(--mantine-color-green-9)'
-                              : Number(worker.additionalPercent) < 0
-                                ? 'var(--mantine-color-red-9)'
-                                : undefined,
-                          fontWeight:
-                            Number(worker.additionalPercent) !== 0 ? 600 : undefined,
-                        }}
-                      >
-                        <NumberFormatter
-                          value={worker.additionalPercent}
-                          suffix='%'
-                          thousandSeparator='.'
-                          decimalSeparator=','
-                        />
+          </Group>
+
+          {shifts.map((shift) => {
+            const shiftGross = calculateShiftGross(shift);
+            const shiftNet = calculateShiftNet(shift);
+
+            return (
+              <Box
+                key={shift.id}
+                style={{
+                  border: '1px solid var(--mantine-color-dark-4)',
+                  borderRadius: 8,
+                  padding: 12,
+                }}
+              >
+                <Stack gap='xs'>
+                  <Group justify='space-between'>
+                    <Badge size='lg' variant='filled' color='blue'>
+                      {getWorkShiftDescription(shift.workShiftId)}
+                    </Badge>
+                    <Group gap='md'>
+                      <Text size='sm' c='dimmed'>
+                        Bruto: {formatCurrency(shiftGross)}
                       </Text>
-                    ) : (
-                      '—'
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    <NumberFormatter
-                      value={worker.net}
-                      prefix='$'
-                      thousandSeparator='.'
-                      decimalSeparator=','
-                    />
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+                      <Text size='sm' fw={600}>
+                        Neto: {formatCurrency(shiftNet)}
+                      </Text>
+                    </Group>
+                  </Group>
+
+                  <Table striped highlightOnHover withTableBorder withColumnBorders>
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>Trabajador</Table.Th>
+                        <Table.Th>Categoría</Table.Th>
+                        <Table.Th>Coeficiente</Table.Th>
+                        <Table.Th>Bruto ($)</Table.Th>
+                        <Table.Th>Bonif. / Desc. (%)</Table.Th>
+                        <Table.Th>Neto ($)</Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {shift.workers.map((worker) => (
+                        <Table.Tr key={worker.id}>
+                          <Table.Td>{getWorkerFullName(worker.workerId)}</Table.Td>
+                          <Table.Td>{getWorkerCategoryLabel(worker.category)}</Table.Td>
+                          <Table.Td>{worker.coefficient}</Table.Td>
+                          <Table.Td>
+                            <NumberFormatter
+                              value={worker.gross}
+                              prefix='$'
+                              thousandSeparator='.'
+                              decimalSeparator=','
+                            />
+                          </Table.Td>
+                          <Table.Td>
+                            {worker.additionalPercent ? (
+                              <Text
+                                span
+                                style={{
+                                  color:
+                                    Number(worker.additionalPercent) > 0
+                                      ? 'var(--mantine-color-green-9)'
+                                      : Number(worker.additionalPercent) < 0
+                                        ? 'var(--mantine-color-red-9)'
+                                        : undefined,
+                                  fontWeight: Number(worker.additionalPercent) !== 0 ? 600 : undefined,
+                                }}
+                              >
+                                <NumberFormatter
+                                  value={worker.additionalPercent}
+                                  suffix='%'
+                                  thousandSeparator='.'
+                                  decimalSeparator=','
+                                />
+                              </Text>
+                            ) : (
+                              '—'
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            <NumberFormatter
+                              value={worker.net}
+                              prefix='$'
+                              thousandSeparator='.'
+                              decimalSeparator=','
+                            />
+                          </Table.Td>
+                        </Table.Tr>
+                      ))}
+                    </Table.Tbody>
+                  </Table>
+                </Stack>
+              </Box>
+            );
+          })}
+
+          <Divider />
+
+          <Group justify='flex-end'>
+            <Stack gap={4} align='flex-end'>
+              <Text size='lg' fw={600}>
+                Total Bruto: {formatCurrency(totalGross)}
+              </Text>
+              <Text size='xl' fw={700} c='blue'>
+                Total Neto: {formatCurrency(totalNet)}
+              </Text>
+            </Stack>
+          </Group>
         </Stack>
       </Box>
     );
@@ -668,16 +742,15 @@ function RouteComponent() {
   return (
     <Container fluid>
       <CreateWorkerAssignmentForm opened={opened} onClose={close} />
-      {editWorkersAssignment && (
-        <EditWorkersModal
-          assignmentId={editWorkersAssignment.id}
-          currentWorkers={editWorkersAssignment.workers}
-          date={editWorkersAssignment.date}
-          workShiftId={editWorkersAssignment.workShiftId}
-          opened={editWorkersOpened}
+      {editShiftsAssignment && (
+        <EditShiftsModal
+          assignmentId={editShiftsAssignment.id}
+          currentShifts={editShiftsAssignment.shifts || []}
+          date={editShiftsAssignment.date}
+          opened={editShiftsOpened}
           onClose={() => {
-            closeEditWorkers();
-            setEditWorkersAssignment(null);
+            closeEditShifts();
+            setEditShiftsAssignment(null);
           }}
         />
       )}

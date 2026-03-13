@@ -25,7 +25,7 @@ const getCompanyRoleLabel = (role: z.infer<typeof CompanyRoleSchema>): string =>
 
 const WorkerDetailSchema = z.object({
   id: z.uuid(),
-  workerAssignmentId: z.uuid(),
+  workerAssignmentShiftId: z.uuid(),
   workerId: z.uuid(),
   category: WorkerCategorySchema,
   workShiftBaseValueId: z.uuid(),
@@ -35,9 +35,14 @@ const WorkerDetailSchema = z.object({
   net: z.string(),
 });
 
-const WorkerAssignmentSchema = z.object({
+const ShiftDetailSchema = z.object({
   id: z.uuid(),
   workShiftId: z.uuid(),
+  workers: z.array(WorkerDetailSchema),
+});
+
+const WorkerAssignmentSchema = z.object({
+  id: z.uuid(),
   date: z.string(),
   companyId: z.uuid(),
   companyRole: CompanyRoleSchema,
@@ -49,7 +54,7 @@ const WorkerAssignmentSchema = z.object({
   jc: z.boolean(),
   isClosed: z.boolean(),
   createdAt: z.string(),
-  workers: z.array(WorkerDetailSchema),
+  shifts: z.array(ShiftDetailSchema),
 });
 
 const ListWorkerAssignmentsSchema = z.array(WorkerAssignmentSchema);
@@ -72,8 +77,12 @@ const WorkerInputSchema = z.object({
     .optional(),
 });
 
+const ShiftInputSchema = z.object({
+  workShiftId: z.uuid('Debe seleccionar un turno'),
+  workers: z.array(WorkerInputSchema).min(1, 'Debe agregar al menos un trabajador al turno'),
+});
+
 const CreateWorkerAssignmentRequestSchema = z.object({
-  workShiftId: z.uuid(),
   date: z.string().regex(DATE_FORMAT_REGEX, 'El formato debe ser YYYY-MM-DD'),
   companyId: z.uuid(),
   companyRole: CompanyRoleSchema,
@@ -82,14 +91,22 @@ const CreateWorkerAssignmentRequestSchema = z.object({
   productId: z.uuid(),
   shipId: z.uuid(),
   jc: z.boolean().optional(),
-  workers: z.array(WorkerInputSchema).min(1, 'Debe agregar al menos un trabajador'),
+  shifts: z
+    .array(ShiftInputSchema)
+    .min(1, 'Debe agregar al menos un turno')
+    .refine(
+      (shifts) => {
+        const shiftIds = shifts.map((s) => s.workShiftId);
+        return new Set(shiftIds).size === shiftIds.length;
+      },
+      { message: 'No puede haber turnos duplicados' }
+    ),
 });
 
 const CreateWorkerAssignmentResponseSchema =
   ResponseGenericIncludeDataSchema(WorkerAssignmentSchema);
 
 const UpdateWorkerAssignmentRequestSchema = z.object({
-  workShiftId: z.uuid().optional(),
   date: z.string().regex(DATE_FORMAT_REGEX, 'El formato debe ser YYYY-MM-DD').optional(),
   companyId: z.uuid().optional(),
   companyRole: CompanyRoleSchema.optional(),
@@ -99,7 +116,17 @@ const UpdateWorkerAssignmentRequestSchema = z.object({
   shipId: z.uuid().optional(),
   jc: z.boolean().optional(),
   isClosed: z.boolean().optional(),
-  workers: z.array(WorkerInputSchema).min(1, 'Debe agregar al menos un trabajador').optional(),
+  shifts: z
+    .array(ShiftInputSchema)
+    .min(1, 'Debe agregar al menos un turno')
+    .refine(
+      (shifts) => {
+        const shiftIds = shifts.map((s) => s.workShiftId);
+        return new Set(shiftIds).size === shiftIds.length;
+      },
+      { message: 'No puede haber turnos duplicados' }
+    )
+    .optional(),
 });
 
 const UpdateWorkerAssignmentResponseSchema =
@@ -107,8 +134,10 @@ const UpdateWorkerAssignmentResponseSchema =
 
 type CompanyRole = z.infer<typeof CompanyRoleSchema>;
 type WorkerDetail = z.infer<typeof WorkerDetailSchema>;
+type ShiftDetail = z.infer<typeof ShiftDetailSchema>;
 type WorkerAssignment = z.infer<typeof WorkerAssignmentSchema>;
 type WorkerInput = z.infer<typeof WorkerInputSchema>;
+type ShiftInput = z.infer<typeof ShiftInputSchema>;
 type ListWorkerAssignmentsResponse = z.infer<typeof ListWorkerAssignmentsResponseSchema>;
 type CreateWorkerAssignmentRequest = z.infer<typeof CreateWorkerAssignmentRequestSchema>;
 type CreateWorkerAssignmentResponse = z.infer<typeof CreateWorkerAssignmentResponseSchema>;
@@ -121,8 +150,10 @@ export {
   COMPANY_ROLE_OPTIONS,
   getCompanyRoleLabel,
   WorkerDetailSchema,
+  ShiftDetailSchema,
   WorkerAssignmentSchema,
   WorkerInputSchema,
+  ShiftInputSchema,
   ListWorkerAssignmentsResponseSchema,
   CreateWorkerAssignmentRequestSchema,
   CreateWorkerAssignmentResponseSchema,
@@ -133,8 +164,10 @@ export {
 export type {
   CompanyRole,
   WorkerDetail,
+  ShiftDetail,
   WorkerAssignment,
   WorkerInput,
+  ShiftInput,
   ListWorkerAssignmentsResponse,
   CreateWorkerAssignmentRequest,
   CreateWorkerAssignmentResponse,
